@@ -1317,6 +1317,9 @@ input[type="range"]{width:100%;accent-color:var(--primary)}
 .welcome .field{gap:8px}
 .daycode{display:block;margin-top:8px;padding:8px 12px;border-radius:14px;background:color-mix(in srgb,var(--good) 14%,var(--card));font-weight:700}
 .daycode b{font-family:var(--f-display);font-size:1.5rem;letter-spacing:.12em;font-variant-numeric:tabular-nums;color:var(--ink)}
+#trialbar{position:fixed;left:0;right:0;top:0;z-index:60;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 12px;padding:calc(5px + env(safe-area-inset-top,0px)) 16px 5px;background:var(--primary-ink);color:var(--on-primary);font-weight:800;font-size:.9rem;box-shadow:var(--shadow)}
+#trialbar button{border:0;border-radius:99px;padding:4px 12px;background:var(--card);color:var(--ink);font-weight:800}
+body.trial{padding-top:42px}
 .rwopts{display:flex;flex-wrap:wrap;gap:8px}
 .rwopts button{border:0;border-radius:99px;padding:7px 14px;background:var(--soft);color:var(--ink);font-family:var(--f-display);font-weight:800;box-shadow:inset 0 0 0 2px var(--line)}
 .rwopts button[aria-pressed="true"]{background:var(--primary-ink);color:var(--on-primary);box-shadow:none}
@@ -1743,6 +1746,7 @@ input[type="range"]{width:100%;accent-color:var(--primary)}
 
   <!-- Espace parents -->
   <div class="boss-intro" id="boss-intro" hidden role="dialog" aria-modal="true" aria-label="Le boss arrive"></div>
+  <div id="trialbar" hidden>Mode essai : rien n'est enregistré <button id="trial-stop">Arrêter l'essai</button></div>
   <div class="pin" id="pin" hidden role="dialog" aria-modal="true" aria-labelledby="pin-t">
     <div class="pin-card">
       <div class="pin-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
@@ -1785,6 +1789,12 @@ input[type="range"]{width:100%;accent-color:var(--primary)}
       <p class="muted" style="margin:0">Un test complet (calcul, français, mémoire, 20 à 30 minutes, avec des pauses) : il trouve le vrai niveau et les lacunes, et tout le programme « Apprendre » se règle dessus.</p>
       <div id="p-bilan"></div>
       <div class="btnrow"><button class="btn sm" id="p-bilan-go">Lancer le bilan</button></div>
+    </div>
+    <div class="card" id="ptry-card">
+      <h3>Essayer un exercice</h3>
+      <p class="muted" style="margin:0">Pour voir n'importe quel exercice comme il le verra (leçon puis questions). <b>Mode essai : rien n'est enregistré</b>, sa progression n'est pas touchée.</p>
+      <div class="field"><label for="p-try">Exercice</label><select class="input" id="p-try"></select></div>
+      <div class="btnrow"><button class="btn sm" id="p-try-go">Essayer avec la leçon</button><button class="btn sm alt" id="p-try-nol">Directement les questions</button></div>
     </div>
     <div class="card" id="preward-card">
       <h3>Récompense de la vraie vie</h3>
@@ -2989,7 +2999,9 @@ function load(){
 let D = load();
 let saveOk = true;
 let saveWarned = false;
+let TRIAL = null;   /* mode essai des parents : copie de la vraie progression, remise à la fin */
 function persist(){
+  if(TRIAL) return;
   try{ localStorage.setItem(KEY, JSON.stringify(D)); saveOk = true; }
   catch(e){
     saveOk = false;
@@ -3019,14 +3031,14 @@ let STATS_URL = "";
 try{ const m = /[#&|]stats=([^&|#]+)/.exec(location.hash); if(m){ const u = decodeURIComponent(m[1]); if(/^https:\/\/script\.google(usercontent)?\.com\//.test(u)) STATS_URL = u; } }catch(e){}
 let STAT_MISS = [], statBusy = false;
 function statPush(type, o={}){
-  if(!STATS_URL) return;
+  if(!STATS_URL || TRIAL) return;
   const now = new Date(), hh = `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
   D.statQ = (D.statQ||[]).concat([Object.assign({date: dayStr(now), heure: hh, enfant: D.name.trim(), type}, o)]).slice(-200);
   persist(); statFlush();
 }
 /* sauvegarde complète envoyée au tableau du parent (une fois par jour + à la fin du programme) ; directe, pas de file d'attente */
 function statBackup(){
-  if(!STATS_URL || !D.started) return;
+  if(!STATS_URL || !D.started || TRIAL) return;
   try{
     const code = "PYTH-" + btoa(unescape(encodeURIComponent(JSON.stringify(Object.assign({}, D, {statQ:[], duel: Object.assign({}, D.duel, {n2:""})})))));
     const now = new Date();
@@ -4333,6 +4345,7 @@ function strategy(q){
 const SCREENS = ["welcome","home","adv","tables","trophies","shop","parents","play","result","duelset","duel","pets","cible","who","cmp","tips","tip","ses","fr","frq","learn","lesson","bilan","mem","voix"];
 let current = "home";
 function show(name, opts={}){
+  if(TRIAL && ["home","learn","parents","who"].includes(name)){ trialEnd(); if(name!=="who") name = "parents"; }
   if(current==="voix" && name!=="voix" && typeof vxStop==="function") vxStop();
   if(name==="home" && D.started && !D.owlSet && !(typeof BL_SKIP!=="undefined" && BL_SKIP)) name = "welcome";
   if(name==="welcome") renderWelcome();
@@ -5835,7 +5848,7 @@ function rewardStep(){
   if(R.n >= R.goal){ R.done = true; statPush("récompense gagnée", {notion: R.label, detail: `${R.goal} programmes du jour`}); return "won"; }
   return "step";
 }
-const codeOk = () => !!D.gardien && D.coach.last===dayNum();
+const codeOk = () => !TRIAL && !!D.gardien && D.coach.last===dayNum();
 function renderLearnCta(){
   const P = coachEnsure(), steps = P.steps, left = steps.filter(x=>x.r==null), done = !left.length;
   const n0 = left.find(x=>x.k==="new");
@@ -7750,7 +7763,51 @@ function adviceSimple(w){
   if(D.profil && D.profil.rep<1 && D.mem.st<2) return "encouragez-le à faire « Mon cerveau qui retient » : apprendre à se répéter les choses dans sa tête l'aidera pour toutes ses leçons.";
   return "félicitez ses efforts plus que ses résultats (« tu t'es bien accroché »), et demandez-lui de vous montrer ce qu'il a appris aujourd'hui.";
 }
+function trialList(){
+  const o = [], grp = (lab, items) => { if(items.length) o.push(`<optgroup label="${lab}">${items.map(([v,t])=>`<option value="${v}">${esc(t)}</option>`).join("")}</optgroup>`); };
+  const by = {};
+  COACH_CALC.forEach(id=>{ const a = id.split(":")[1]; (by[a] = by[a] || []).push(id); });
+  const order = ["heure","monnaie","deco","add","sub","comp","half","mult","prob","big","dec"];
+  Object.keys(by).sort((a,b)=>(order.indexOf(a)+99)%99 - (order.indexOf(b)+99)%99).forEach(a=>{
+    const ids = by[a].sort((x,y)=>+x.split(":")[2] - +y.split(":")[2]);
+    grp(`Calcul · ${COACH_PRE[a] || CAT[a] && CAT[a].nm || a}`, ids.map(id=>[id, `${id.split(":")[2]}. ${coachInfo(id).name}`]));
+  });
+  ["lire","mots","gram","conj","accord"].forEach(f=>grp(`Français · ${f}`, COACH_FR.filter(id=>id.split(":")[1]===f).sort((x,y)=>+x.split(":")[2] - +y.split(":")[2]).map(id=>[id, `${id.split(":")[2]}. ${coachInfo(id).name}`])));
+  grp("Lire à voix haute", VOIX.map((v,k)=>[`voix:${k}`, v.t]));
+  grp("Autres", [["mem","Mon cerveau qui retient"], ["flash","Éclair (1 minute)"]].concat(D.fr.school.words.length ? [["ecole","Mes mots de la semaine"]] : []));
+  return o.join("");
+}
+function trialStart(val, noLesson){
+  if(TRIAL || !val) return;
+  persist();
+  TRIAL = JSON.stringify(D);
+  let st;
+  if(val.startsWith("voix:")){ D.voix.i = +val.split(":")[1]; st = {k:"voix", id:"voix", r:null}; }
+  else if(val==="mem" || val==="flash" || val==="ecole") st = {k:val, id:val, r:null};
+  else st = {k:"new", id:val, r:null};
+  if(st.k==="new" && !D.extras.includes(st.id.split(":")[1]) && CAT[st.id.split(":")[1]] && CAT[st.id.split(":")[1]].extra) D.extras.push(st.id.split(":")[1]);
+  D.coach.plan = {d: dayNum(), nw:1, steps:[st]};
+  D.coach.last = 0;
+  $("trialbar").hidden = false; document.body.classList.add("trial");
+  toast("Mode essai : rien n'est enregistré");
+  coachRun(0, noLesson);
+}
+function trialEnd(){
+  if(!TRIAL) return;
+  const snap = TRIAL; TRIAL = null;
+  try{ if(typeof vxStop==="function") vxStop(); }catch(e){}
+  if(S && S.tid){ try{ clearInterval(S.tid); }catch(e){} }
+  try{ hush(); }catch(e){}
+  D = migrate(JSON.parse(snap)); persist();
+  $("trialbar").hidden = true; document.body.classList.remove("trial");
+  renderTop();
+  toast("Essai terminé : sa progression est intacte.");
+}
+$("p-try-go").addEventListener("click", ()=>{ sfx("tap"); trialStart($("p-try").value, false); });
+$("p-try-nol").addEventListener("click", ()=>{ sfx("tap"); trialStart($("p-try").value, true); });
+$("trial-stop").addEventListener("click", ()=>{ sfx("tap"); show("parents"); });
 function renderParents(){
+  if(!$("p-try").options.length) $("p-try").innerHTML = trialList();
   renderProfiles(); renderParentSummary();
   renderParentsFr();
   const w = weekSummary();
