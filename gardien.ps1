@@ -12,15 +12,18 @@
 #  - une fois débloqué, ne fait plus rien jusqu'au lendemain.
 #  - au lancement : cherche une mise à jour sur GitHub (petit écran avec le hibou), puis ouvre l'appli ;
 #  - -Ouvrir : (icône du bureau) mise à jour puis ouverture de l'appli, sans verrou ;
-#  - envoie les déblocages au tableau de suivi des parents (si configuré).
+#  - envoie les déblocages au tableau de suivi des parents (si configuré) ;
+#  - v4 : après le déblocage, reste discrètement en arrière-plan et REBLOQUE le lendemain (à partir de 5 h),
+#    même si la session n'a jamais été fermée (PC en veille ou allumé toute la nuit).
 #  En cas de problème, le gardien s'arrête (il ne bloque jamais l'enfant par erreur).
 #  Compatible Windows PowerShell 5.1 (Windows 10 / 11).
 # ============================================================================
 param([switch]$Test, [switch]$Ouvrir)
-$GardienVersion = 3
+$GardienVersion = 4
 
 $ErrorActionPreference = 'Stop'
-$Dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$Self = $MyInvocation.MyCommand.Path
+$Dir = Split-Path -Parent $Self
 $LogFile = Join-Path $Dir 'gardien.log'
 
 function Write-Log([string]$msg) {
@@ -44,7 +47,7 @@ function Get-DayCode([string]$day) {
 if ($Test) { return }   # utilisé par les vérifications : charge seulement les fonctions
 
 # --- Réglages ---
-$Today = (Get-Date).ToString('yyyy-MM-dd')
+$script:Today = (Get-Date).ToString('yyyy-MM-dd')
 $Cfg = Get-Content -Path (Join-Path $Dir 'config.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 $ParentCode = [string]$Cfg.codeParents
 $MinutesMax = [int]$Cfg.minutesMax
@@ -59,8 +62,8 @@ function Get-State {
   try { return Get-Content -Path $StateFile -Raw -Encoding UTF8 | ConvertFrom-Json } catch { return $null }
 }
 function Set-Unlocked([string]$how) {
-  $o = [pscustomobject]@{ jour = $Today; debloque = $true; comment = $how; heure = (Get-Date).ToString('HH:mm') }
-  $o | ConvertTo-Json | Set-Content -Path $StateFile -Encoding UTF8
+  $o = [pscustomobject]@{ jour = $script:Today; debloque = $true; comment = $how; heure = (Get-Date).ToString('HH:mm') }
+  try { $o | ConvertTo-Json | Set-Content -Path $StateFile -Encoding UTF8 } catch { Write-Log ("État non enregistré : " + $_.Exception.Message) }
   Write-Log "Débloqué ($how)"
   Send-Stat 'déblocage' $how
 }
@@ -68,14 +71,19 @@ $script:StatsUrl = ''
 function Send-Stat([string]$type, [string]$detail) {
   if (-not $script:StatsUrl) { return }
   try {
-    $min = [int]((Get-Date) - $Start).TotalMinutes
-    $body = @{ date = $Today; heure = (Get-Date).ToString('HH:mm'); enfant = ''; type = $type; domaine = 'ordinateur'; notion = ''; detail = "$detail (après $min min)" } | ConvertTo-Json -Compress
+    $min = [int]($script:ActiveSec / 60)
+    $body = @{ date = $script:Today; heure = (Get-Date).ToString('HH:mm'); enfant = ''; type = $type; domaine = 'ordinateur'; notion = ''; detail = "$detail (après $min min actives)" } | ConvertTo-Json -Compress
     Invoke-WebRequest -Uri $script:StatsUrl -Method Post -Body ([System.Text.Encoding]::UTF8.GetBytes($body)) -ContentType 'text/plain; charset=utf-8' -UseBasicParsing -TimeoutSec 6 | Out-Null
   } catch { Write-Log ("Envoi au suivi impossible : " + $_.Exception.Message) }
 }
 
 $st = Get-State
-if (-not $Ouvrir -and $st -and $st.jour -eq $Today -and $st.debloque) { Write-Log 'Déjà débloqué aujourd''hui : rien à faire.'; return }
+$StartFree = (-not $Ouvrir -and $st -and $st.jour -eq $script:Today -and $st.debloque)
+if (-not $Ouvrir) {   # un seul gardien à la fois
+  $created = $false
+  $script:Mutex = New-Object System.Threading.Mutex($true, 'Local\CalculMentalCM1Gardien', [ref]$created)
+  if (-not $created) { Write-Log 'Un gardien tourne déjà : rien à faire.'; return }
+}
 
 # --- Microsoft Edge ---
 $EdgeExe = @(
@@ -86,7 +94,8 @@ $EdgeExe = @(
 if (-not $EdgeExe) { Write-Log 'Edge introuvable : le gardien s''arrête.'; return }
 
 function Start-App {
-  $edgeArgs = @("--user-data-dir=`"$EdgeProfile`"", "--app=`"$Url`"", '--start-fullscreen', '--window-position=0,0', '--no-first-run', '--no-default-browser-check')
+  $script:AppWin = [IntPtr]::Zero
+  $edgeArgs = @("--user-data-dir=`"$EdgeProfile`"", "--app=`"$script:Url`"", '--start-fullscreen', '--window-position=0,0', '--no-first-run', '--no-default-browser-check')
   Start-Process -FilePath $EdgeExe -ArgumentList $edgeArgs | Out-Null
   $script:LastLaunch = Get-Date
   Write-Log 'Appli ouverte dans Edge.'
@@ -112,13 +121,13 @@ Add-Type -AssemblyName System.Drawing
 $Start = Get-Date
 $LocalVer = Join-Path $Dir 'version-locale.json'
 function Get-LocalVer { try { return Get-Content -Path $LocalVer -Raw -Encoding UTF8 | ConvertFrom-Json } catch { return [pscustomobject]@{ appli = ''; stats = '' } } }
-function Update-App {
+function Update-App([switch]$Quiet) {
   $repo = [string]$Cfg.depot
   if (-not $repo) { $repo = 'https://raw.githubusercontent.com/Natchyyyy/calcul-mental-cm1/main' }
   $lv = Get-LocalVer
   if ($lv.stats) { $script:StatsUrl = [string]$lv.stats }
   $splash = $null
-  try {
+  if (-not $Quiet) { try {
     $splash = New-Object System.Windows.Forms.Form
     $splash.FormBorderStyle = 'None'; $splash.StartPosition = 'CenterScreen'; $splash.TopMost = $true; $splash.ShowInTaskbar = $false
     $splash.Size = New-Object System.Drawing.Size(420, 300); $splash.BackColor = [System.Drawing.Color]::FromArgb(255, 252, 248, 240)
@@ -131,12 +140,12 @@ function Update-App {
     $lab.Size = New-Object System.Drawing.Size(400, 60); $lab.Location = New-Object System.Drawing.Point(10, 200)
     [void]$splash.Controls.Add($pic); [void]$splash.Controls.Add($lab)
     $splash.Show(); [System.Windows.Forms.Application]::DoEvents()
-  } catch { $splash = $null }
+  } catch { $splash = $null } }
   try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $stamp = [DateTime]::UtcNow.Ticks
     $rv = (Invoke-WebRequest -Uri "$repo/version.json?t=$stamp" -UseBasicParsing -TimeoutSec 6).Content | ConvertFrom-Json
-    if ($rv.stats -ne $null) { $script:StatsUrl = [string]$rv.stats }
+    if ([string]$rv.stats) { $script:StatsUrl = [string]$rv.stats }
     $newApp = $false
     if ([string]$rv.appli -and [string]$rv.appli -ne [string]$lv.appli) {
       if ($splash) { $lab.Text = 'Mise à jour de l''appli…'; [System.Windows.Forms.Application]::DoEvents() }
@@ -152,8 +161,10 @@ function Update-App {
       $gt = Join-Path $Dir 'gardien.tmp'
       Invoke-WebRequest -Uri "$repo/gardien.ps1?t=$stamp" -UseBasicParsing -TimeoutSec 30 -OutFile $gt
       $code = [System.IO.File]::ReadAllText($gt, [System.Text.Encoding]::UTF8)
+      $bytes = [System.IO.File]::ReadAllBytes($gt)
+      $bom = $bytes.Length -gt 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF
       $tok = $null; $errs = $null; [void][System.Management.Automation.Language.Parser]::ParseInput($code, [ref]$tok, [ref]$errs)
-      if ($errs.Count -eq 0 -and $code.Contains('Get-DayCode')) { Copy-Item -Force $gt (Join-Path $Dir 'gardien.ps1'); Write-Log ("Gardien mis à jour : version " + $rv.gardien + " (au prochain démarrage)") }
+      if ($bom -and $errs.Count -eq 0 -and $code.Contains('Get-DayCode')) { Copy-Item -Force $gt (Join-Path $Dir 'gardien.ps1'); Write-Log ("Gardien mis à jour : version " + $rv.gardien + " (au prochain démarrage)") }
       Remove-Item -Force $gt -ErrorAction SilentlyContinue
     }
     $appVer = if ($newApp) { [string]$rv.appli } else { [string]$lv.appli }
@@ -162,9 +173,12 @@ function Update-App {
   } catch { Write-Log ("Pas de mise à jour (hors ligne ?) : " + $_.Exception.Message) }
   if ($splash) { try { $splash.Close(); $splash.Dispose() } catch { } }
 }
-Update-App
-$Url = ([System.Uri]$AppFile).AbsoluteUri + '#gardien'
-if ($script:StatsUrl) { $Url += '&stats=' + [System.Uri]::EscapeDataString($script:StatsUrl) }
+function Build-Url {
+  $script:Url = ([System.Uri]$AppFile).AbsoluteUri + '#gardien'
+  if ($script:StatsUrl) { $script:Url += '&stats=' + [System.Uri]::EscapeDataString($script:StatsUrl) }
+}
+if ($StartFree) { Update-App -Quiet } else { Update-App }
+Build-Url
 if ($Ouvrir) { Start-App; return }
 
 # --- Écran de déblocage ---
@@ -183,6 +197,9 @@ public static class GardienW {
   [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern int GetWindowText(IntPtr h, StringBuilder s, int n);
   [DllImport("user32.dll")] public static extern bool PostMessage(IntPtr h, uint msg, IntPtr w, IntPtr l);
   [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
+  [StructLayout(LayoutKind.Sequential)] public struct LASTINPUTINFO { public uint cbSize; public uint dwTime; }
+  [DllImport("user32.dll")] static extern bool GetLastInputInfo(ref LASTINPUTINFO p);
+  public static uint IdleMs() { var li = new LASTINPUTINFO(); li.cbSize = (uint)Marshal.SizeOf(li); if (!GetLastInputInfo(ref li)) return 0; return (uint)Environment.TickCount - li.dwTime; }
   public static string Title(IntPtr h) { var sb = new StringBuilder(256); GetWindowText(h, sb, 256); return sb.ToString(); }
   public static uint Pid(IntPtr h) { uint p; GetWindowThreadProcessId(h, out p); return p; }
   public static void Front(IntPtr h) {
@@ -198,15 +215,55 @@ public static class GardienW {
 
 $script:LastLaunch = [datetime]::MinValue
 $script:Grace = 30          # 1re ouverture (démarrage de Windows, parfois lent) ; ensuite 12 s
-$script:Unlocked = $false
+$script:Unlocked = [bool]$StartFree
+$script:Start = $Start
+$script:ActiveSec = 0      # temps passé devant l'ordinateur (clavier ou souris utilisés dans la dernière minute)
 $Ctx = New-Object System.Windows.Forms.ApplicationContext
-function Stop-Gardien {
+# débloqué : on cache tout et on attend le lendemain (le gardien reste lancé)
+function Enter-Free {
+  $script:Unlocked = $true
+  $script:Running = $false
+  foreach ($cv in $script:Covers) { try { $cv.Hide() } catch { } }
+  try { $form.Hide() } catch { }
+  Write-Log 'Mode libre jusqu''à demain.'
+}
+# arrêt complet (erreur, redémarrage) : ne bloque jamais l'enfant
+function Exit-Gardien {
   $script:Unlocked = $true
   try { $timer.Stop() } catch { }
   try { $fast.Stop() } catch { }
   foreach ($cv in $script:Covers) { try { $cv.Close() } catch { } }
   try { $form.Close() } catch { }
+  try { if ($script:Mutex) { $script:Mutex.ReleaseMutex(); $script:Mutex.Dispose(); $script:Mutex = $null } } catch { }
   $Ctx.ExitThread()
+}
+function Test-NewerGardien {
+  try { $t = [System.IO.File]::ReadAllText($Self, [System.Text.Encoding]::UTF8); if ($t -match '\$GardienVersion = (\d+)') { return ([int]$Matches[1] -gt $GardienVersion) } } catch { }
+  return $false
+}
+function Restart-Self {
+  Write-Log 'Redémarrage du gardien.'
+  try { if ($script:Mutex) { $script:Mutex.ReleaseMutex(); $script:Mutex.Dispose(); $script:Mutex = $null } } catch { }
+  Start-Process -WindowStyle Hidden -FilePath (Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe') -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-STA', '-File', "`"$Self`"") | Out-Null
+  Exit-Gardien
+}
+function Start-NewDay {
+  $script:Today = (Get-Date).ToString('yyyy-MM-dd')
+  $script:Start = Get-Date
+  $script:ActiveSec = 0
+  $st2 = Get-State
+  if ($st2 -and $st2.jour -eq $script:Today -and $st2.debloque) { return }
+  Update-App
+  if ((Test-NewerGardien) -or $form.IsDisposed) {   # gardien plus récent téléchargé (ou fenêtre perdue) : on relance proprement
+    Restart-Self; return
+  }
+  Build-Url
+  $script:Unlocked = $false
+  $script:Grace = 30
+  $script:AppWin = [IntPtr]::Zero
+  Write-Log 'Nouveau jour : verrou remis.'
+  Show-Covers
+  Start-App
 }
 
 $Bg = [System.Drawing.Color]::FromArgb(255, 252, 248, 240)
@@ -264,7 +321,7 @@ $text = New-Label "Termine ton programme « Apprendre » dans l'appli. À la fin
 $box = New-Object System.Windows.Forms.TextBox
 $box.Font = New-Object System.Drawing.Font('Segoe UI', 30, [System.Drawing.FontStyle]::Bold)
 $box.Width = 240
-$box.MaxLength = 4
+$box.MaxLength = [Math]::Max(4, [Math]::Min(12, ([string]$ParentCode).Length))
 $box.TextAlign = 'Center'
 $box.Anchor = 'None'
 $box.Margin = New-Object System.Windows.Forms.Padding(10, 14, 10, 6)
@@ -293,7 +350,8 @@ $form.Add_Shown({ Center-Panel; $box.Focus() })
 
 function Try-Unlock {
   $v = $box.Text.Trim()
-  if ($v -eq (Get-DayCode $Today)) { Set-Unlocked 'code du jour' }
+  $veille = (Get-Date).AddMinutes(-30).ToString('yyyy-MM-dd')
+  if ($v -eq (Get-DayCode $script:Today) -or $v -eq (Get-DayCode $veille)) { Set-Unlocked 'code du jour' }
   elseif ($ParentCode -and $v -eq $ParentCode) { Set-Unlocked 'code parents' }
   else {
     $msg.Text = 'Ce n''est pas le bon code. Finis ton programme du jour : le code s''affiche à la fin.'
@@ -301,12 +359,12 @@ function Try-Unlock {
     Write-Log "Mauvais code tapé."
     return
   }
-  Stop-Gardien
+  Enter-Free
 }
 $btnOk.Add_Click({ Try-Unlock })
 $box.Add_KeyDown({ param($s, $e) if ($e.KeyCode -eq 'Enter') { $e.SuppressKeyPress = $true; Try-Unlock } })
 $btnBack.Add_Click({ $form.Hide(); $msg.Text = ''; $box.Text = ''; $script:Grace = 12; Start-App })
-$form.Add_FormClosing({ param($s, $e) if (-not $script:Unlocked) { $e.Cancel = $true } })
+$form.Add_FormClosing({ param($s, $e) if ($e.CloseReason -eq 'WindowsShutDown' -or $e.CloseReason -eq 'TaskManagerClosing') { return }; if (-not $script:Unlocked) { $e.Cancel = $true } })
 
 # --- Autres écrans : recouverts tant que ce n'est pas débloqué ---
 $script:Covers = @()
@@ -326,7 +384,7 @@ foreach ($scr in [System.Windows.Forms.Screen]::AllScreens) {
   $cl.Dock = 'Fill'
   $cl.TextAlign = 'MiddleCenter'
   [void]$cv.Controls.Add($cl)
-  $cv.Add_FormClosing({ param($s, $e) if (-not $script:Unlocked) { $e.Cancel = $true } })
+  $cv.Add_FormClosing({ param($s, $e) if ($e.CloseReason -eq 'WindowsShutDown' -or $e.CloseReason -eq 'TaskManagerClosing') { return }; if (-not $script:Unlocked) { $e.Cancel = $true } })
   $script:Covers += $cv
 }
 function Show-Covers { foreach ($cv in $script:Covers) { if (-not $cv.Visible) { $cv.Show() }; $cv.Bounds = $cv.Bounds } }
@@ -343,8 +401,10 @@ $fast.Add_Tick({
     if ($fg -eq [IntPtr]::Zero) { return }
     $pid0 = [int][GardienW]::Pid($fg)
     if ($script:EdgePids -contains $pid0) {
-      if ([GardienW]::Title($fg) -like $AppTitle) { $script:AppWin = $fg; return }
-      [void][GardienW]::PostMessage($fg, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero)   # autre fenêtre d'Edge : fermée
+      $tt = [GardienW]::Title($fg)
+      if ($tt -like $AppTitle) { $script:AppWin = $fg; return }
+      if ($tt -notlike '*Edge*') { return }                                          # bulle d'Edge (ex. « autoriser le micro ») : on la laisse
+      [void][GardienW]::PostMessage($fg, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero)   # autre fenêtre de navigateur : fermée
       Write-Log ("Fenêtre fermée : " + [GardienW]::Title($fg))
       return
     }
@@ -357,29 +417,34 @@ $timer = New-Object System.Windows.Forms.Timer
 $timer.Interval = 2000
 $timer.Add_Tick({
   try {
-    if ($script:Unlocked) { Stop-Gardien; return }
     $now = Get-Date
-    if ($now.ToString('yyyy-MM-dd') -ne $Today) { Stop-Gardien; return }   # minuit passé : on repartira demain
+    $d = $now.ToString('yyyy-MM-dd')
+    if ($script:Unlocked) {   # libre : on attend le lendemain matin (5 h)
+      if ($d -ne $script:Today -and $now.Hour -ge 5) { Start-NewDay }
+      return
+    }
+    if ($d -ne $script:Today) { $script:Today = $d; $script:Start = $now }   # minuit pendant le verrou : nouveau code (le temps actif continue)
+    $idle = 0; if ($script:Win32) { try { $idle = [GardienW]::IdleMs() } catch { $idle = 0 } }
+    if ($idle -lt 60000) { $script:ActiveSec += 2 }
+    if ($script:ActiveSec / 60 -ge $MinutesMax) {                                # plafond de temps ACTIF atteint : c'est bon pour aujourd'hui
+      Set-Unlocked "plafond de $MinutesMax minutes"; Enter-Free; return
+    }
     $running = Test-AppRunning
     $script:Running = $running
     Show-Covers
     if ($running) { if ($form.Visible) { $form.Hide() }; return }
     if (($now - $script:LastLaunch).TotalSeconds -lt $script:Grace) { return }  # Edge est en train de s'ouvrir
-    if (($now - $Start).TotalMinutes -ge $MinutesMax) {                        # plafond atteint : c'est bon pour aujourd'hui
-      Set-Unlocked "plafond de $MinutesMax minutes"; Stop-Gardien; return
-    }
     if (-not $form.Visible) { $box.Text = ''; $form.Show(); $form.Activate(); Center-Panel; $box.Focus(); Write-Log 'Appli fermée avant la fin : écran du code.' }
     else { $form.TopMost = $true; $form.Activate() }
   } catch {
-    Write-Log ("Erreur : " + $_.Exception.Message + " → le gardien s'arrête.")
-    Stop-Gardien
+    Write-Log ("Erreur : " + $_.Exception.Message + " → libre pour aujourd'hui, le gardien revient demain.")
+    try { Enter-Free } catch { Exit-Gardien }
   }
 })
 
 try {
-  Write-Log "Démarrage du gardien (plafond $MinutesMax min)."
-  Show-Covers
-  Start-App
+  if ($StartFree) { Write-Log 'Déjà débloqué aujourd''hui : le gardien attend demain.' }
+  else { Write-Log "Démarrage du gardien (plafond $MinutesMax min)."; Show-Covers; Start-App }
   $timer.Start()
   $fast.Start()
   [System.Windows.Forms.Application]::Run($Ctx)
