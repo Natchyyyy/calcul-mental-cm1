@@ -163,6 +163,43 @@ h3{font-size:1.1rem;font-weight:700}
 .counter{display:inline-flex;align-items:center;gap:2px;font-family:var(--f-display);font-weight:800;font-size:1rem;padding:2px 8px;min-height:32px;border-radius:99px;background:var(--soft);border:0;flex:none}
 .counter svg{width:17px;height:17px}
 .counter.flame{color:var(--warn-ink)} .counter.plume{color:var(--plume)}
+.counter.diamc{color:#1a6f99} .counter .diam{width:18px;height:18px}
+svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
+.btn .diam{margin:0 2px}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .counter.diamc{color:#7fe3ff} }
+:root[data-theme="dark"] .counter.diamc{color:#7fe3ff}
+.owl-aura{animation:aura 2.4s ease-in-out infinite}
+@keyframes aura{50%{opacity:.55}}
+.cases{display:flex;flex-direction:column;gap:14px;align-items:center;text-align:center}
+.case-box{width:150px;height:auto;filter:drop-shadow(0 8px 14px rgba(40,20,90,.35))}
+.case-wallet{display:inline-flex;align-items:center;gap:6px;font-family:var(--f-display);font-weight:800;font-size:1.25rem}
+.case-wallet .diam{width:24px;height:24px}
+.reel{position:relative;width:100%;max-width:640px;height:132px;overflow:hidden;border-radius:16px;background:#141a2c;box-shadow:inset 0 0 0 2px #2a3352, inset 0 0 30px rgba(0,0,0,.6)}
+.reel::before,.reel::after{content:"";position:absolute;top:0;bottom:0;width:60px;z-index:2;pointer-events:none}
+.reel::before{left:0;background:linear-gradient(90deg,#141a2c,transparent)} .reel::after{right:0;background:linear-gradient(270deg,#141a2c,transparent)}
+.reel-mark{position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1.5px;background:#ffd23a;z-index:3;box-shadow:0 0 10px #ffd23a}
+.reel-mark::before,.reel-mark::after{content:"";position:absolute;left:50%;margin-left:-8px;border:8px solid transparent}
+.reel-mark::before{top:0;border-top-color:#ffd23a} .reel-mark::after{bottom:0;border-bottom-color:#ffd23a}
+.strip{position:absolute;left:0;top:8px;display:flex;gap:6px;will-change:transform}
+.rtile{flex:none;width:104px;height:116px;border-radius:10px;background:linear-gradient(180deg,#232b45,#1a2036);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative;overflow:hidden}
+.rtile .owl{width:74px;height:80px}
+.rtile i{position:absolute;left:0;right:0;bottom:0;height:6px}
+.rtile.win{box-shadow:0 0 0 3px #ffd23a, 0 0 18px #ffd23a}
+.case-res{display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px;border-radius:18px;width:100%;max-width:420px;background:var(--soft)}
+.case-res .owl{width:130px;height:140px}
+.case-res .rar{font-family:var(--f-display);font-weight:800;text-transform:uppercase;letter-spacing:.06em}
+.odds{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.odds span{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;background:var(--soft);font-weight:700;font-size:.85rem}
+.odds b{width:10px;height:10px;border-radius:3px;display:inline-block}
+.skingrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;width:100%}
+.skin{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px 10px;border-radius:14px;background:var(--soft);border:0;border-bottom:5px solid var(--rc);color:var(--ink);min-width:0}
+.skin .owl{width:72px;height:78px}
+.skin b{font-size:.85rem;line-height:1.15}
+.skin small{font-size:.72rem;font-weight:800;color:var(--rc)}
+.skin.locked .lk{width:72px;height:78px;display:grid;place-items:center;font-family:var(--f-display);font-size:2.2rem;font-weight:800;color:var(--rc);opacity:.6}
+.skin.on{box-shadow:0 0 0 3px var(--good)}
+@media (prefers-reduced-motion:reduce){ .owl-aura{animation:none} }
+
 .round{width:36px;height:36px;border-radius:50%;border:0;background:var(--soft);display:grid;place-items:center;color:var(--ink-soft);flex:none;padding:0}
 .round svg{width:19px;height:19px}
 .round[aria-pressed="true"]{color:var(--primary-ink)}
@@ -1384,6 +1421,7 @@ body.trial{padding-top:42px}
     </div>
     <span class="counter flame" title="Jours d'affilée"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-6 1-9.5z"/></svg><span id="top-days" class="num">0</span></span>
     <button class="counter plume" id="top-plumes-btn" title="Plumes : ouvrir la boutique"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4C11 4 6 9 5 19"/><path d="M20 4c0 7-4 12-11 12"/><path d="M5 19l-1 2"/></svg><span id="top-plumes" class="num">0</span></button>
+    <button class="counter diamc" id="top-diam-btn" title="Diamants : ouvrir les caisses" hidden><span id="top-diam" class="num">0</span></button>
     <button class="round" id="music-btn" aria-label="Musique" aria-pressed="false"></button>
     <button class="round" id="go-parents" aria-label="Espace parents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </div>
@@ -2094,6 +2132,69 @@ const COLORS = {
   arcenciel:{grad:["#ff5a5a","#ffa53b","#ffe14d","#5fd36b","#49a8ff","#8a63ff"],belly:"#ffffff"}
 };
 
+/* Skins (caisses) : 30 apparences du hibou, chacune avec sa rareté. r : 0 commun · 1 rare · 2 épique · 3 légendaire · 4 mythique */
+const RAR = [{nm:"Commun", col:"#8a9bb4", p:50},{nm:"Rare", col:"#3b82f6", p:28},{nm:"Épique", col:"#a855f7", p:14},{nm:"Légendaire", col:"#f59e0b", p:6},{nm:"Mythique", col:"#ef4444", p:2}];
+const SKINS = [
+  {id:"sk_ardoise", nm:"Ardoise", r:0, c:{b:"#5f6b7d", belly:"#dfe5ee"}},
+  {id:"sk_sable", nm:"Sable", r:0, c:{b:"#c8a165", belly:"#fbf0d9"}},
+  {id:"sk_cerise", nm:"Cerise", r:0, c:{b:"#c0304a", belly:"#ffd9df"}},
+  {id:"sk_lagon", nm:"Lagon", r:0, c:{b:"#1fa3b8", belly:"#d6f5fa"}},
+  {id:"sk_olive", nm:"Olive", r:0, c:{b:"#7b8b2e", belly:"#eef3cf"}},
+  {id:"sk_lilas", nm:"Lilas", r:0, c:{b:"#a084d6", belly:"#efe7ff"}},
+  {id:"sk_cacao", nm:"Cacao", r:0, c:{b:"#5b3a29", belly:"#e9d3bf"}},
+  {id:"sk_corail", nm:"Corail", r:0, c:{b:"#ff7f6e", belly:"#ffe3dc"}},
+  {id:"sk_pois", nm:"Petits pois", r:0, c:{b:"#4f7fd1", belly:"#e3ecff", pat:"dots", pc:"#ffffff"}},
+  {id:"sk_menthol", nm:"Menthol", r:0, c:{b:"#7fd8be", belly:"#f0fff9", pat:"dots", pc:"#2f8a70"}},
+  {id:"sk_camo", nm:"Camouflage", r:1, c:{b:"#6b7a3f", belly:"#e7ead2", pat:"camo", pc:"#3e4a22", pc2:"#a59a62"}},
+  {id:"sk_zebre", nm:"Zèbre", r:1, c:{b:"#f2f2f2", belly:"#ffffff", stroke:"#9aa3b5", pat:"zebra", pc:"#22252e"}},
+  {id:"sk_tigre", nm:"Tigre", r:1, c:{b:"#f08a24", belly:"#fff0dc", pat:"tiger", pc:"#3a2010"}},
+  {id:"sk_dalmatien", nm:"Dalmatien", r:1, c:{b:"#fbfbfb", belly:"#ffffff", stroke:"#a9b5cb", pat:"spots", pc:"#1d2030"}},
+  {id:"sk_pixel", nm:"Pixel", r:1, c:{b:"#3a7bd5", belly:"#dbe9ff", pat:"pixel", pc:"#9cc3ff"}},
+  {id:"sk_ocean", nm:"Océan", r:1, c:{grad:["#0b4f8a","#1fa3d8"], belly:"#d8f2ff", pat:"waves", pc:"#9fe3ff"}},
+  {id:"sk_bonbon", nm:"Bonbon", r:1, c:{grad:["#ff8fc7","#8fd3ff"], belly:"#fff4fb", pat:"stripes", pc:"#ffffff"}},
+  {id:"sk_robot", nm:"Robot", r:1, c:{grad:["#c3ccd8","#7d8a9c"], belly:"#eef2f7", pat:"circuit", pc:"#3b4656"}},
+  {id:"sk_lave", nm:"Lave", r:2, c:{grad:["#2a0b0b","#8e1d10","#d8361b"], belly:"#ffd19a", pat:"cracks", pc:"#ffb020"}},
+  {id:"sk_glace", nm:"Glace", r:2, c:{grad:["#f2fbff","#8fd3ff"], belly:"#ffffff", stroke:"#6cb9e6", pat:"crystals", pc:"#ffffff"}},
+  {id:"sk_neon", nm:"Néon", r:2, c:{b:"#121a2e", belly:"#1f2b48", stroke:"#39ff88", pat:"circuit", pc:"#39ff88"}},
+  {id:"sk_dragon", nm:"Dragon", r:2, c:{grad:["#2bb673","#136b45"], belly:"#f6e7a6", pat:"scales", pc:"#0d4a30"}},
+  {id:"sk_retro", nm:"Rétro 8 bits", r:2, c:{b:"#ff4f8b", belly:"#ffe2ee", pat:"pixel8", pc:"#ffd23a", pc2:"#4fd1ff"}},
+  {id:"sk_toxique", nm:"Toxique", r:2, c:{b:"#5fd425", belly:"#efffd9", pat:"drips", pc:"#2f7a0d"}},
+  {id:"sk_nebuleuse", nm:"Nébuleuse", r:3, c:{grad:["#0d0b2e","#3b1a8a","#c04bd8","#ff8fc7"], belly:"#e7dcff", stars:true, aura:"#b06bff"}},
+  {id:"sk_phenix", nm:"Phénix", r:3, c:{grad:["#ffd23a","#ff7a1a","#d6231b"], belly:"#fff1c4", pat:"flame", pc:"#fff3b0", aura:"#ff8a1a"}},
+  {id:"sk_chrome", nm:"Chrome", r:3, c:{grad:["#ffffff","#a9b4c4","#5d6878","#e8edf3"], belly:"#f4f7fb", stroke:"#5d6878", pat:"shine", pc:"#ffffff", aura:"#9fd8ff"}},
+  {id:"sk_glitch", nm:"Glitch", r:3, c:{b:"#1c9e4b", belly:"#c9ffd9", pat:"glitch", pc:"#ff3df2", pc2:"#3df5ff", aura:"#3df58b"}},
+  {id:"sk_or", nm:"Hibou d'or", r:4, c:{grad:["#fff3b0","#f5c518","#b8860b","#ffe066"], belly:"#fff8dc", stroke:"#8a6508", pat:"sparkle", pc:"#ffffff", aura:"#ffd23a"}},
+  {id:"sk_diamant", nm:"Hibou de diamant", r:4, c:{grad:["#ffffff","#b9f2ff","#5fd0ff","#e0fbff"], belly:"#ffffff", stroke:"#3aa8d8", pat:"crystals", pc:"#ffffff", aura:"#7fe3ff", sparkle:true}}
+];
+const SKIN = Object.fromEntries(SKINS.map(k=>[k.id,k]));
+SKINS.forEach(k=>{ COLORS[k.id] = k.c; });
+const CASE_PRICE = 2;
+const DIAM = `<svg class="diam" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9z" fill="#5fd0ff"/><path d="M2 9h20M8.5 3 12 9l3.5-6M12 9v12M6 3l2.5 6M18 3l-2.5 6" fill="none" stroke="#1a6f99" stroke-width="1.3" stroke-linejoin="round"/><path d="M6 3h6L8.5 9H2z" fill="#b9f2ff"/></svg>`;
+/* motifs des skins (dessinés dans le corps du hibou) */
+function skinPat(c){
+  const P = c.pc || "#fff", Q = c.pc2 || P;
+  switch(c.pat){
+    case "dots": { let g = ""; for(let y=26;y<110;y+=12) for(let x=20+((y/12)%2)*6;x<104;x+=12) g += `<circle cx="${x}" cy="${y}" r="2.6"/>`; return `<g fill="${P}" opacity=".55">${g}</g>`; }
+    case "spots": return `<g fill="${P}">${[[34,30,6,4],[78,28,5,4],[24,58,4,6],[96,54,5,6],[44,42,3,3],[88,80,6,5],[28,90,5,4],[72,100,4,3],[60,24,3,2.5],[100,96,3,3]].map(([x,y,a,b])=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}"/>`).join("")}</g>`;
+    case "camo": return `<g>${[[30,32,14,9,P],[80,30,12,8,Q],[22,64,10,14,Q],[96,62,12,10,P],[50,40,9,6,Q],[70,48,8,6,P],[34,98,12,8,P],[88,96,12,7,Q],[60,20,10,5,P]].map(([x,y,a,b,f],i)=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="${f}" transform="rotate(${i*37} ${x} ${y})"/>`).join("")}</g>`;
+    case "zebra": return `<g fill="none" stroke="${P}" stroke-width="5.5" stroke-linecap="round">${[26,38,50,62,74,86,98].map((y,i)=>`<path d="M14 ${y} q12 ${i%2?-6:6} 24 0 M82 ${y} q12 ${i%2?6:-6} 24 0"/>`).join("")}</g>`;
+    case "tiger": return `<g fill="${P}">${[30,44,58,72,86,100].map(y=>`<path d="M16 ${y} l20 3 l-20 4z M104 ${y} l-20 3 l20 4z"/>`).join("")}<path d="M54 18 l6 10 l6 -10z"/></g>`;
+    case "pixel": { let g = ""; for(let y=18;y<110;y+=8) for(let x=16;x<104;x+=8) if(((x*7+y*13)>>3)%3===0) g += `<rect x="${x}" y="${y}" width="7" height="7"/>`; return `<g fill="${P}" opacity=".7">${g}</g>`; }
+    case "pixel8": { let g = ""; for(let y=18;y<110;y+=10) for(let x=16;x<104;x+=10){ const k = ((x*5+y*11)>>2)%5; if(k===0) g += `<rect x="${x}" y="${y}" width="9" height="9" fill="${P}"/>`; else if(k===1) g += `<rect x="${x}" y="${y}" width="9" height="9" fill="${Q}"/>`; } return `<g opacity=".85">${g}</g>`; }
+    case "waves": return `<g fill="none" stroke="${P}" stroke-width="3" stroke-linecap="round" opacity=".7">${[30,46,62,78,94].map(y=>`<path d="M12 ${y} q8 -6 16 0 t16 0 t16 0 t16 0 t16 0 t16 0"/>`).join("")}</g>`;
+    case "stripes": return `<g stroke="${P}" stroke-width="7" opacity=".75">${[-40,-20,0,20,40,60,80,100].map(x=>`<path d="M${x} 120 L${x+60} 0"/>`).join("")}</g>`;
+    case "circuit": return `<g fill="none" stroke="${P}" stroke-width="2" stroke-linecap="round" opacity=".85"><path d="M18 40 h14 v14 h10 M102 40 h-14 v14 h-10 M20 74 h12 v-8 M100 74 h-12 v-8 M60 18 v10 M30 100 h10 v-6 M90 100 h-10 v-6"/><g fill="${P}" stroke="none"><circle cx="42" cy="54" r="2.6"/><circle cx="78" cy="54" r="2.6"/><circle cx="32" cy="66" r="2.6"/><circle cx="88" cy="66" r="2.6"/><circle cx="60" cy="28" r="2.6"/><circle cx="40" cy="94" r="2.6"/><circle cx="80" cy="94" r="2.6"/></g></g>`;
+    case "cracks": return `<g fill="none" stroke="${P}" stroke-linecap="round" stroke-linejoin="round"><path d="M20 30 l10 8 l-4 10 l12 6 M100 34 l-10 6 l4 12 l-12 4 M18 80 l10 -4 l6 10 l8 -2 M102 82 l-10 -6 l-6 10 l-8 -2 M50 18 l6 8 l8 -6" stroke-width="2.6"/></g>`;
+    case "crystals": return `<g fill="${P}" opacity=".55">${[[26,34],[94,32],[20,70],[100,68],[40,24],[80,22],[30,100],[90,100]].map(([x,y])=>`<path d="M${x} ${y-7} l5 7 l-5 7 l-5 -7z"/>`).join("")}</g>`;
+    case "scales": { let g = ""; for(let y=24;y<110;y+=9) for(let x=16+((y/9)%2)*6;x<106;x+=12) g += `<path d="M${x-6} ${y} q6 8 12 0"/>`; return `<g fill="none" stroke="${P}" stroke-width="1.8" opacity=".7">${g}</g>`; }
+    case "drips": return `<g fill="${P}">${[[22,30,10],[38,22,16],[56,18,12],[74,20,18],[92,28,11]].map(([x,y,h])=>`<path d="M${x-5} ${y-10} h10 v${h} a5 5 0 0 1 -10 0z"/>`).join("")}</g>`;
+    case "flame": return `<g fill="${P}" opacity=".8">${[[24,104,18],[40,108,26],[60,110,30],[80,108,24],[96,104,18]].map(([x,y,h])=>`<path d="M${x} ${y} q-9 -${h/2} 0 -${h} q9 ${h/2} 0 ${h}z"/>`).join("")}</g>`;
+    case "shine": return `<g fill="${P}" opacity=".7"><path d="M26 30 q10 -12 26 -12 q-14 6 -20 22z"/><path d="M86 34 q8 -6 12 2 q-6 0 -10 6z"/></g>`;
+    case "glitch": return `<g opacity=".85">${[[16,30,40,P],[60,44,44,Q],[20,64,30,Q],[70,78,34,P],[24,94,50,P],[66,22,24,Q]].map(([x,y,w,f])=>`<rect x="${x}" y="${y}" width="${w}" height="5" fill="${f}"/>`).join("")}</g>`;
+    case "sparkle": return `<g fill="${P}">${[[30,34,5],[92,30,4],[22,72,4],[98,70,5],[46,22,3],[78,100,4],[36,98,3]].map(([x,y,r])=>`<path d="M${x} ${y-r} q${r*.25} ${r*.75} ${r} ${r} q-${r*.75} ${r*.25} -${r} ${r} q-${r*.25} -${r*.75} -${r} -${r} q${r*.75} -${r*.25} ${r} -${r}z"/>`).join("")}</g>`;
+  }
+  return "";
+}
 /* Boutique. type = emplacement ; id = valeur équipée ; uid = identifiant unique (stocké dans « owned »).
    Les objets à 0 plume sont offerts. */
 const SHOP = [
@@ -2962,7 +3063,7 @@ const BL_CALC = ["add","sub","mult","comp","half","prob","big","dec"];
 const BL_FR = ["mots","gram","accord","conj","lire"];
 const BL_SECS = [...BL_CALC.map(c=>({id:"c:"+c, part:0})), ...BL_FR.map(f=>({id:"f:"+f, part:1})), {id:"m:chif", part:2}, {id:"m:mots", part:2}, {id:"m:rep", part:2}];
 const blNmax = id => { const [d,a] = id.split(":"); return d==="c" ? LADDER[a].length : d==="f" ? FR_LADDER[a].length : 0; };
-const DEF = () => ({schema:SCHEMA, name:"", owl:"Pythagore", owlSet:false, gardien:false, statQ:[], statDay:"", voix:{i:0, last:0, hist:[]}, soir:{on:true, h:19, ch:0, last:0, hist:[]}, reward:{on:false, label:"", goal:7, n:0, done:false, got:[]}, started:false, sound:true, musicOn:false, musicVol:0.5,
+const DEF = () => ({schema:SCHEMA, name:"", owl:"Pythagore", owlSet:false, gardien:false, statQ:[], statDay:"", voix:{i:0, last:0, hist:[]}, soir:{on:true, h:19, ch:0, last:0, hist:[]}, diam:0, skins:[], cases:{n:0, pity:0}, reward:{on:false, label:"", goal:7, n:0, done:false, got:[]}, started:false, sound:true, musicOn:false, musicVol:0.5,
   cats:["add","sub","mult"], tables:ALL_T.slice(), level:3, mode:"serie", elo:{add:ELO_START,sub:ELO_START,mult:ELO_START}, eloBest:{add:1,sub:1,mult:1}, eloSlow:{add:0,sub:0,mult:0},
   xp:0, plumes:0, owned:FREE.slice(),
   equip:{color:"brun",hat:null,face:null,neck:null,dance:"saut",bg:"ciel",music:"douce",sfx:"classique",fx:"confettis",kp:"classique"},
@@ -3121,10 +3222,14 @@ function migrate(d){
   const owned = new Set(FREE);
   (Array.isArray(d.owned)?d.owned:[]).forEach(id => { if(ITEM[id]) owned.add(id); });
   out.owned = [...owned];
+  out.diam = Math.round(num(d.diam,0,0,9999));
+  out.skins = Array.isArray(d.skins) ? [...new Set(d.skins.filter(k=>SKIN[k]))] : [];
+  { const cs = isObj(d.cases) ? d.cases : {}; out.cases = {n: Math.round(num(cs.n,0,0,99999)), pity: Math.round(num(cs.pity,0,0,99))}; }
   const eq = Object.assign({}, base.equip, isObj(d.equip)?d.equip:{});
   SLOTS.forEach(slot => {
     const v = eq[slot];
     if(v==null){ eq[slot] = OPTIONAL.includes(slot) ? null : base.equip[slot]; return; }
+    if(slot==="color" && SKIN[v] && out.skins.includes(v)) return;   // skin gagné dans une caisse
     const it = findItem(slot, v);
     if(!it || !out.owned.includes(it.uid)) eq[slot] = OPTIONAL.includes(slot) ? null : base.equip[slot];
   });
@@ -3648,12 +3753,15 @@ function owlSVG(eq, cls=""){
   const st = c.stroke ? ` stroke="${c.stroke}" stroke-width="2"` : "";
   const defs = c.grad ? `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">${c.grad.map((g,i)=>`<stop offset="${Math.round(i/(c.grad.length-1)*100)}%" stop-color="${g}"/>`).join("")}</linearGradient></defs>` : "";
   const sparkle = c.stars ? `<g fill="#fff">${[[30,40],[90,36],[24,74],[97,70],[40,100],[82,99],[60,22]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.6"/>`).join("")}</g>` : "";
+  const BODY = "M60 16c-27 0-43 20-43 47 0 30 18 45 43 45s43-15 43-45c0-27-16-47-43-47z";
+  const pat = c.pat ? `<clipPath id="${id}c"><path d="${BODY}"/></clipPath><g clip-path="url(#${id}c)">${skinPat(c)}</g>` : "";
+  const aura = c.aura ? `<defs><radialGradient id="${id}a"><stop offset="0" stop-color="${c.aura}" stop-opacity=".55"/><stop offset="1" stop-color="${c.aura}" stop-opacity="0"/></radialGradient></defs><circle class="owl-aura" cx="60" cy="62" r="68" fill="url(#${id}a)"/>` : "";
   const capeBack = eq.neck==="cape" ? `<path d="M22 50 Q8 96 0 118 Q30 110 60 118 Q90 110 120 118 Q112 96 98 50 Z" fill="#d6332b"/>` : "";
-  return `<svg class="owl ${cls}" data-dance="${esc(eq.dance||"saut")}" viewBox="-10 -28 140 152" aria-hidden="true">${defs}${capeBack}
+  return `<svg class="owl ${cls}" data-dance="${esc(eq.dance||"saut")}" viewBox="-10 -28 140 152" aria-hidden="true">${defs}${aura}${capeBack}
     <path fill="${fill}"${st} d="M26 34 L19 6 L45 24 Z"/><path fill="${fill}"${st} d="M94 34 L101 6 L75 24 Z"/>
     <path fill="${fill}"${st} d="M60 16c-27 0-43 20-43 47 0 30 18 45 43 45s43-15 43-45c0-27-16-47-43-47z"/>
     <path fill="${fill}" d="M18 62 q-10 18 4 34 q6-14 2-34z" opacity=".85"/><path fill="${fill}" d="M102 62 q10 18 -4 34 q-6-14 -2-34z" opacity=".85"/>
-    ${sparkle}
+    ${sparkle}${pat}
     <ellipse fill="${c.belly}" cx="60" cy="83" rx="27" ry="22"/>
     <path d="M49 77 l4 4 l4 -4 M63 77 l4 4 l4 -4 M56 89 l4 4 l4 -4" fill="none" stroke="${c.grad?c.grad[1]:(c.stroke||c.b)}" stroke-width="2.5" stroke-linecap="round" opacity=".5"/>
     <circle fill="#fff" cx="44" cy="52" r="15"/><circle fill="#fff" cx="76" cy="52" r="15"/>
@@ -4614,6 +4722,7 @@ let current = "home";
 function show(name, opts={}){
   if(TRIAL && ["home","learn","parents","who"].includes(name)){ trialEnd(); if(name!=="who") name = "parents"; }
   if(current==="voix" && name!=="voix" && typeof vxStop==="function") vxStop();
+  if(current==="shop" && name!=="shop" && typeof CASE!=="undefined" && CASE){ CASE = null; }
   if(name==="home" && D.started && !D.owlSet && !(typeof BL_SKIP!=="undefined" && BL_SKIP)) name = "welcome";
   if(name==="welcome") renderWelcome();
   if(name==="home" && typeof blShouldOffer==="function" && blShouldOffer()){ D.bilan.ask = dayNum(); persist(); BL = null; name = "bilan"; }
@@ -4692,6 +4801,7 @@ $("p-pin-save").addEventListener("click", ()=>{
 });
 $("parents-back").addEventListener("click", ()=>show("home"));
 $("top-plumes-btn").addEventListener("click", ()=>show("shop"));
+$("top-diam-btn").addEventListener("click", ()=>{ shopTab = "cases"; show("shop"); });
 $("top-avatar").addEventListener("click", ()=>{ shopTab="owl"; show("shop"); });
 
 let toastT=null;
@@ -4716,6 +4826,8 @@ function renderTop(){
   $("top-xp").style.width = p.pct+"%";
   $("top-days").textContent = liveDays();
   $("top-plumes").textContent = D.plumes;
+  $("top-diam").textContent = D.diam; $("top-diam-btn").hidden = !D.diam && !D.skins.length && !D.soir.hist.length;
+  if(!$("top-diam-btn").querySelector("svg")) $("top-diam-btn").insertAdjacentHTML("afterbegin", DIAM);
   $("music-btn").setAttribute("aria-pressed", D.musicOn);
   $("music-btn").innerHTML = D.musicOn ? NOTE_ON : NOTE_OFF;
   $("music-btn").setAttribute("aria-label", D.musicOn ? "Couper la musique" : "Mettre la musique");
@@ -6268,7 +6380,7 @@ function renderSoirCard(b){
   b.hidden = !S.on || !(soirTime() || done) || (!c && !done);
   if(b.hidden) return;
   b.classList.toggle("done", done);
-  b.innerHTML = `<span class="sc-ic">${MOON_IC}</span><span class="sc-t"><small>${done ? (c ? "Lecture du soir · la suite demain" : "Feuilleton terminé !") : "Lecture du soir · 15 minutes"}</small>`
+  b.innerHTML = `<span class="sc-ic">${MOON_IC}</span><span class="sc-t"><small>${done ? (c ? "Lecture du soir · la suite demain" : "Feuilleton terminé !") : "Lecture du soir · 15 min · +1 diamant"}</small>`
     + (done ? `<b>Chapitre lu, bravo !</b>` : `<b>Chapitre ${c.n} : ${esc(c.t)}</b>`) + `</span>`;
   b.setAttribute("aria-label", done ? "Lecture du soir faite" : `Lecture du soir : chapitre ${c.n}, ${c.t}`);
 }
@@ -6280,7 +6392,7 @@ function openSoir(){
 function soirFinish(){
   const st = VX.st, c = vxCount(), today = dayNum(), lu = VX.mic && VX.used ? c.pct : -1, min = Math.max(1, Math.round((Date.now()-VX.t0)/60000)), S = D.soir;
   let prize = 0, reward = null;
-  if(S.last!==today){ S.last = today; prize = SOIR_PRIZE; D.plumes += prize; reward = rewardStep(); }
+  if(S.last!==today){ S.last = today; prize = SOIR_PRIZE; D.plumes += prize; D.diam += 1; reward = rewardStep(); }
   S.ch = Math.max(S.ch, st.soir);
   S.hist = S.hist.concat([{n: st.soir, d: today, lu, q: VX.qok, min}]).slice(-40);
   const skipped = VX.words.filter((w,i)=>VX.read[i]===2 || VX.help[i]).map(w=>w.replace(/[«»:;,.!?"]/g,"")).filter(Boolean).slice(0,15);
@@ -6288,7 +6400,7 @@ function soirFinish(){
     detail: `${min} min${lu>=0 ? ` · mots bien lus : ${lu} %` : " · sans micro"}`});
   const next = FEUILLETON.ch[st.soir];
   VX.res = {lu, q: VX.qok, res: null, soir: true, min,
-    msg: `Tu as lu ${min} minute${min>1?"s":""}. ` + (prize ? `+${prize} plumes ! ` : "") + (reward==="won" ? `Et tu as GAGNÉ ta récompense : ${D.reward.label} ! ` : reward==="step" ? `Ta récompense avance : ${D.reward.n} / ${D.reward.goal}. ` : "")
+    msg: `Tu as lu ${min} minute${min>1?"s":""}. ` + (prize ? `+${prize} plumes et +1 diamant (tu en as ${D.diam}${D.diam>=CASE_PRICE ? " : de quoi ouvrir une caisse dans la boutique !" : ""}). ` : "") + (reward==="won" ? `Et tu as GAGNÉ ta récompense : ${D.reward.label} ! ` : reward==="step" ? `Ta récompense avance : ${D.reward.n} / ${D.reward.goal}. ` : "")
       + (next ? "Que va-t-il se passer ? Tu le sauras demain soir…" : "Tu as fini tout le feuilleton : bravo, champion de la lecture !")};
   VX.view = "end"; persist(); renderTop(); vxRender();
   if(VX.qok>=2){ sfx("win"); fxPlay(D.equip.fx, null, null, true); }
@@ -7912,7 +8024,7 @@ const ICONS = {
   fx:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3"/></svg>`
 };
 const shopTabs = () => { const id = curEv(); return id ? [SHOP_TABS[0],[id,EVTS[id].tab],...SHOP_TABS.slice(1)] : SHOP_TABS; };
-const SHOP_TABS = [["owl","Hibou"],["dance","Danses"],["bg","Décors"],["music","Musiques"],["sfx","Bruitages"],["fx","Effets"],["kp","Claviers"],["chest","Coffre"]];
+const SHOP_TABS = [["cases","Caisses"],["owl","Hibou"],["dance","Danses"],["bg","Décors"],["music","Musiques"],["sfx","Bruitages"],["fx","Effets"],["kp","Claviers"],["chest","Coffre"]];
 const TYPE_LABEL = {color:"Couleurs",hat:"Chapeaux",face:"Visage",neck:"Accessoires",dance:"Danses de victoire",bg:"Décors",music:"Musiques",sfx:"Bruitages",fx:"Effets de victoire",kp:"Claviers"};
 const TYPE_HELP = {dance:"Pythagore danse quand tu trouves la bonne réponse. Touche « Voir » pour essayer.",bg:"Change le fond de toute l'appli.",music:"Touche « Écouter » pour essayer. La note en haut de l'écran allume ou coupe la musique.",sfx:"Les sons quand c'est juste ou faux.",fx:"L'effet qui jaillit à chaque bonne réponse et à la fin des belles parties.",kp:"Le look des touches pendant le jeu."};
 let shopTab = "owl", chestState = null;
@@ -7933,6 +8045,83 @@ function itemCard(it){
   const genre = it.type==="music" && TRACKS[it.id] ? `<small class="genre">${TRACKS[it.id].nm}</small>` : "";
   return `<div class="item ${on?"on":""}" data-uid="${it.uid}">${preview(it)}<b>${it.nm}</b>${genre}${tryBtn}${btn}</div>`;
 }
+/* ---------- les caisses : 2 diamants = 1 skin au hasard (jamais un doublon) ---------- */
+const CASE_SVG = `<svg class="case-box" viewBox="0 0 160 120" aria-hidden="true"><defs><linearGradient id="cbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b3cc4"/><stop offset="1" stop-color="#22186e"/></linearGradient></defs>
+  <rect x="14" y="40" width="132" height="70" rx="10" fill="url(#cbg)"/><rect x="10" y="26" width="140" height="26" rx="8" fill="#5d4de0"/>
+  <rect x="14" y="40" width="132" height="6" fill="#1a1257" opacity=".5"/><rect x="64" y="20" width="32" height="36" rx="6" fill="#ffd23a"/><rect x="72" y="30" width="16" height="16" rx="3" fill="#b8860b"/>
+  <g fill="#3df5ff" opacity=".9"><rect x="22" y="62" width="30" height="4" rx="2"/><rect x="108" y="62" width="30" height="4" rx="2"/><rect x="22" y="72" width="18" height="4" rx="2"/><rect x="120" y="72" width="18" height="4" rx="2"/></g>
+  <path d="M80 70 l10 12 l-10 14 l-10 -14z" fill="#5fd0ff"/><path d="M70 82 h20" stroke="#1a6f99" stroke-width="1.5"/></svg>`;
+let CASE = null;
+const skinsLeft = () => SKINS.filter(k=>!D.skins.includes(k.id));
+function caseTier(force){
+  if(force!=null) return force;
+  let x = R()*100;
+  for(let t=0;t<RAR.length;t++){ if(x < RAR[t].p) return t; x -= RAR[t].p; }
+  return 0;
+}
+function casePick(){
+  const left = skinsLeft(); if(!left.length) return null;
+  let t = caseTier(D.cases.pity>=9 ? (R()<.75 ? 3 : 4) : null);   // garantie : au moins Légendaire toutes les 10 caisses
+  for(const d of [0,-1,1,-2,2,-3,3,-4,4]){ const pool = left.filter(k=>k.r===t+d); if(pool.length) return pick(pool); }
+  return pick(left);
+}
+function rTile(k, win){ return `<div class="rtile${win ? " win" : ""}" style="--rc:${RAR[k.r].col}">${owlSVG(Object.assign({}, D.equip, {color:k.id, hat:null, face:null, neck:null}))}<i style="background:${RAR[k.r].col}"></i></div>`; }
+function casesHtml(){
+  const left = skinsLeft(), can = D.diam>=CASE_PRICE && left.length && !(CASE && CASE.busy);
+  const res = CASE && CASE.done ? CASE.k : null;
+  let h = `<div class="card cases"><h3>Caisse Pixel</h3>
+    <div class="case-wallet">${DIAM}<span>${D.diam} diamant${D.diam>1?"s":""}</span></div>
+    <p class="muted" style="margin:0">Chaque lecture du soir terminée = <b>1 diamant</b>. Une caisse coûte <b>${CASE_PRICE} diamants</b> et donne un skin pour ton hibou que tu n'as pas encore.</p>
+    ${CASE ? `<div class="reel" id="reel"><div class="reel-mark"></div><div class="strip" id="strip" style="transform:translateX(${-(CASE.pos||0)}px)">${CASE.tiles.map((k,i)=>rTile(k, CASE.done && i===40)).join("")}</div></div>` : CASE_SVG}
+    <div aria-live="polite" style="width:100%;display:flex;justify-content:center">${res ? `<div class="case-res" style="box-shadow:0 0 0 3px ${RAR[res.r].col}, 0 0 26px ${RAR[res.r].col}">
+        ${owlSVG(Object.assign({}, D.equip, {color:res.id}))}<span class="rar" style="color:${RAR[res.r].col}">${RAR[res.r].nm}</span><b style="font-family:var(--f-display);font-size:1.3rem">${esc(res.nm)}</b>
+        <div class="btnrow" style="justify-content:center">${D.equip.color===res.id ? `<button class="btn sm alt" disabled>Équipé</button>` : `<button class="btn sm" data-skin="${res.id}">Équiper</button>`}</div></div>` : ""}</div>
+    ${left.length ? `<button class="btn big" id="${res ? "case-again" : "case-open"}" ${can ? "" : "disabled"}>${res ? "Ouvrir une autre caisse" : "Ouvrir la caisse"} · ${DIAM}${CASE_PRICE}</button>
+      ${D.diam<CASE_PRICE && !(CASE && CASE.busy) ? `<span class="muted">Il te manque ${CASE_PRICE-D.diam} diamant${CASE_PRICE-D.diam>1?"s":""}. Lis ton chapitre du soir pour en gagner !</span>` : ""}`
+      : `<div style="color:var(--good);font-family:var(--f-display);font-weight:800">Tu as les 30 skins. Collection complète, bravo !</div>`}
+    <div class="odds">${RAR.map(r=>`<span><b style="background:${r.col}"></b>${r.nm} ${String(r.p).replace(".",",")} %</span>`).join("")}</div>
+    <p class="muted" style="margin:0;font-size:.85rem">Jamais de doublon. Au moins un skin Légendaire ou Mythique toutes les 10 caisses (encore ${Math.max(1, 10-D.cases.pity)}).</p>
+  </div>
+  <div class="card"><h3>Mes skins · ${D.skins.length} / ${SKINS.length}</h3><p class="muted" style="margin:0">Touche un skin pour habiller ton hibou. Pour revenir aux couleurs normales, va dans l'onglet « Hibou ».</p>
+    <div class="skingrid">${SKINS.slice().sort((a,b)=>a.r-b.r).map(k=>{ const own = D.skins.includes(k.id), on = D.equip.color===k.id;
+      return own ? `<button class="skin ${on?"on":""}" style="--rc:${RAR[k.r].col}" data-skin="${k.id}" aria-label="${esc(k.nm)}, ${RAR[k.r].nm}${on?", équipé":""}">${owlSVG(Object.assign({}, D.equip, {color:k.id}))}<b>${esc(k.nm)}</b><small>${on ? "Équipé" : RAR[k.r].nm}</small></button>`
+        : `<div class="skin locked" style="--rc:${RAR[k.r].col}" aria-label="Skin ${RAR[k.r].nm} pas encore trouvé"><span class="lk">?</span><b>???</b><small>${RAR[k.r].nm}</small></div>`; }).join("")}</div></div>`;
+  return h;
+}
+function caseOpen(){
+  if(CASE && CASE.busy) return;
+  if(D.diam < CASE_PRICE) return;
+  const k = casePick(); if(!k) return;
+  // on enregistre AVANT l'animation : rien n'est perdu si l'appli se ferme pendant que ça tourne
+  D.diam -= CASE_PRICE; D.skins.push(k.id); D.cases.n++; D.cases.pity = k.r>=3 ? 0 : D.cases.pity + 1;
+  persist(); renderTop();
+  statPush("caisse ouverte", {notion: k.nm, detail: RAR[k.r].nm});
+  const N = 46, W = 40, tiles = [];
+  for(let i=0;i<N;i++) tiles.push(i===W ? k : (()=>{ const t = caseTier(); const pool = SKINS.filter(x=>x.r===t); return pick(pool.length ? pool : SKINS); })());
+  CASE = {busy:true, done:false, k, tiles};
+  sfx("tap"); renderShop();
+  const strip = $("strip"), reel = $("reel"); if(!strip || !reel){ caseDone(); return; }
+  const tw = strip.firstElementChild.getBoundingClientRect().width + 6;
+  const target = W*tw + tw/2 - reel.clientWidth/2 + (R()*0.6-0.3)*tw;
+  const quick = matchMedia("(prefers-reduced-motion: reduce)").matches, dur = quick ? 1200 : 6000;
+  let last = -1, t0 = performance.now();
+  const ease = x => 1 - Math.pow(1-x, 4);
+  (function step(now){
+    if(!CASE || !CASE.busy) return;
+    const x = Math.min(1, (now - t0)/dur), pos = target*ease(x);
+    strip.style.transform = `translateX(${-pos}px)`; CASE.pos = pos;
+    const idx = Math.floor((pos + reel.clientWidth/2)/tw);
+    if(idx!==last){ last = idx; if(!quick && D.sound && ensureAudio()) blip(900 + (idx%2)*120, 0, .025, "square", .03); }
+    if(x<1) requestAnimationFrame(step); else caseDone();
+  })(t0);
+}
+function caseDone(){
+  if(!CASE) return;
+  CASE.busy = false; CASE.done = true;
+  const k = CASE.k, el = document.querySelectorAll("#strip .rtile")[40]; if(el) el.classList.add("win");
+  setTimeout(()=>{ if(!CASE || !CASE.done) return; renderShop(); sfx(k.r>=3 ? "level" : "win"); if(k.r>=2) fxPlay(D.equip.fx, null, null, true);
+    if(TTS_OK) speak(`${RAR[k.r].nm} ! ${k.nm}`); }, 500);
+}
 function renderShop(){
   $("wallet").textContent = D.plumes;
   const total = SHOP.filter(i=>i.p>0 && shopAvail(i)).length;
@@ -7945,6 +8134,8 @@ function renderShop(){
     h = `<div class="card"><h3>Rayon ${E.tab}</h3><p class="muted" style="margin:0">${E.until} Ce que tu achètes, tu le gardes pour toujours.</p><div class="items">${SHOP.filter(i=>i.ev===shopTab).map(itemCard).join("")}</div></div>`;
   } else if(shopTab==="owl"){
     ["color","hat","face","neck"].forEach(t=>{ h += `<div class="card"><h3>${TYPE_LABEL[t]}</h3><div class="items">${byType(t).map(itemCard).join("")}</div></div>`; });
+  } else if(shopTab==="cases"){
+    h = casesHtml();
   } else if(shopTab==="chest"){
     const left = SHOP.filter(i=>i.p>0 && !D.owned.includes(i.uid) && shopAvail(i));
     const busy = chestState && chestState.busy;
@@ -7983,10 +8174,12 @@ function buy(it){
   equipItem(it);
   return true;
 }
-$("shoptabs").addEventListener("click", e=>{ const b=e.target.closest(".stab"); if(!b) return; shopTab=b.dataset.tab; if(!(chestState&&chestState.busy)) chestState=null; sfx("tap"); renderShop(); });
+$("shoptabs").addEventListener("click", e=>{ const b=e.target.closest(".stab"); if(!b) return; if(CASE && CASE.busy) return; CASE = null; shopTab=b.dataset.tab; if(!(chestState&&chestState.busy)) chestState=null; sfx("tap"); renderShop(); });
 $("shop-body").addEventListener("click", e=>{
   const b=e.target.closest("button"); if(!b || b.disabled) return;
   if(b.id==="chest-open"){ openChest(); return; }
+  if(b.id==="case-open" || b.id==="case-again"){ caseOpen(); return; }
+  if(b.dataset.skin){ const k = SKIN[b.dataset.skin]; if(k && D.skins.includes(k.id)){ D.equip.color = k.id; persist(); applyLook(); sfx("tap"); toast(`Skin choisi : ${k.nm}`); renderShop(); } return; }
   if(b.dataset.buy){
     const it=ITEM[b.dataset.buy];
     const r=b.getBoundingClientRect();
@@ -8226,7 +8419,7 @@ function trialList(){
   ["lire","mots","gram","conj","accord"].forEach(f=>grp(`Français · ${f}`, COACH_FR.filter(id=>id.split(":")[1]===f).sort((x,y)=>+x.split(":")[2] - +y.split(":")[2]).map(id=>[id, `${id.split(":")[2]}. ${coachInfo(id).name}`])));
   grp("Lire à voix haute", VOIX.map((v,k)=>[`voix:${k}`, v.t]));
   grp(`Lecture du soir · ${FEUILLETON.titre}`, FEUILLETON.ch.map((c,k)=>[`soir:${k}`, `Chapitre ${c.n} : ${c.t}`]));
-  grp("Autres", [["mem","Mon cerveau qui retient"], ["flash","Éclair (1 minute)"]].concat(D.fr.school.words.length ? [["ecole","Mes mots de la semaine"]] : []));
+  grp("Autres", [["caisse","Ouvrir une caisse (2 diamants offerts pour l'essai)"], ["mem","Mon cerveau qui retient"], ["flash","Éclair (1 minute)"]].concat(D.fr.school.words.length ? [["ecole","Mes mots de la semaine"]] : []));
   return o.join("");
 }
 function trialStart(val, noLesson){
@@ -8234,6 +8427,7 @@ function trialStart(val, noLesson){
   persist();
   TRIAL = JSON.stringify(D);
   let st;
+  if(val==="caisse"){ D.diam += CASE_PRICE; $("trialbar").hidden = false; document.body.classList.add("trial"); toast("Mode essai : rien n'est enregistré"); shopTab = "cases"; CASE = null; show("shop"); renderTop(); return; }
   if(val.startsWith("soir:")){ D.soir.ch = +val.split(":")[1]; D.soir.last = 0; $("trialbar").hidden = false; document.body.classList.add("trial"); toast("Mode essai : rien n'est enregistré"); openSoir(); return; }
   if(val.startsWith("voix:")){ D.voix.i = +val.split(":")[1]; st = {k:"voix", id:"voix", r:null}; }
   else if(val==="mem" || val==="flash" || val==="ecole") st = {k:val, id:val, r:null};
