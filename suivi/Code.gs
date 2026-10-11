@@ -55,9 +55,6 @@ function preparer_(ss) {
     r = ss.insertSheet('Résumé', 0);
   }
   if (!r.getCharts().length) {
-    r.getRange('A1').setValue('Chaque jour (programme « Apprendre »)').setFontWeight('bold');
-    r.getRange('E1').setValue('Par notion (les plus difficiles en haut)').setFontWeight('bold');
-    r.getRange('J1').setValue('Les 15 derniers calculs ratés').setFontWeight('bold');
     r.setColumnWidth(5, 260); r.setColumnWidth(12, 260); r.setColumnWidth(13, 380);
     const chart = r.newChart().setChartType(Charts.ChartType.LINE)
       .addRange(r.getRange('A2:A62')).addRange(r.getRange('C2:C62'))
@@ -86,7 +83,10 @@ function resume_(ss) {
     .sort((a, b) => a[2] - b[2]).slice(0, 60);
   // derniers calculs ratés
   const rates = rows.filter(x => x[8]).slice(-15).reverse().map(x => [jour_(x[0]), x[1], x[5], x[8]]);
-  r.getRange('A2:M200').clearContent();
+  r.getRange('A1:M200').clearContent();
+  r.getRange('A1').setValue('Chaque jour (programme « Apprendre »)').setFontWeight('bold');
+  r.getRange('E1').setValue('Par notion (les plus difficiles en haut)').setFontWeight('bold');
+  r.getRange('J1').setValue('Les 15 derniers calculs ratés').setFontWeight('bold');
   r.getRange(2, 1, 1, 3).setValues([['Jour', 'Étapes', 'Score moyen %']]).setFontWeight('bold');
   if (jours.length) r.getRange(3, 1, jours.length, 3).setValues(jours);
   r.getRange(2, 5, 1, 4).setValues([['Notion', 'Fois', 'Score moyen %', 'Dernière fois']]).setFontWeight('bold');
