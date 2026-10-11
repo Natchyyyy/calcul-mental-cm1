@@ -1849,7 +1849,8 @@ body.trial{padding-top:42px}
         <label for="p-owl">Nom du hibou</label>
         <input class="input" id="p-owl" type="text" maxlength="16" autocomplete="off" placeholder="Pythagore">
       </div>
-      <div class="switch"><span>Lecture du soir <span class="muted">(à partir de 19 h, un chapitre du feuilleton « Oscar et le Royaume Pixel » à lire à voix haute, environ 15 minutes ; compte pour la récompense)</span></span><button id="p-soir" aria-label="Lecture du soir"></button></div>
+      <div class="switch"><span>Lecture du soir <span class="muted">(le soir, un chapitre du feuilleton « Oscar et le Royaume Pixel » à lire à voix haute, environ 15 minutes ; compte pour la récompense)</span></span><button id="p-soir" aria-label="Lecture du soir"></button></div>
+      <div class="field" id="p-soir-hf"><label for="p-soir-h">La lecture du soir apparaît à partir de</label><select class="input" id="p-soir-h" style="max-width:220px"><option value="0">Toute la journée</option><option value="16">16 h</option><option value="17">17 h</option><option value="18">18 h</option><option value="19">19 h</option><option value="20">20 h</option><option value="21">21 h</option></select></div>
       <div class="switch"><span>Ordinateur avec le gardien Windows <span class="muted">(à la fin du programme du jour, l'appli montre le code du jour qui débloque l'ordinateur ; activé tout seul quand le gardien ouvre l'appli)</span></span><button id="p-gardien" aria-label="Ordinateur avec le gardien Windows"></button></div>
       <div class="switch"><span>Pythagore et l'IA <span class="muted">(le mot du jour et « Explique-moi autrement » écrits par l'IA de Claude ; seuls la notion, le calcul et la réponse sont envoyés, jamais le prénom ; sans IA, des textes tout prêts)</span></span><button id="p-ai" aria-label="Pythagore et l'IA"></button></div>
       <div class="switch"><span>Accueil simplifié <span class="muted">(recommandé : 3 gros boutons, le reste rangé)</span></span><button id="p-clair" aria-label="Accueil simplifié"></button></div>
@@ -2961,7 +2962,7 @@ const BL_CALC = ["add","sub","mult","comp","half","prob","big","dec"];
 const BL_FR = ["mots","gram","accord","conj","lire"];
 const BL_SECS = [...BL_CALC.map(c=>({id:"c:"+c, part:0})), ...BL_FR.map(f=>({id:"f:"+f, part:1})), {id:"m:chif", part:2}, {id:"m:mots", part:2}, {id:"m:rep", part:2}];
 const blNmax = id => { const [d,a] = id.split(":"); return d==="c" ? LADDER[a].length : d==="f" ? FR_LADDER[a].length : 0; };
-const DEF = () => ({schema:SCHEMA, name:"", owl:"Pythagore", owlSet:false, gardien:false, statQ:[], statDay:"", voix:{i:0, last:0, hist:[]}, soir:{on:true, ch:0, last:0, hist:[]}, reward:{on:false, label:"", goal:7, n:0, done:false, got:[]}, started:false, sound:true, musicOn:false, musicVol:0.5,
+const DEF = () => ({schema:SCHEMA, name:"", owl:"Pythagore", owlSet:false, gardien:false, statQ:[], statDay:"", voix:{i:0, last:0, hist:[]}, soir:{on:true, h:19, ch:0, last:0, hist:[]}, reward:{on:false, label:"", goal:7, n:0, done:false, got:[]}, started:false, sound:true, musicOn:false, musicVol:0.5,
   cats:["add","sub","mult"], tables:ALL_T.slice(), level:3, mode:"serie", elo:{add:ELO_START,sub:ELO_START,mult:ELO_START}, eloBest:{add:1,sub:1,mult:1}, eloSlow:{add:0,sub:0,mult:0},
   xp:0, plumes:0, owned:FREE.slice(),
   equip:{color:"brun",hat:null,face:null,neck:null,dance:"saut",bg:"ciel",music:"douce",sfx:"classique",fx:"confettis",kp:"classique"},
@@ -2985,7 +2986,7 @@ function migrate(d){
       hist: Array.isArray(vx.hist) ? vx.hist.filter(isObj).slice(-30).map(h=>({id: String(h.id||"").slice(0,8), d: Math.round(num(h.d,0,0,1e6)), lu: Math.round(num(h.lu,-1,-1,100)), q: Math.round(num(h.q,0,0,3))})) : []}; }
   { const rw = isObj(d.reward) ? d.reward : {};
     { const so = isObj(d.soir) ? d.soir : {};
-      out.soir = {on: so.on!==false, ch: Math.round(num(so.ch,0,0,999)), last: Math.round(num(so.last,0,0,1e6)),
+      out.soir = {on: so.on!==false, h: [0,16,17,18,19,20,21].includes(so.h) ? so.h : 19, ch: Math.round(num(so.ch,0,0,999)), last: Math.round(num(so.last,0,0,1e6)),
         hist: Array.isArray(so.hist) ? so.hist.filter(isObj).slice(-40).map(h=>({n: Math.round(num(h.n,1,1,999)), d: Math.round(num(h.d,0,0,1e6)), lu: Math.round(num(h.lu,-1,-1,100)), q: Math.round(num(h.q,0,0,3)), min: Math.round(num(h.min,0,0,600))})) : []}; }
     out.reward = {on: rw.on===true, label: typeof rw.label==="string" ? rw.label.replace(/[<>]/g,"").slice(0,40) : "", goal: Math.round(num(rw.goal,7,1,60)), n: Math.round(num(rw.n,0,0,60)), done: rw.done===true,
       got: Array.isArray(rw.got) ? rw.got.filter(isObj).slice(-20).map(g=>({label: String(g.label||"").replace(/[<>]/g,"").slice(0,40), d: String(g.d||"").slice(0,10)})) : []};
@@ -6257,7 +6258,7 @@ function gardTitle(){
 const MOON_IC = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11z"/><circle cx="17" cy="5" r="1.2"/><circle cx="20" cy="9" r=".9"/></svg>`;
 const SOIR_PRIZE = 15, SOIR_HOUR = 19;
 const soirChap = () => FEUILLETON.ch[D.soir.ch] || null;
-const soirTime = () => { const h = new Date().getHours(); return h>=SOIR_HOUR; };
+const soirTime = () => new Date().getHours() >= (D.soir.h ?? SOIR_HOUR);
 function renderSoir(){
   const b = $("hub-soir"); if(!b) return;
   try{ renderSoirCard(b); }finally{ $("hub-strip").hidden = b.hidden && $("hub-reward").hidden; }
@@ -8278,6 +8279,7 @@ function renderParents(){
   $("p-owl").value = D.owl && D.owl!=="Pythagore" ? D.owl : "";
   $("p-gardien").setAttribute("aria-pressed", D.gardien);
   $("p-soir").setAttribute("aria-pressed", D.soir.on);
+  $("p-soir-h").value = String(D.soir.h); $("p-soir-hf").hidden = !D.soir.on;
   renderRewardParents();
   $("p-sound").setAttribute("aria-pressed", D.sound);
   $("p-clair").setAttribute("aria-pressed", D.view==="clair");
@@ -8322,7 +8324,8 @@ $("p-rw-go").addEventListener("click", ()=>{
   toast(`Objectif lancé : ${label} (${goal} programme${goal>1?"s":""})`);
 });
 $("p-rw-stop").addEventListener("click", ()=>{ if(D.reward.done && D.reward.label) D.reward.got = D.reward.got.concat([{label:D.reward.label, d:dayStr()}]).slice(-20); D.reward.on = false; D.reward.done = false; D.reward.n = 0; persist(); sfx("tap"); renderRewardParents(); });
-$("p-soir").addEventListener("click", ()=>{ D.soir.on = !D.soir.on; persist(); sfx("tap"); renderParents(); toast(D.soir.on ? "Lecture du soir activée (à partir de 19 h)" : "Lecture du soir désactivée"); });
+$("p-soir").addEventListener("click", ()=>{ D.soir.on = !D.soir.on; persist(); sfx("tap"); renderParents(); toast(D.soir.on ? "Lecture du soir activée" : "Lecture du soir désactivée"); });
+$("p-soir-h").addEventListener("change", e=>{ D.soir.h = +e.target.value; persist(); sfx("tap"); toast(D.soir.h ? `Lecture du soir à partir de ${D.soir.h} h` : "Lecture du soir : toute la journée"); });
 $("p-gardien").addEventListener("click", ()=>{ D.gardien = !D.gardien; if(D.gardien){ try{ localStorage.setItem(GARDIEN_KEY, IDX.cur); }catch(e){} } persist(); sfx("tap"); renderParents(); toast(D.gardien ? `Code du jour activé. Aujourd'hui : ${dayCode()}` : "Code du jour désactivé"); });
 $("p-owl").addEventListener("input", e=>{ D.owl = e.target.value.replace(/[<>]/g,"").slice(0,16) || "Pythagore"; D.owlSet = true; persist(); renderTop(); });
 $("p-tts-auto").addEventListener("click", ()=>{ D.tts.auto=!D.tts.auto; persist(); renderParents(); if(D.tts.auto) speak("D'accord, je lirai chaque calcul."); });
