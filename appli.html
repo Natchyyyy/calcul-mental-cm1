@@ -4112,21 +4112,93 @@ function svgMoney(list, extra=""){
   if(extra) g += `<g transform="translate(6 ${y + rowH + 10})">${extra}</g>`;
   return `<svg class="money" viewBox="0 0 ${VW} ${H}" style="width:${Math.round(VW*1.9)}px" role="img" aria-label="${list.map(MONEY_NM).join(", ")}">${g}</svg>`;
 }
-const priceTag = (txt) => `<path d="M0 4 Q0 0 4 0 H110 L124 12 L110 24 H4 Q0 24 0 20 Z" fill="var(--soft)" stroke="var(--line)" stroke-width="1.5"/><circle cx="112" cy="12" r="3" fill="var(--card)" stroke="var(--line)"/><text x="54" y="17" text-anchor="middle" font-size="13" font-weight="800" fill="var(--ink)">Prix : ${txt}</text>`;
+const priceTag = (txt, lab="Prix") => `<path d="M0 4 Q0 0 4 0 H110 L124 12 L110 24 H4 Q0 24 0 20 Z" fill="var(--soft)" stroke="var(--line)" stroke-width="1.5"/><circle cx="112" cy="12" r="3" fill="var(--card)" stroke="var(--line)"/><text x="54" y="17" text-anchor="middle" font-size="13" font-weight="800" fill="var(--ink)">${lab} : ${txt}</text>`;
+/* objets à acheter (petits prix en centimes, prix moyens, gros prix) */
+const OBJ_C = ["un bonbon","une gomme","un autocollant","une sucette","un crayon","une bille","un marque-page"];
+const OBJ_M = ["une BD","un ballon","une figurine","un paquet de cartes","un livre","une glace","un yo-yo","une petite voiture","un cahier de jeux","une balle rebondissante"];
+const OBJ_G = ["un jeu vidéo","une manette","un jeu de construction","un skate","un casque audio","un jeu de société","une peluche géante"];
+const LeLa = o => o.replace(/^une? (?=[aeiouéèêà])/i,"l'").replace(/^un /,"le ").replace(/^une /,"la ");
+const Cap = t => t.charAt(0).toUpperCase() + t.slice(1);
 function mkMonnaie(kd){
   const V = (o) => Object.assign({cat:"monnaie", op:"v", kd}, o);
-  const sum = L => L.reduce((a,b)=>a+b,0), sortD = L => L.sort((a,b)=>b-a);
-  if(kd===1){ const L = sortD(Array.from({length: rand(2,5)}, ()=>pick([100,200]))); return V({list:L, r:sum(L)/100, pre:"Combien d'argent ?", t:"Il y a □ €", pic:svgMoney(L), say:"Combien d'euros y a-t-il ?"}); }
-  if(kd===2){ let L; do{ L = sortD([...Array.from({length: rand(1,3)}, ()=>pick([500,1000,2000])), ...Array.from({length: rand(0,2)}, ()=>pick([100,200]))]); }while(sum(L)>5000);
-    return V({list:L, r:sum(L)/100, pre:"Combien d'argent ?", t:"Il y a □ €", pic:svgMoney(L), say:"Combien d'euros y a-t-il ?"}); }
-  if(kd===3){ let L; do{ L = sortD(Array.from({length: rand(2,5)}, ()=>pick([10,20,50]))); }while(sum(L)>=100);
-    return V({list:L, r:sum(L), pre:"Combien de centimes ?", t:"Il y a □ centimes", pic:svgMoney(L), say:"Combien de centimes y a-t-il ?"}); }
-  if(kd===4){ let L; do{ L = sortD(Array.from({length: rand(1,4)}, ()=>pick([10,20,50]))); }while(sum(L)>=100);
-    return V({list:L, r:100-sum(L), pre:"Combien manque-t-il pour faire 1 € (100 centimes) ?", t:"Il manque □ centimes", pic:svgMoney(L), say:"Combien de centimes manque-t-il pour faire un euro ?"}); }
-  if(kd===5){ const b = pick([10,10,20]), pr = b===10 ? rand(2,9) : rand(11,19);
-    return V({pay:b, price:pr, r:b-pr, pre:`Le jeu coûte ${pr} €. Tu paies avec un billet de ${b} €.`, t:"On te rend □ €", pic:svgMoney([b*100], priceTag(`${pr} €`)), say:`Le jeu coûte ${pr} euros. Tu paies avec un billet de ${b} euros. Combien d'euros te rend-on ?`}); }
-  const e = rand(1,4), c = 10*rand(1,9), pay = e+1;
-  return V({pay, price:e*100+c, r:100-c, pre:`Ça coûte ${e} € ${c}. Tu paies avec ${pay} €.`, t:"On te rend □ centimes", pic:svgMoney(pay===5 ? [500] : Array.from({length:pay}, ()=>100), priceTag(`${e} € ${c}`)), say:`Ça coûte ${e} euros ${c}. Tu paies avec ${pay} euros. Combien de centimes te rend-on ?`});
+  const sum = L => L.reduce((a,b)=>a+b,0), sortD = L => L.sort((a,b)=>b-a), nm = L => L.map(MONEY_NM).join(" + ");
+  const v = rand(0,3);
+  if(kd===1){
+    const L = sortD(Array.from({length: rand(2,5)}, ()=>pick([100,200]))), S = sum(L)/100;
+    if(v===1 && S>=3){ const o = pick(OBJ_M), P = rand(1, S-1);
+      return V({list:L, r:S-P, pre:`Tu as ces pièces. Tu achètes ${o} à ${P} €.`, t:"Il te reste □ €", pic:svgMoney(L, priceTag(`${P} €`)), say:`Tu as ces pièces. Tu achètes ${o} à ${P} euros. Combien d'euros te reste-t-il ?`,
+        sh:`Compte d'abord tes pièces (${nm(L)}), puis enlève le prix.`, sf:`Tu as ${S} €. ${S} − ${P} = ${S-P} : il te reste ${S-P} €.`}); }
+    if(v===2){ const P = 2*rand(2,6);
+      return V({list:[200], r:P/2, pre:`Combien de pièces de 2 € faut-il pour payer ${P} € ?`, t:"Il faut □ pièces de 2 €", pic:svgMoney([200], priceTag(`${P} €`, "Total")), say:`Combien de pièces de 2 euros faut-il pour payer ${P} euros ?`,
+        sh:"Compte de 2 en 2 : 2, 4, 6, 8… et compte combien de fois tu as dit un nombre.", sf:`${P} = ${Array(P/2).fill(2).join(" + ")} : il faut ${P/2} pièces de 2 €.`}); }
+    if(v===3){ const o = pick(OBJ_M), P = S + rand(1,5);
+      return V({list:L, r:P-S, pre:`Tu veux acheter ${o} à ${P} €. Tu as ces pièces.`, t:"Il te manque □ €", pic:svgMoney(L, priceTag(`${P} €`)), say:`Tu veux acheter ${o} à ${P} euros. Combien d'euros te manque-t-il ?`,
+        sh:`Compte tes pièces, puis avance jusqu'à ${P} €.`, sf:`Tu as ${S} €. De ${S} à ${P}, il manque ${P-S} €.`}); }
+    return V({list:L, r:S, pre:"Combien d'argent ?", t:"Il y a □ €", pic:svgMoney(L), say:"Combien d'euros y a-t-il ?"});
+  }
+  if(kd===2){
+    let L; do{ L = sortD([...Array.from({length: rand(1,3)}, ()=>pick([500,1000,2000])), ...Array.from({length: rand(0,2)}, ()=>pick([100,200]))]); }while(sum(L)>5000);
+    const S = sum(L)/100;
+    if(v===1 && S>=6){ const P = rand(2, S-1), o = pick(P<=12 ? OBJ_M : OBJ_G);
+      return V({list:L, r:S-P, pre:`Tu as cet argent. Tu achètes ${o} à ${P} €.`, t:"Il te reste □ €", pic:svgMoney(L, priceTag(`${P} €`)), say:`Tu as cet argent. Tu achètes ${o} à ${P} euros. Combien d'euros te reste-t-il ?`,
+        sh:"Compte d'abord les billets, puis les pièces. Ensuite enlève le prix.", sf:`${nm(L)} = ${S} €. ${S} − ${P} = ${S-P} €.`}); }
+    if(v===2 && S<=45){ const o = pick(OBJ_G), P = S + rand(2,9);
+      return V({list:L, r:P-S, pre:`${Cap(LeLa(o))} coûte ${P} €. Tu as cet argent.`, t:"Il te manque □ €", pic:svgMoney(L, priceTag(`${P} €`)), say:`${Cap(LeLa(o))} coûte ${P} euros. Combien d'euros te manque-t-il ?`,
+        sh:`Compte ton argent, puis avance jusqu'à ${P} €.`, sf:`${nm(L)} = ${S} €. De ${S} à ${P}, il manque ${P-S} €.`}); }
+    if(v===3){ const B = pick([500,1000]), N = (B/100)*rand(2, B===500 ? 8 : 5);
+      return V({list:[B], r:N/(B/100), pre:`Combien de billets de ${B/100} € faut-il pour faire ${N} € ?`, t:`Il faut □ billets de ${B/100} €`, pic:svgMoney([B], priceTag(`${N} €`, "Total")), say:`Combien de billets de ${B/100} euros faut-il pour faire ${N} euros ?`,
+        sh:`Compte de ${B/100} en ${B/100} jusqu'à ${N}.`, sf:`${N} = ${Array(N/(B/100)).fill(B/100).join(" + ")} : il faut ${N/(B/100)} billets.`}); }
+    return V({list:L, r:S, pre:"Combien d'argent ?", t:"Il y a □ €", pic:svgMoney(L), say:"Combien d'euros y a-t-il ?"});
+  }
+  if(kd===3){
+    let L; do{ L = sortD(Array.from({length: rand(2,5)}, ()=>pick([10,20,50]))); }while(sum(L)>=100);
+    const S = sum(L);
+    if(v===1){ const N = 10*rand(2,9);
+      return V({list:[10], r:N/10, pre:`Combien de pièces de 10 centimes faut-il pour faire ${N} centimes ?`, t:"Il faut □ pièces de 10 c", pic:svgMoney([10], priceTag(`${N} c`, "Total")), say:`Combien de pièces de 10 centimes faut-il pour faire ${N} centimes ?`,
+        sh:"Compte de 10 en 10 : 10, 20, 30…", sf:`${N} centimes = ${N/10} × 10 centimes.`}); }
+    if(v===2 && S>=30){ const o = pick(OBJ_C), P = 10*rand(1, S/10-1);
+      return V({list:L, r:S-P, pre:`Tu as ces pièces. Tu achètes ${o} à ${P} centimes.`, t:"Il te reste □ centimes", pic:svgMoney(L, priceTag(`${P} c`)), say:`Tu as ces pièces. Tu achètes ${o} à ${P} centimes. Combien de centimes te reste-t-il ?`,
+        sh:"Compte tes centimes, puis enlève le prix.", sf:`${nm(L)} = ${S} centimes. ${S} − ${P} = ${S-P} centimes.`}); }
+    if(v===3){ const L2 = sortD([100].concat(L.slice(0,3))), S2 = sum(L2);
+      return V({list:L2, r:S2, pre:"Combien de centimes en tout ? (1 € = 100 centimes)", t:"Il y a □ centimes", pic:svgMoney(L2), say:"Un euro, c'est cent centimes. Combien de centimes y a-t-il en tout ?",
+        sh:"La pièce de 1 € vaut 100 centimes. Ajoute ensuite les autres pièces.", sf:`100 + ${L2.slice(1).join(" + ")} = ${S2} centimes.`}); }
+    return V({list:L, r:S, pre:"Combien de centimes ?", t:"Il y a □ centimes", pic:svgMoney(L), say:"Combien de centimes y a-t-il ?"});
+  }
+  if(kd===4){
+    let L; do{ L = sortD(Array.from({length: rand(1,4)}, ()=>pick([10,20,50]))); }while(sum(L)>=100);
+    const S = sum(L);
+    if(v===1){ const o = pick(OBJ_C);
+      return V({list:L, r:100-S, pre:`${Cap(LeLa(o))} coûte 1 €. Tu as ces pièces.`, t:"Il te manque □ centimes", pic:svgMoney(L, priceTag("1 €")), say:`${Cap(LeLa(o))} coûte un euro. Combien de centimes te manque-t-il ?`,
+        sh:"1 € = 100 centimes. Compte tes pièces, puis complète jusqu'à 100.", sf:`${S} + ${100-S} = 100 centimes = 1 €.`}); }
+    if(v===2){ const L2 = sortD([100].concat(L)), S2 = sum(L2);
+      return V({list:L2, r:200-S2, pre:"Combien manque-t-il pour faire 2 € (200 centimes) ?", t:"Il manque □ centimes", pic:svgMoney(L2), say:"Combien de centimes manque-t-il pour faire deux euros ?",
+        sh:"2 € = 200 centimes. Compte tes pièces (1 € = 100), puis complète jusqu'à 200.", sf:`${S2} + ${200-S2} = 200 centimes = 2 €.`}); }
+    if(v===3){ const o = pick(OBJ_C), P = 10*rand(1,9);
+      return V({list:[100], r:100-P, pre:`Tu as 1 €. Tu achètes ${o} à ${P} centimes.`, t:"Il te reste □ centimes", pic:svgMoney([100], priceTag(`${P} c`)), say:`Tu as un euro. Tu achètes ${o} à ${P} centimes. Combien de centimes te reste-t-il ?`,
+        sh:`1 € = 100 centimes. De ${P} à 100, combien ?`, sf:`100 − ${P} = ${100-P} centimes.`}); }
+    return V({list:L, r:100-S, pre:"Combien manque-t-il pour faire 1 € (100 centimes) ?", t:"Il manque □ centimes", pic:svgMoney(L), say:"Combien de centimes manque-t-il pour faire un euro ?"});
+  }
+  if(kd===5){
+    if(v===1){ const B = pick([5,10,20,50]), o = pick(B<=10 ? OBJ_M : OBJ_G), pr = B===5 ? rand(1,4) : B===10 ? rand(2,9) : B===20 ? rand(11,19) : rand(21,49);
+      return V({pay:B, price:pr, r:B-pr, pre:`${Cap(LeLa(o))} coûte ${pr} €. Tu paies avec un billet de ${B} €.`, t:"On te rend □ €", pic:svgMoney([B*100], priceTag(`${pr} €`)), say:`${Cap(LeLa(o))} coûte ${pr} euros. Tu paies avec un billet de ${B} euros. Combien d'euros te rend-on ?`}); }
+    if(v===2){ const B = pick([10,20]), o = pick(B===10 ? OBJ_M : OBJ_G), pr = B===10 ? rand(2,9) : rand(11,19), R = B-pr;
+      return V({pay:B, price:pr, r:pr, pre:`Tu paies ${o} avec un billet de ${B} €. On te rend ${R} €.`, t:`${Cap(LeLa(o))} coûtait □ €`, pic:svgMoney([B*100]), say:`Tu paies ${o} avec un billet de ${B} euros. On te rend ${R} euros. Combien coûtait ${LeLa(o)} ?`,
+        sh:`Tu as donné ${B} € et on t'a rendu ${R} € : le prix, c'est ce que le vendeur a gardé.`, sf:`${B} − ${R} = ${pr} : ${LeLa(o)} coûtait ${pr} €.`}); }
+    if(v===3){ const [o1,o2] = [pick(OBJ_M), pick(OBJ_C.concat(OBJ_M))], a1 = rand(2,7), a2 = rand(1,9-a1), B = pick([10,20]);
+      if(o1!==o2) return V({pay:B, price:a1+a2, r:B-a1-a2, pre:`Tu achètes ${o1} à ${a1} € et ${o2} à ${a2} €. Tu paies avec un billet de ${B} €.`, t:"On te rend □ €", pic:svgMoney([B*100], priceTag(`${a1} € + ${a2} €`)), say:`Tu achètes ${o1} à ${a1} euros et ${o2} à ${a2} euros. Tu paies avec un billet de ${B} euros. Combien d'euros te rend-on ?`,
+        sh:"D'abord le prix total (on additionne), puis on avance jusqu'au billet.", sf:`${a1} + ${a2} = ${a1+a2} €. De ${a1+a2} à ${B}, il y a ${B-a1-a2} : on te rend ${B-a1-a2} €.`}); }
+    const b = pick([10,10,20]), pr = b===10 ? rand(2,9) : rand(11,19), o = pick(b===10 ? OBJ_M : OBJ_G);
+    return V({pay:b, price:pr, r:b-pr, pre:`${Cap(LeLa(o))} coûte ${pr} €. Tu paies avec un billet de ${b} €.`, t:"On te rend □ €", pic:svgMoney([b*100], priceTag(`${pr} €`)), say:`${Cap(LeLa(o))} coûte ${pr} euros. Tu paies avec un billet de ${b} euros. Combien d'euros te rend-on ?`});
+  }
+  const e = rand(1,3), c = 10*rand(1,9), o = pick(OBJ_M);
+  if(v===1){ const oc = pick(OBJ_C), cc = 10*rand(1,9);
+    return V({pay:2, price:cc, r:200-cc, pre:`${Cap(LeLa(oc))} coûte ${cc} centimes. Tu paies avec une pièce de 2 €.`, t:"On te rend □ centimes", pic:svgMoney([200], priceTag(`${cc} c`)), say:`${Cap(LeLa(oc))} coûte ${cc} centimes. Tu paies avec une pièce de 2 euros. Combien de centimes te rend-on ?`,
+      sh:"2 € = 200 centimes. Pars du prix et avance jusqu'à 200.", sf:`${cc} + ${200-cc} = 200 centimes : on te rend ${200-cc} centimes.`}); }
+  if(v===2){ const back = 5-e-1;
+    return V({pay:5, price:e*100+c, r:100-c, pre:`${Cap(LeLa(o))} coûte ${e} € ${c}. Tu paies avec un billet de 5 €.`, t:`On te rend ${back} € et □ centimes`, pic:svgMoney([500], priceTag(`${e} € ${c}`)), say:`${Cap(LeLa(o))} coûte ${e} euros ${c}. Tu paies avec un billet de 5 euros. On te rend ${back} euro${back>1?"s":""} et combien de centimes ?`,
+      sh:`D'abord les centimes : de ${c} à 100, combien ? Ça fait ${e+1} €. Puis de ${e+1} € à 5 €, il y a ${back} €.`, sf:`${e} € ${c} + ${100-c} centimes = ${e+1} €, puis + ${back} € = 5 €. On te rend ${back} € et ${100-c} centimes.`}); }
+  const pay = e+1;
+  return V({pay, price:e*100+c, r:100-c, pre:`${Cap(LeLa(o))} coûte ${e} € ${c}. Tu paies avec ${pay} €.`, t:"On te rend □ centimes", pic:svgMoney(Array.from({length:pay}, ()=>100), priceTag(`${e} € ${c}`)), say:`${Cap(LeLa(o))} coûte ${e} euros ${c}. Tu paies avec ${pay} euros. Combien de centimes te rend-on ?`});
 }
 /* Décomposer : les briques du calcul mental (sans elles, « passer la dizaine » est trop dur) */
 function mkDeco(kd){
@@ -4221,6 +4293,7 @@ function strategy(q){
     return {h:"1 heure = 60 minutes ; une demi-heure = 30 minutes ; un quart d'heure = 15 minutes.", f:q.t.replace("□", q.r)};
   }
   if(q.cat==="monnaie"){
+    if(q.sh) return {h:q.sh, f:q.sf};
     const k = q.kd, L = q.list || [];
     if(k<=3) return {h:"Compte d'abord les billets et les grosses pièces, puis ajoute les petites.", f:`${L.map(MONEY_NM).join(" + ")} = ${k===3 ? q.r+" centimes" : q.r+" €"}.`};
     if(k===4) return {h:"1 € = 100 centimes. Compte de 10 en 10 jusqu'à 100.", f:`${100-q.r} + ${q.r} = 100 centimes = 1 €.`};
@@ -4735,8 +4808,9 @@ function coachQueue(cat, p, n, easy){
   for(let g=0; q.length<n && g<200; g++){
     const pp = easy && p>1 && R()<(easy>=2 ? .5 : .35) ? p-1 : p;
     const x = cat==="mult" ? genMultP(pp, pp===p && nt && R()<.7 ? nt : LADDER.mult[pp-1].t, false) : genCat(cat, 3, ALL_T, {p:pp});
-    if(seen.has(x.t) && g<150) continue;
-    seen.add(x.t); q.push(x);
+    const key = x.op==="v" ? JSON.stringify([x.pre, x.t, x.r, x.hh, x.mm, x.list]) : x.t;   // questions avec image : le texte seul ne suffit pas
+    if(seen.has(key) && g<150) continue;
+    seen.add(key); q.push(x);
   }
   return q;
 }
