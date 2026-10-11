@@ -112,6 +112,7 @@ function Test-AppRunning {
   if ($ids.Count -eq 0) { return $false }
   $win = Get-Process -Id $ids -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne [IntPtr]::Zero } | Select-Object -First 1
   if ($win -and $script:AppWin -eq [IntPtr]::Zero) { $script:AppWin = $win.MainWindowHandle }
+  if ($win -and $win.MainWindowTitle) { $script:LastTitle = [string]$win.MainWindowTitle }   # l'appli y écrit « encore N étapes »
   return [bool]$win
 }
 
@@ -261,6 +262,7 @@ function Start-NewDay {
   $script:Unlocked = $false
   $script:Grace = 30
   $script:AppWin = [IntPtr]::Zero
+  $script:LastTitle = ''
   Write-Log 'Nouveau jour : verrou remis.'
   Show-Covers
   Start-App
@@ -341,6 +343,18 @@ $help.ForeColor = [System.Drawing.Color]::FromArgb(255, 90, 99, 128)
 foreach ($c in @($title, $text, $box, $msg, $btns, $help)) { [void]$panel.Controls.Add($c) }
 [void]$form.Controls.Add($panel)
 
+$script:LastTitle = ''
+$TextBase = $text.Text
+# texte de l'écran du code : combien d'étapes il reste (lu dans le titre de la fenêtre de l'appli)
+function Set-LockText {
+  $t = $script:LastTitle
+  if ($t -match 'encore (\d+) [ée]tape') {
+    $n = [int]$Matches[1]; $e = if ($n -gt 1) { "$n étapes" } else { '1 étape' }
+    $text.Text = "Encore $e dans ton programme « Apprendre » et l'ordinateur est à toi ! Clique sur « Retourner à l'appli » pour finir. À la fin, l'appli te donne ton CODE DU JOUR : tape-le ici."
+  } elseif ($t -match 'code du jour obtenu') {
+    $text.Text = "Tu as fini ton programme : bravo ! Ton CODE DU JOUR est écrit dans l'appli (sur l'accueil). Tape-le ici."
+  } else { $text.Text = $TextBase }
+}
 function Center-Panel {
   $panel.Left = [int](($form.ClientSize.Width - $panel.Width) / 2)
   $panel.Top = [int](($form.ClientSize.Height - $panel.Height) / 2)
@@ -434,7 +448,7 @@ $timer.Add_Tick({
     Show-Covers
     if ($running) { if ($form.Visible) { $form.Hide() }; return }
     if (($now - $script:LastLaunch).TotalSeconds -lt $script:Grace) { return }  # Edge est en train de s'ouvrir
-    if (-not $form.Visible) { $box.Text = ''; $form.Show(); $form.Activate(); Center-Panel; $box.Focus(); Write-Log 'Appli fermée avant la fin : écran du code.' }
+    if (-not $form.Visible) { $box.Text = ''; Set-LockText; $form.Show(); $form.Activate(); Center-Panel; $box.Focus(); Write-Log 'Appli fermée avant la fin : écran du code.' }
     else { $form.TopMost = $true; $form.Activate() }
   } catch {
     Write-Log ("Erreur : " + $_.Exception.Message + " → libre pour aujourd'hui, le gardien revient demain.")
