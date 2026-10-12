@@ -19,7 +19,7 @@
 #  Compatible Windows PowerShell 5.1 (Windows 10 / 11).
 # ============================================================================
 param([switch]$Test, [switch]$Ouvrir)
-$GardienVersion = 5
+$GardienVersion = 6
 
 $ErrorActionPreference = 'Stop'
 $Self = $MyInvocation.MyCommand.Path
@@ -348,7 +348,7 @@ function New-Button([string]$text, [bool]$main) {
 }
 
 $title = New-Label 'Ton programme du jour t''attend !' 34 $true
-$text = New-Label "Termine ton programme « Apprendre » dans l'appli. À la fin, l'appli te donne ton CODE DU JOUR : tape-le ici pour débloquer l'ordinateur." 17 $false
+$text = New-Label "Termine « Mon programme du jour » dans l'appli (la grande carte en haut de l'accueil). À la fin, l'appli te donne ton CODE DU JOUR : tape-le ici pour débloquer l'ordinateur." 17 $false
 $box = New-Object System.Windows.Forms.TextBox
 $box.Font = New-Object System.Drawing.Font('Segoe UI', 30, [System.Drawing.FontStyle]::Bold)
 $box.Width = 240
@@ -379,7 +379,7 @@ function Set-LockText {
   $t = $script:LastTitle
   if ($t -match 'encore (\d+) [ée]tape') {
     $n = [int]$Matches[1]; $e = if ($n -gt 1) { "$n étapes" } else { '1 étape' }
-    $text.Text = "Encore $e dans ton programme « Apprendre » et l'ordinateur est à toi ! Clique sur « Retourner à l'appli » pour finir. À la fin, l'appli te donne ton CODE DU JOUR : tape-le ici."
+    $text.Text = "Encore $e dans « Mon programme du jour » et l'ordinateur est à toi ! Clique sur « Retourner à l'appli » pour finir. À la fin, l'appli te donne ton CODE DU JOUR : tape-le ici."
   } elseif ($t -match 'code du jour obtenu') {
     $text.Text = "Tu as fini ton programme : bravo ! Ton CODE DU JOUR est écrit dans l'appli (sur l'accueil). Tape-le ici."
   } else { $text.Text = $TextBase }

@@ -1507,11 +1507,11 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
       <button class="hello-speak" id="hello-speak" aria-label="Écouter Pythagore" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>
     </div>
 
-    <button class="learncta" id="hub-learn"><span class="lc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/><path d="M22 9v6"/></svg></span><span class="lc-txt"><small class="lc-k">Apprendre avec <span class="owln">Pythagore</span></small><b id="hub-learn-t">Aujourd'hui</b><small class="lc-s" id="hub-learn-s"></small><span class="lc-dots" id="hub-learn-dots" aria-hidden="true"></span></span></button>
+    <button class="learncta" id="hub-learn"><span class="lc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/><path d="M22 9v6"/></svg></span><span class="lc-txt"><small class="lc-k">Mon programme du jour</small><b id="hub-learn-t">Aujourd'hui</b><small class="lc-s" id="hub-learn-s"></small><span class="lc-dots" id="hub-learn-dots" aria-hidden="true"></span></span></button>
     <div class="hubstrip" id="hub-strip" hidden><button class="rewardcta" id="hub-reward" hidden></button><button class="soircta" id="hub-soir" hidden></button></div>
     <div class="hub" id="hub">
-      <p class="hubsec">S'entraîner</p>
-      <button class="hubbtn h-ses" id="hub-ses"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M8.5 15l2.2 2.2L15.5 13"/></svg><span><b>Ma séance du jour</b><small id="hub-ses-sub">10 minutes</small></span></button>
+      <p class="hubsec">En plus, pour s'entraîner</p>
+      <button class="hubbtn h-ses" id="hub-ses"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M8.5 15l2.2 2.2L15.5 13"/></svg><span><b>Entraînement libre</b><small id="hub-ses-sub">10 minutes</small></span></button>
       <button class="hubbtn h-calc" id="hub-calc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M7 3v6M4 6h6M14 6h6M5 15l4 4M9 15l-4 4M14 15h6M14 19h6"/></svg><span><b>Calcul</b><small>Additions, tables…</small></span></button>
       <button class="hubbtn h-fr" id="hub-fr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></svg><span><b>Français</b><small>Lire, écrire, grammaire</small></span></button>
       <button class="hubmore" id="hub-more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg>Plus de jeux</button>
@@ -1559,7 +1559,7 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
     </div>
 
     <button class="btn big" id="start">Jouer !</button>
-    <button class="btn alt seance" id="ses-open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M8.5 15l2.2 2.2L15.5 13"/></svg><span id="ses-label">Ma séance du jour</span></button>
+    <button class="btn alt seance" id="ses-open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M8.5 15l2.2 2.2L15.5 13"/></svg><span id="ses-label">Entraînement libre</span></button>
     <p class="hint-msg pill-text" id="start-hint"></p>
     <button class="link pill-text" id="opts-toggle">Autres façons de jouer</button>
     <h3 class="home-sep">Et aussi…</h3>
@@ -1705,7 +1705,7 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
 
   <!-- Apprendre : le programme du jour fait par Pythagore -->
   <section class="screen" id="s-learn" hidden>
-    <div class="subtop"><button class="backbtn" id="learn-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Retour</button><h2>Apprendre</h2></div>
+    <div class="subtop"><button class="backbtn" id="learn-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Retour</button><h2>Mon programme du jour</h2></div>
     <div class="card learn-card">
       <div class="learn-head"><div class="owl-host" data-mood="float"></div><div class="bubble" id="learn-msg"></div></div>
       <p class="learn-ai" id="learn-ai" hidden></p>
@@ -1750,7 +1750,7 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
   <section class="screen" id="s-ses" hidden>
     <div class="card ses-card">
       <div class="owl-host" data-mood="float"></div>
-      <h2>Ma séance du jour</h2>
+      <h2>Entraînement libre</h2>
       <p class="muted" style="margin:0" id="ses-msg"></p>
       <ol class="ses-steps" id="ses-steps"></ol>
       <div class="cb-btns" id="ses-btns"></div>
@@ -1894,7 +1894,7 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
     <h2 class="psec">Le programme et le bilan</h2>
     <div class="card" id="pbilan-card">
       <h3>Le grand bilan de Pythagore</h3>
-      <p class="muted" style="margin:0">Un test complet (calcul, français, mémoire, 20 à 30 minutes, avec des pauses) : il trouve le vrai niveau et les lacunes, et tout le programme « Apprendre » se règle dessus.</p>
+      <p class="muted" style="margin:0">Un test complet (calcul, français, mémoire, 20 à 30 minutes, avec des pauses) : il trouve le vrai niveau et les lacunes, et tout le « Programme du jour » se règle dessus.</p>
       <div id="p-bilan"></div>
       <div class="btnrow"><button class="btn sm" id="p-bilan-go">Lancer le bilan</button></div>
     </div>
@@ -1910,7 +1910,7 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
     </div>
     <div class="card" id="preward-card">
       <h3>Récompense de la vraie vie</h3>
-      <p class="muted" style="margin:0">Chaque programme « Apprendre » terminé et chaque lecture du soir le rapprochent de la récompense (1 point chacun). Il voit sa barre avancer sur l'accueil.</p>
+      <p class="muted" style="margin:0">Chaque « Programme du jour » terminé et chaque lecture du soir le rapprochent de la récompense (1 point chacun). Il voit sa barre avancer sur l'accueil.</p>
       <div class="rwopts" id="p-rw-opts" role="group" aria-label="Récompense">
         <button data-rw="Des Robux">Des Robux</button><button data-rw="10 €">10 €</button><button data-rw="Un jeu au choix">Un jeu au choix</button>
       </div>
@@ -1950,7 +1950,7 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
       <div class="switch"><span>Ordinateur avec le gardien Windows <span class="muted">(à la fin du programme du jour, l'appli montre le code du jour qui débloque l'ordinateur ; activé tout seul quand le gardien ouvre l'appli)</span></span><button id="p-gardien" aria-label="Ordinateur avec le gardien Windows"></button></div>
       <div class="switch"><span>Pythagore et l'IA <span class="muted">(le mot du jour et « Explique-moi autrement » écrits par l'IA de Claude ; seuls la notion, le calcul et la réponse sont envoyés, jamais le prénom ; sans IA, des textes tout prêts)</span></span><button id="p-ai" aria-label="Pythagore et l'IA"></button></div>
       <div class="switch"><span>Accueil simplifié <span class="muted">(recommandé : 3 gros boutons, le reste rangé)</span></span><button id="p-clair" aria-label="Accueil simplifié"></button></div>
-      <div class="switch"><span>Français dans « Ma séance du jour » <span class="muted">(une petite étape de 5 questions)</span></span><button id="p-sesfr" aria-label="Français dans la séance du jour"></button></div>
+      <div class="switch"><span>Français dans « Entraînement libre » <span class="muted">(une petite étape de 5 questions)</span></span><button id="p-sesfr" aria-label="Français dans l'entraînement libre"></button></div>
       <div class="switch"><span>Bruitages</span><button id="p-sound" aria-label="Bruitages"></button></div>
       <div class="switch"><span>Musique</span><button id="p-music" aria-label="Musique"></button></div>
       <div class="field"><label for="p-vol">Volume de la musique</label><input type="range" id="p-vol" min="0" max="100" step="5"></div>
@@ -2009,7 +2009,7 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
       <h3>Comment ça marche ?</h3>
         <details class="faq-item"><summary><span>La difficulté s'adapte comment ?</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p>En mode <b>Auto</b>, chaque type de calcul a une échelle de paliers (par exemple pour les additions : « jusqu'à 10 », puis « jusqu'à 20 »… jusqu'aux grands nombres). Une bonne réponse fait monter un petit compteur, une erreur le fait redescendre, plus fort qu'une réussite. Quand le compteur dépasse un seuil, l'enfant passe au palier suivant. Une réponse rapide sur une série réussie compte double, une réponse avec astuce compte moitié. Après une redescente, la remontée est volontairement plus lente, le temps de consolider. Environ une question sur huit révise un palier plus facile. L'enfant réussit ainsi environ 80 % des calculs : assez pour rester motivé, assez peu pour apprendre. Les niveaux Facile, Moyen et Difficile, eux, sont fixes.</p></details>
         <details class="faq-item"><summary><span>À quoi servent les calculs supplémentaires ?</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p>Compléments, doubles et moitiés, petits problèmes, nombres à virgule et grands nombres suivent le programme de CM1. Ils sont <b>désactivés par défaut</b> pour ne pas surcharger l'écran. Une fois activés ici, ils apparaissent comme de nouvelles tuiles dans « Que veux-tu travailler ? », avec leurs propres paliers. Aucun ne contient de division.</p></details>
-        <details class="faq-item"><summary><span>Qu'est-ce que « Ma séance du jour » ?</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p>Un seul bouton qui enchaîne environ 10 minutes guidées : d'abord les calculs ratés récemment, ensuite une astuce de calcul mental (leçon puis 5 calculs), et pour finir 10 calculs au bon niveau. Elle rapporte une récompense une fois par jour. C'est la façon la plus simple de faire un entraînement régulier.</p></details>
+        <details class="faq-item"><summary><span>Qu'est-ce que « Entraînement libre » ?</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p>Un seul bouton qui enchaîne environ 10 minutes guidées : d'abord les calculs ratés récemment, ensuite une astuce de calcul mental (leçon puis 5 calculs), et pour finir 10 calculs au bon niveau. Elle rapporte une récompense une fois par jour. C'est un entraînement EN PLUS : il ne donne pas le code de l'ordinateur (seul « Mon programme du jour » le donne).</p></details>
         <details class="faq-item"><summary><span>Et la pause douce ?</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p>Quand le temps de jeu de la journée dépasse le palier choisi plus haut (20 minutes par défaut), Pythagore propose une pause à la fin d'une partie. L'enfant peut continuer s'il le souhaite : rien n'est bloqué. La proposition revient au palier suivant (40 minutes, etc.).</p></details>
         <details class="faq-item"><summary><span>Plusieurs enfants sur le même appareil ?</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p>Ajoutez un profil dans « Les enfants ». Chacun garde sa propre progression, ses plumes et ses objets. Dès qu'il y a deux profils, l'appli demande « Qui joue ? » à l'ouverture. Le premier profil ne peut pas être supprimé ; pour les autres, la suppression demande une confirmation.</p></details>
         <details class="faq-item"><summary><span>Comment ne rien perdre ?</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><p>La progression est enregistrée automatiquement sur cet appareil et elle est conservée à chaque mise à jour de l'appli. Pour changer d'appareil ou faire une copie de sécurité, utilisez « Copier le code » puis, sur l'autre appareil, « Restaurer une sauvegarde ». Attention : en navigation privée, ou si vous effacez les données du navigateur, la progression peut disparaître.</p></details>
@@ -6781,7 +6781,7 @@ function renderBilanParents(){
     html += `<h4>Calcul</h4><ul class="bl-rep">${BL_CALC.filter(c=>P.calc[c]!=null).map(c=>row(CAT[c].nm, c, P.calc[c], LADDER[c].length)).join("")}</ul>`;
     html += `<h4>Français</h4><ul class="bl-rep">${BL_FR.filter(f=>P.fr[f]!=null).map(f=>row(frName(f), f, P.fr[f], FR_LADDER[f].length)).join("")}</ul>`;
     html += `<p class="muted" style="margin:0;font-size:.9rem">Classes : repère indicatif (où ce palier est en général travaillé), pas un diagnostic.</p>`;
-    html += `<h4>Lacunes trouvées (sous son niveau)</h4><p style="margin:0">${P.gaps.length ? P.gaps.map(id=>esc(coachInfo(id).name)).join(" · ") : "Aucune : bravo !"}</p><p class="muted" style="margin:0;font-size:.9rem">Le programme « Apprendre » les reprend en premier, de la plus simple à la plus difficile.</p>`;
+    html += `<h4>Lacunes trouvées (sous son niveau)</h4><p style="margin:0">${P.gaps.length ? P.gaps.map(id=>esc(coachInfo(id).name)).join(" · ") : "Aucune : bravo !"}</p><p class="muted" style="margin:0;font-size:.9rem">Le « Programme du jour » les reprend en premier, de la plus simple à la plus difficile.</p>`;
     const rep = P.rep<0 ? "non mesuré" : P.rep>=1 ? `ça l'aide (${P.rep}/2 réussis en se répétant les mots, contre 0 sans)` : "pas encore : c'est exactement ce que le module « Apprendre à apprendre » va lui enseigner";
     html += `<h4>Mémoire</h4><ul class="bl-rep"><li><span>Chiffres retenus dans l'ordre</span><b>${P.span.d || "?"}</b><span class="muted">vers 9-10 ans, souvent 5 environ</span></li><li><span>Mots retenus dans l'ordre</span><b>${P.span.w || "?"}</b><span class="muted"></span></li><li><span>Se répéter dans sa tête</span><b>${P.rep>=1 ? "aide" : P.rep===0 ? "à apprendre" : "?"}</b><span class="muted">${rep}</span></li></ul>`;
   }
@@ -7244,7 +7244,7 @@ function renderReward(){
   b.classList.toggle("won", R.done);
   b.innerHTML = `<span class="rw-ic">${GIFT_IC}</span><span class="rw-t"><small>${R.done ? "Récompense gagnée ! Montre-la à ta famille" : `Ma récompense · ${R.n} / ${R.goal} · encore ${left}`}</small><b>${esc(R.label)}</b>`
     + (R.done ? "" : `<span class="rw-bar" aria-hidden="true"><i style="width:${Math.round(100*R.n/R.goal)}%"></i></span>`) + `</span>`;
-  b.title = "1 point par programme « Apprendre » fini et par lecture du soir";
+  b.title = "1 point par « Programme du jour » fini et par lecture du soir";
   b.setAttribute("aria-label", R.done ? `Récompense gagnée : ${R.label}` : `Ma récompense : ${R.label}, ${R.n} sur ${R.goal}`);
 }
 $("hub-reward").addEventListener("click", ()=>{ sfx("tap"); const R = D.reward;
@@ -7325,6 +7325,7 @@ function renderLearnCta(){
     : D.gardien && !TRIAL ? `Encore ${etapes(left.length)} (environ ${Math.max(3, min)} minutes) et l'ordinateur est à toi !`
     : `${etapes(left.length)} · environ ${Math.max(3, min)} minutes`;
   gardTitle();
+  { const lk = document.querySelector("#hub-learn .lc-lock"); if(lk) lk.hidden = !(D.gardien && !TRIAL && !codeOk()); }
   $("hub-learn-dots").innerHTML = steps.map(x=>`<i class="${x.r!=null?"on":""}"></i>`).join("");
 }
 function learnWins(){
@@ -8197,7 +8198,7 @@ $("fr-back").addEventListener("click", ()=>{ sfx("tap"); show("home"); });
 /* changer de profil : l'exercice de français en cours s'arrête */
 $("opts-toggle").addEventListener("click", ()=>{ const c=document.querySelector("#s-home .opts-card"); c.classList.toggle("show"); $("opts-toggle").textContent = c.classList.contains("show") ? "Cacher les réglages" : "Autres façons de jouer"; });
 $("hello-speak").addEventListener("click", ()=>{ speak(plain($("home-bubble").innerHTML)); });
-$("p-sesfr").addEventListener("click", ()=>{ D.sesFr = !D.sesFr; persist(); sfx("tap"); SES = null; renderParents(); toast(D.sesFr ? "Français ajouté à la séance du jour" : "Séance du jour : calcul seulement"); });
+$("p-sesfr").addEventListener("click", ()=>{ D.sesFr = !D.sesFr; persist(); sfx("tap"); SES = null; renderParents(); toast(D.sesFr ? "Français ajouté à l'entraînement libre" : "Entraînement libre : calcul seulement"); });
 $("p-clair").addEventListener("click", ()=>{ D.view = D.view==="clair" ? "complet" : "clair"; persist(); sfx("tap"); renderParents(); toast(D.view==="clair" ? "Accueil simplifié activé" : "Accueil complet activé"); });
 
 /* ======================================================================
@@ -8242,7 +8243,7 @@ function renderSesBtn(){
   const b = $("ses-open"), done = sesDoneToday();
   b.classList.toggle("done", done && !SES);
   $("ses-label").innerHTML = SES && SES.i<SES.steps.length ? `Reprendre ma séance <small>(${SES.i+1}/${SES.steps.length})</small>`
-    : done ? `Séance du jour faite ✓ <small>(encore ?)</small>` : `Ma séance du jour <small>· 10 min · +${SES_PRIZE} plumes</small>`;
+    : done ? `Entraînement fait ✓ <small>(encore ?)</small>` : `Entraînement libre <small>· 10 min · +${SES_PRIZE} plumes</small>`;
 }
 function renderSes(){
   if(!SES) SES = sesBuild();
@@ -8546,7 +8547,7 @@ function renderHome(){
   else msg = `${hi} Prêt pour un nouvel entraînement ?`;
   if(D.view==="clair"){
     if(D.totals.games===0) msg = `${hi} Touche un gros bouton pour commencer !`;
-    else if(!petSleepy() && !(!curPet() && D.totals.games<=12)){ const P = coachEnsure(); msg = P.steps.some(x=>x.r==null) ? `${hi} Je t'ai préparé ton programme du jour : touche « Apprendre » !` : `${hi} Programme du jour fini, bravo ! Tu peux t'entraîner comme tu veux.`; }
+    else if(!petSleepy() && !(!curPet() && D.totals.games<=12)){ const P = coachEnsure(); msg = P.steps.some(x=>x.r==null) ? `${hi} Je t'ai préparé ton programme du jour : touche « Mon programme du jour » !` : `${hi} Programme du jour fini, bravo ! Tu peux t'entraîner comme tu veux.`; }
   }
   $("home-bubble").innerHTML = msg;
 
@@ -9374,7 +9375,7 @@ function renderParentSummary(){
     <div class="ptiles"><div><b>${w.played}/7</b><span>jours d'entraînement cette semaine</span></div><div><b>${fmtDur(w.ms)}</b><span>de travail cette semaine</span></div><div><b>${pct==null ? "–" : pct+" %"}</b><span>de bonnes réponses en calcul</span></div></div>
     <div class="ptoday ${left===0 ? "ok" : ""}"><i></i><span>${todayTxt}</span></div>
     <div class="pcols"><div class="pcol k"><h3><i></i>Ce qu'il sait bien</h3>${li(known, "On le saura après quelques jours d'entraînement.")}</div>
-      <div class="pcol w"><h3><i></i>Ce qu'il travaille en ce moment</h3>${li(work, "Le programme « Apprendre » le prépare chaque jour.")}</div>
+      <div class="pcol w"><h3><i></i>Ce qu'il travaille en ce moment</h3>${li(work, "Le « Programme du jour » le prépare chaque jour.")}</div>
       <div class="pcol s"><h3><i></i>Ce qui coince</h3>${li(stuck, "Rien de particulier pour l'instant.")}</div></div>
     <p class="padvice"><b>Mon conseil :</b> ${adviceSimple(w)}</p>
     <details class="psci"><summary>Comment Pythagore le fait progresser (ce que dit la recherche)</summary><ul>
@@ -9389,7 +9390,7 @@ function renderParentSummary(){
 }
 function adviceSimple(w){
   if(D.bilan.st!=="done") return "faites-lui passer le grand bilan (20 minutes environ) : tout le programme se règlera sur son vrai niveau.";
-  if(w.played<3) return "10 à 15 minutes par jour, presque tous les jours, font plus progresser qu'une longue séance par semaine. Le bouton « Apprendre » suffit : le programme est prêt chaque jour.";
+  if(w.played<3) return "10 à 15 minutes par jour, presque tous les jours, font plus progresser qu'une longue séance par semaine. Le bouton « Mon programme du jour » suffit : le programme est prêt chaque jour.";
   if((D.coach.stuck||[]).some(x=>!(D.coach.n[x.id] && D.coach.n[x.id].b>=2))) return "quand une notion coince, asseyez-vous 5 minutes avec lui sur la leçon (le dessin) et faites-lui expliquer à voix haute : c'est très efficace.";
   if(D.profil && D.profil.rep<1 && D.mem.st<2) return "encouragez-le à faire « Mon cerveau qui retient » : apprendre à se répéter les choses dans sa tête l'aidera pour toutes ses leçons.";
   return "félicitez ses efforts plus que ses résultats (« tu t'es bien accroché »), et demandez-lui de vous montrer ce qu'il a appris aujourd'hui.";
