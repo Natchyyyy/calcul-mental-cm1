@@ -746,7 +746,7 @@ svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
 .pst .ring b{width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:var(--card);font-size:1rem;font-weight:900}
 .pst.ok .ring b{background:var(--good);color:#fff}
 .pst.now .ring{box-shadow:0 0 0 4px color-mix(in srgb,var(--primary) 55%,transparent)}
-.pst small{font-weight:700;color:var(--muted);font-variant-numeric:tabular-nums}
+.pst small{font-weight:700;color:var(--ink-soft);font-variant-numeric:tabular-nums}
 .pst .here{font-size:.78rem;font-weight:900;color:#fff;background:var(--primary);border-radius:99px;padding:2px 9px}
 .path-msg{margin:0;font-weight:700}
 .lp-row{display:grid;grid-template-columns:5.5em 1fr auto;align-items:center;gap:10px}
@@ -4113,6 +4113,7 @@ function migrate(d){
     hist: Array.isArray(mm0.hist) ? mm0.hist.filter(h=>Array.isArray(h)).slice(-10).map(h=>[Math.round(num(h[0],2,2,9)), h[1] ? 1 : 0]) : [], chunk: mm0.chunk===true};
   if(isObj(co.n)) Object.entries(co.n).forEach(([k,v])=>{ if(COACH_IDS.has(k) && isObj(v)) out.coach.n[k] = {b: Math.round(num(v.b,0,0,5)), due: Math.round(num(v.due,0,0,1e6)), n: Math.round(num(v.n,0,0,1e6)), ok: Math.round(num(v.ok,0,0,1e6)), f: Math.round(num(v.f,0,0,1e6)), l: Math.round(num(v.l,0,0,1e6)), s: Math.round(num(v.s,0,0,100)), x: Math.round(num(v.x,0,0,9)), m: Math.round(num(v.m,0,0,2))}; });
   out.coach.decoSeed = co.decoSeed===true;
+  out.coach.numSeed = co.numSeed===true;
   out.coach.stuck = Array.isArray(co.stuck) ? co.stuck.filter(x=>isObj(x) && COACH_IDS.has(x.id)).slice(0,10).map(x=>({id:x.id, d: Math.round(num(x.d,0,0,1e6)), m: Math.round(num(x.m,1,0,2)), pre: COACH_IDS.has(x.pre) ? x.pre : null})) : [];
   const cpl = isObj(co.plan) ? co.plan : {};
   if(Array.isArray(cpl.steps)) out.coach.plan = {d: Math.round(num(cpl.d,0,0,1e6)), nw: Math.round(num(cpl.nw,0,0,COACH_NEW_MAX)), ...(cpl.t0 ? {t0: Math.round(num(cpl.t0,0,0,1e14))} : {}), ...(cpl.short===true ? {short:true} : {}),
@@ -4174,7 +4175,7 @@ function migrate(d){
     goal: [5,10,15].includes(dd.goal) ? dd.goal : 10, face: typeof dd.face==="boolean" ? dd.face : null};
   out.adv = {stars:{}};
   if(isObj(d.adv) && isObj(d.adv.stars)) Object.entries(d.adv.stars).forEach(([k,v]) => { if(/^\d+-[1-6]$/.test(k) && typeof v==="number") out.adv.stars[k] = Math.max(0, Math.min(3, Math.round(v))); });
-  out.pool = Array.isArray(d.pool) ? d.pool.filter(q=>isObj(q) && typeof q.t==="string" && !/<[a-z\/!]/i.test(q.t) && q.t.length<200 && typeof q.r==="number" && isFinite(q.r) && CAT[q.cat]).slice(-40) : [];
+  out.pool = Array.isArray(d.pool) ? d.pool.filter(q=>isObj(q) && !(q.op==="v" && ["num","div","frac"].includes(q.cat)) && typeof q.t==="string" && !/<[a-z\/!]/i.test(q.t) && q.t.length<200 && typeof q.r==="number" && isFinite(q.r) && CAT[q.cat]).slice(-40) : [];
   const owned = new Set(FREE);
   (Array.isArray(d.owned)?d.owned:[]).forEach(id => { if(ITEM[id]) owned.add(id); });
   out.owned = [...owned];
@@ -4350,7 +4351,7 @@ function ensureMissions(){
   let st = h; const rnd = () => { st|=0; st=st+0x6D2B79F5|0; let t=Math.imul(st^st>>>15,1|st); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; };
   const pk = a => a[Math.floor(rnd()*a.length)];
   const tier = D.totals.games<10 ? 0 : D.totals.games<40 ? 1 : 2;
-  const cats = D.cats.length ? D.cats : ["add"];
+  const cats = D.cats.filter(c=>MISSION_T[c]).length ? D.cats.filter(c=>MISSION_T[c]) : ["add"];
   const chosen = [pk(cats), pk(["games","chrono","daily","days"]), pk(["stars","streak","redo"])];
   const rest = ["add","sub","mult","games","chrono","daily","days","stars","streak","redo"].filter(t=>!chosen.includes(t) && (!CAT[t] || cats.includes(t)));
   chosen.push(pk(rest));
@@ -5530,7 +5531,7 @@ function numBlocks(h, t, u){
   for(let k=0;k<u;k++){ const col = Math.floor(k/5), row = k%5; out += sq(x + col*(c+3), P - (row+1)*(c+3) + 3, "var(--primary)"); }
   x += Math.ceil(u/5)*(c+3);
   const W = Math.max(x, 40);
-  return `<svg class="blocks" viewBox="-4 -4 ${W+8} ${P+8}" width="${Math.min(520, (W+8)*1.6)}" role="img" aria-label="${h} centaines, ${t} dizaines, ${u} unités">${out}</svg>`;
+  return `<svg class="blocks" viewBox="-4 -4 ${W+8} ${P+8}" width="${Math.min(520, (W+8)*1.6)}" role="img" aria-label="${NUMW(h,"centaine")}, ${NUMW(t,"dizaine")}, ${NUMW(u,"unité")}">${out}</svg>`;
 }
 const NUMW = (k, w, wp) => `${k} ${k>1 ? (wp||w+"s") : w}`;
 function mkNum(kd){
@@ -5540,8 +5541,8 @@ function mkNum(kd){
     const t = rand(1,9), u = rand(0,9), n = 10*t+u, v = rand(0,2);
     if(v===0) return V({r:n, pic:numBlocks(0,t,u), pre:"Compte les barres de 10, puis les cubes.", t:"Ce nombre est □", say:"Compte les barres de 10, puis les cubes. Quel est ce nombre ?",
       sh:"Compte les barres de 10 en 10 : 10, 20, 30… Puis ajoute les cubes un par un.", sf:`${NUMW(t,"barre")} de 10 = ${10*t}, plus ${NUMW(u,"cube")} : ${n}.`});
-    if(v===1) return V({r:n, t:`${NUMW(t,"dizaine")} et ${NUMW(u,"unité")} = □`, sh:"Une dizaine, c'est 10. Les dizaines s'écrivent à gauche, les unités à droite.", sf:`${t} dizaines = ${10*t}, et ${u} unités : ${n}.`});
-    return V({r:t, pre:`${n}, c'est combien de dizaines et d'unités ?`, t:`${n} = □ dizaines et ${NUMW(u,"unité")}`, sh:`Dans ${n}, le chiffre de gauche dit combien de dizaines.`, sf:`${n} = ${t} dizaines (${10*t}) + ${u} unités.`});
+    if(v===1) return V({r:n, t:`${NUMW(t,"dizaine")} et ${NUMW(u,"unité")} = □`, sh:"Une dizaine, c'est 10. Les dizaines s'écrivent à gauche, les unités à droite.", sf:`${NUMW(t,"dizaine")} = ${10*t}, et ${NUMW(u,"unité")} : ${n}.`});
+    return V({r:t, pre:`${n}, c'est combien de dizaines et d'unités ?`, t:`${n} = □ dizaines et ${NUMW(u,"unité")}`, sh:`Dans ${n}, le chiffre de gauche dit combien de dizaines.`, sf:`${n} = ${NUMW(t,"dizaine")} (${10*t}) + ${NUMW(u,"unité")}.`});
   }
   if(kd===2){                                   // centaines, dizaines, unités
     const h = rand(1,4), t = rand(0,9), u = rand(0,9), n = 100*h+10*t+u, v = rand(0,2);
@@ -5549,7 +5550,7 @@ function mkNum(kd){
       sh:"Compte d'abord les plaques de 100, puis les barres de 10, puis les cubes.", sf:`${h} × 100 = ${100*h}, ${t} × 10 = ${10*t}, et ${u} : ${n}.`});
     const h2 = rand(1,9), t2 = R()<.35 ? 0 : rand(1,9), u2 = rand(0,9), n2 = 100*h2+10*t2+u2;
     if(v===1) return V({r:n2, t:`${NUMW(h2,"centaine")}, ${NUMW(t2,"dizaine")} et ${NUMW(u2,"unité")} = □`, sh:"Écris le chiffre des centaines, puis celui des dizaines, puis celui des unités. S'il n'y a aucune dizaine, on écrit 0 au milieu !",
-      sf:`${h2} centaines = ${100*h2}, ${t2} dizaines = ${10*t2}, ${u2} unités : ${n2}.`});
+      sf:`${NUMW(h2,"centaine")} = ${100*h2}, ${NUMW(t2,"dizaine")} = ${10*t2}, ${NUMW(u2,"unité")} : ${n2}.`});
     return V({r:t2, t:`${n2} = ${NUMW(h2,"centaine")}, □ dizaines et ${NUMW(u2,"unité")}`, sh:"Dans un nombre à 3 chiffres : centaines, dizaines, unités, de gauche à droite.", sf:`Dans ${n2}, le chiffre du milieu (les dizaines) est ${t2}.`});
   }
   if(kd===3){                                   // combien de dizaines / centaines EN TOUT
@@ -5574,7 +5575,7 @@ function mkNum(kd){
   }
   if(kd===6){                                   // les milliers
     const v = rand(0,2), M = rand(1,9), h = rand(0,9), t = R()<.4 ? 0 : rand(0,9), u = rand(0,9), n = 1000*M+100*h+10*t+u;
-    if(v===0) return V({r:n, t:`${NUMW(M,"millier")}, ${NUMW(h,"centaine")}, ${NUMW(t,"dizaine")} et ${NUMW(u,"unité")} = □`, sh:"4 chiffres : milliers, centaines, dizaines, unités. N'oublie pas les 0 !", sf:`${M} milliers ${h} centaines ${t} dizaines ${u} unités : ${F(n)}.`});
+    if(v===0) return V({r:n, t:`${NUMW(M,"millier")}, ${NUMW(h,"centaine")}, ${NUMW(t,"dizaine")} et ${NUMW(u,"unité")} = □`, sh:"4 chiffres : milliers, centaines, dizaines, unités. N'oublie pas les 0 !", sf:`${NUMW(M,"millier")} ${NUMW(h,"centaine")} ${NUMW(t,"dizaine")} ${NUMW(u,"unité")} : ${F(n)}.`});
     if(v===1){ const w = pick([["milliers",M],["centaines",h],["dizaines",t]]); return V({r:w[1], t:`Dans ${F(n)}, le chiffre des ${w[0]} est □`, sh:"De droite à gauche : unités, dizaines, centaines, milliers.", sf:`${F(n)} : milliers ${M}, centaines ${h}, dizaines ${t}, unités ${u}.`}); }
     const m = rand(11,99)*100; return V({r:m/100, t:`Dans ${F(m)}, il y a □ centaines en tout`, sh:"Combien de fois 100 ? Enlève les deux 0 de la fin.", sf:`${F(m)} = ${m/100} × 100.`});
   }
@@ -5621,7 +5622,7 @@ const FRAC_NM = {2:"demi", 3:"tiers", 4:"quart", 5:"cinquième", 6:"sixième", 8
 const fracWord = (k, n) => `${k} ${FRAC_NM[n]}${k>1 && n!==3 ? "s" : ""}`;
 function mkFrac(kd){
   const V = (o) => { const q = Object.assign({cat:"frac", op:"v", kd}, o);
-    q.say = `${q.pre||""} ${q.t}`.replace(/□\/(\d+)/g, (m,n) => ` combien de ${fracWord(2,+n).slice(2)}`).replace(/□/g, " combien ").replace(/(\d+)\/(\d+)/g, (m,k,n) => FRAC_NM[n] ? fracWord(+k,+n) : `${k} sur ${n}`).replace(/\s+/g," ").trim();
+    q.say = `${q.pre||""} ${q.t}`.replace(/□ (parts|unités|dixièmes)/g, "combien de $1").replace(/□\/(\d+)/g, (m,n) => ` combien de ${fracWord(2,+n).slice(2)}`).replace(/□/g, " combien ").replace(/(\d+)\/(\d+)/g, (m,k,n) => FRAC_NM[n] ? fracWord(+k,+n) : `${k} sur ${n}`).replace(/\s+/g," ").trim();
     return q; };
   if(kd===1){                                    // lire une fraction sur une barre
     const n = pick([2,3,4,5,6,8,10]), k = rand(1,n-1), v = rand(0,1);
@@ -5644,7 +5645,7 @@ function mkFrac(kd){
   // kd 5 : fractions et unités
   const v = rand(0,2);
   if(v===0){ const n = pick([2,3,4,5,10]); return V({r:n, pic:fracBar(n,n), t:`Une unité entière = □/${n}`, sh:"Une barre entière, c'est toutes les parts coloriées.", sf:`Toutes les parts : ${n}/${n} = 1 unité.`}); }
-  if(v===1){ const n = pick([2,4,10]), u = rand(1,4), k = rand(1,n-1), tot = u*n+k; return V({r:u, pic:Array.from({length:u}, ()=>fracBar(n,n)).join("") + fracBar(n,k), t:`${tot}/${n} = □ unités et ${k}/${n}`, sh:`${n}/${n}, c'est 1 unité. Combien de fois ${n} dans ${tot} ?`, sf:`${tot}/${n} = ${u*n}/${n} + ${k}/${n} = ${u} unités et ${k}/${n}.`}); }
+  if(v===1){ const n = pick([2,4,10]), u = rand(1,4), k = rand(1,n-1), tot = u*n+k; return V({r:u, pic:Array.from({length:u}, ()=>fracBar(n,n)).join("") + fracBar(n,k), t:`${tot}/${n} = □ unités et ${k}/${n}`, sh:`${n}/${n}, c'est 1 unité. Combien de fois ${n} dans ${tot} ?`, sf:`${tot}/${n} = ${u*n}/${n} + ${k}/${n} = ${NUMW(u,"unité")} et ${k}/${n}.`}); }
   return V({r:10, pic:fracBar(10,10), t:"Dans une unité, il y a □ dixièmes", sh:"Coupe une barre en 10 parts égales.", sf:"1 unité = 10 dixièmes (10/10). C'est aussi pour ça que 0,1 = un dixième."});
 }
 const mkComp = (a,tg) => ({cat:"comp", op:"c", a, b:tg, r:tg-a, t:`${fmt(a)} + □ = ${fmt(tg)}`});
@@ -5730,7 +5731,7 @@ function strategy(q){
     if(k===6) return {h:`Compte les minutes de ${hm(q.hh,q.mm)} jusqu'à ${hm(q.eh,q.em)} : de 5 en 5, ou en passant par l'heure pile.`, f:`De ${hm(q.hh,q.mm)} à ${hm(q.eh,q.em)}, il s'écoule ${q.r} minutes.`};
     return {h:"1 heure = 60 minutes ; une demi-heure = 30 minutes ; un quart d'heure = 15 minutes.", f:q.t.replace("□", q.r)};
   }
-  if(q.cat==="num" || q.cat==="div" || q.cat==="frac") return {h:q.sh, f:q.sf};
+  if(q.cat==="num" || q.cat==="div" || q.cat==="frac") return {h:q.sh || "Lis bien la question, puis prends ton temps.", f:q.sf || `La réponse est ${F(r)}.`};
   if(q.cat==="monnaie"){
     if(q.sh) return {h:q.sh, f:q.sf};
     const k = q.kd, L = q.list || [];
@@ -6436,13 +6437,16 @@ function coachNextNew(excl=[], prefer){
 const coachLate = today => Object.values(D.coach.n).filter(v=>v.due<=today).length;
 function coachBuild(today){
   const C = D.coach, recs = Object.entries(C.n);
-  const due = recs.filter(([,v])=>v.due<=today).sort((a,b)=>(a[1].b===0?0:1)-(b[1].b===0?0:1) || a[1].due-b[1].due || a[1].b-b[1].b).slice(0, D.court ? 2 : COACH_REV_MAX);
+  const rk = v => v.b===0 ? 0 : v.b<=2 && v.n>0 ? 1 : 2;   // d'abord ce qui coince, puis ce qui est encore fragile ; le solide peut attendre un peu
+  const due = recs.filter(([,v])=>v.due<=today).sort((a,b)=>rk(a[1])-rk(b[1]) || a[1].due-b[1].due || a[1].b-b[1].b).slice(0, D.court ? 2 : COACH_REV_MAX);
   const struggling = recs.filter(([,v])=>v.b===0).length;
   const revs = due.map(([id])=>({k:"rev", id, r:null})), steps = [];
   { const mixable = revs.filter(x=>x.id[0]==="c" && !((C.n[x.id]||{}).m) && (C.n[x.id]||{}).b>=1);
     if(mixable.length>=2){ const ids = mixable.slice(0,3).map(x=>x.id), at = revs.indexOf(mixable[0]), rest = revs.filter(x=>!ids.includes(x.id));
       rest.splice(Math.min(at, rest.length), 0, {k:"mix", id:"mix", ids, r:null}); revs.length = 0; revs.push(...rest); } }
-  const nw = struggling<2 && due.length + recs.filter(([,v])=>v.due<=today).length - due.length <= COACH_REV_MAX+2 ? coachNextNew() : null;   // trop de retard : journée « on consolide »
+  // trop de retard sur des notions encore fragiles : journée « on consolide » (les notions déjà solides, ou sues dès le bilan, peuvent attendre un jour)
+  const fragile = recs.filter(([,v])=>v.due<=today && v.n>0 && v.b<=2).length;
+  const nw = struggling<2 && fragile <= COACH_REV_MAX+2 ? coachNextNew() : null;
   if(revs.length) steps.push(revs.shift());                 // une révision pour réveiller le cerveau
   if(nw) steps.push({k:"new", id:nw, r:null});              // puis la notion nouvelle, quand on est bien concentré
   steps.push(...revs);
@@ -6463,6 +6467,14 @@ function coachEnsure(){
     C.seed = true; ch = true; let k = 0;
     COACH_CALC.forEach(id=>{ const I = coachInfo(id); if(I.p < palierOf(I.cat, D.elo[I.cat]) && !C.n[id]) C.n[id] = {b:2, due: today+2+(k++%10), n:0, ok:0, f:today, l:0, s:0}; });
     COACH_FR.forEach(id=>{ const I = coachInfo(id); if(I.p < frPalier(I.fr) && !C.n[id]) C.n[id] = {b:2, due: today+2+(k++%10), n:0, ok:0, f:today, l:0, s:0}; });
+  }
+  if(!C.numSeed){
+    C.numSeed = true; ch = true; let k = 0;
+    const pa = palierOf("add", D.elo.add), pm = palierOf("mult", D.elo.mult), mark = id => { if(!C.n[id]) C.n[id] = {b:2, due: today+3+(k++%8), n:0, ok:1, f:today, l:0, s:0}; };
+    if(pa>=5) ["c:num:1","c:num:2"].forEach(mark);
+    if(pa>=8) ["c:num:3","c:num:4","c:num:5"].forEach(mark);
+    if(pm>=3) mark("c:div:1");
+    if(pm>=5) ["c:div:2","c:div:3"].forEach(mark);
   }
   if(!C.decoSeed){
     C.decoSeed = true; ch = true;
@@ -6866,7 +6878,7 @@ function cubesSteps(a, b, op){
     S.push({say:`Voici ${a} : ${both(ta,ua)}.`, g:[{t:ta,u:ua,c:"a"}]});
     S.push({say:`Il faut enlever ${b} : ${both(tb,ub)}.`, g:[{t:ta,u:ua,c:"a"}]});
     let T = ta, U = ua;
-    if(ua<ub){ S.push({say:`${ua ? `Il n'y a que ${cubes(ua)}` : "Il n'y a aucun cube"} : on ne peut pas en enlever ${ub} ! Alors on casse une barre de 10 en 10 cubes.`, g:[{t:ta-1,u:ua,c:"a"},{t:0,u:10,c:"n"}]}); T = ta-1; U = ua+10; }
+    if(ua<ub){ S.push({say:`${ua ? `Il n'y a ${ua===1 ? "qu'un cube" : `que ${cubes(ua)}`}` : "Il n'y a aucun cube"} : on ne peut pas en enlever ${ub} ! Alors on casse une barre de 10 en 10 cubes.`, g:[{t:ta-1,u:ua,c:"a"},{t:0,u:10,c:"n"}]}); T = ta-1; U = ua+10; }
     S.push({say:`On enlève ${both(tb,ub)}.`, g:[{t:T,u:U,c:"a",gt:tb,gu:ub}]});
   }
   S.push({ask:true, say:`À toi : compte les barres de 10, puis les cubes. Ça fait combien ?`});
@@ -6968,6 +6980,7 @@ function cubesPlayRender(){
   $("cubes-dots").innerHTML = ""; $("cubes-next").hidden = true; $("cubes-play").hidden = true;
   $("cubes-ask").hidden = !done; $("cubes-res").textContent = "";
   if(done){ $("cubes-in").value = ""; setTimeout(()=>$("cubes-in").focus(), 50); }
+  else if(!$("cubes").contains(document.activeElement)){ const cc = $("cubes").querySelector(".cubes-card"); cc.tabIndex = -1; cc.focus({preventScroll:true}); }
 }
 function cubesPlayClick(kind){
   const C = CB10, P = C && C.play; if(!P) return;
@@ -6997,9 +7010,9 @@ function cubesCheck(){
   const C = CB10; if(!C) return;
   const v = parseInt($("cubes-in").value.replace(/\s/g, ""), 10); if(!Number.isFinite(v)) return;
   const ok = v===C.q.r;
-  if(C.q.op==="bar"){ $("cubes-res").innerHTML = ok ? `<b>Bravo !</b> ${C.q.x} = ${fmt(C.q.r)} ${esc(C.q.u||"")}. Le schéma t'a montré quel calcul faire !` : `Pas encore : regarde bien le schéma et refais le calcul. La réponse est ${fmt(C.q.r)}.`; }
+  if(C.q.op==="bar"){ $("cubes-res").innerHTML = ok ? `<b>Bravo !</b> ${C.q.x} = ${fmt(C.q.r)} ${esc(C.q.u||"")}. Le schéma t'a montré quel calcul faire !` : `Pas encore : regarde bien le schéma et refais le calcul.${C.help ? "" : ` La réponse est ${fmt(C.q.r)}.`}`; }
   else $("cubes-res").innerHTML = ok ? `<b>Bravo !</b> ${C.q.a} ${cubesSym(C.q.op)} ${C.q.b} = ${C.q.r}. Tu l'as trouvé tout seul avec les cubes !`
-    : (C.q.op==="x" ? `Pas encore : recompte rangée par rangée, ${C.q.b}, ${2*C.q.b}, ${3*C.q.b}… La réponse est ${C.q.r}.` : `Pas encore : recompte doucement, d'abord les barres (10, 20, 30…), puis les cubes. La réponse est ${C.q.r}.`);
+    : (C.q.op==="x" ? `Pas encore : recompte rangée par rangée, ${C.q.b}, ${2*C.q.b}, ${3*C.q.b}…${C.help ? "" : ` La réponse est ${C.q.r}.`}` : `Pas encore : recompte doucement, d'abord les barres (10, 20, 30…), puis les cubes.${C.help ? "" : ` La réponse est ${C.q.r}.`}`);
   $("cubes-res").className = ok ? "cubes-res ok" : "cubes-res ko";
   sfx(ok ? "good" : "bad"); speak(plain($("cubes-res").innerHTML), .9);
 }
@@ -7041,9 +7054,9 @@ function lineRender(){
   speak(st.say, .9);
 }
 function lineCheck(){
-  const C = LN; if(!C) return; const v = parseInt($("line-in").value, 10); if(!Number.isFinite(v)) return;
+  const C = LN; if(!C) return; const v = parseInt($("line-in").value.replace(/\s/g, ""), 10); if(!Number.isFinite(v)) return;
   const ok = v===C.q.r;
-  $("line-res").innerHTML = ok ? `<b>Bravo !</b> ${C.q.a} ${C.q.op==="+" ? "+" : "−"} ${C.q.b} = ${C.q.r}.` : `Pas encore : suis les bonds jusqu'au bout. La réponse est ${C.q.r}.`;
+  $("line-res").innerHTML = ok ? `<b>Bravo !</b> ${C.q.a} ${C.q.op==="+" ? "+" : "−"} ${C.q.b} = ${C.q.r}.` : `Pas encore : suis les bonds jusqu'au bout.${C.help ? "" : ` La réponse est ${C.q.r}.`}`;
   $("line-res").className = ok ? "cubes-res ok" : "cubes-res ko"; sfx(ok ? "good" : "bad"); speak(plain($("line-res").innerHTML), .9);
 }
 function lineClose(){ LN = null; $("line").hidden = true; hush(); const k = $("key-ok"); if(k) k.focus(); }
@@ -7823,16 +7836,16 @@ function coachDone(c, sc, total){
   }
   if(c.id!=="ecole" && c.id!=="mem" && c.id!=="flash" && c.id!=="voix" && c.id!=="mix"){
     const isNew = step ? step.k==="new" : !C.n[c.id];
-    const v = C.n[c.id] = C.n[c.id] || {b:0, due:0, n:0, ok:0, f:today, l:0, s:0};
+    const v = C.n[c.id] = C.n[c.id] || {b:0, due:0, n:0, ok:0, f:today, l:0, s:0}, seeded = !isNew && v.n===0;
     v.n++; v.l = today; v.s = pct;
     if(isNew){ verdict = pct>=90 ? "deja" : pct>=70 ? "ok" : "rate"; v.b = verdict==="deja" ? 2 : verdict==="ok" ? 1 : 0; C.lt = c.id[0]; }
-    else { verdict = pct>=80 ? "bravo" : pct>=60 ? "moyen" : "rate"; v.b = verdict==="bravo" ? Math.min(5, v.b+1) : verdict==="moyen" ? Math.max(1, v.b-1) : 0; }
+    else { verdict = pct>=80 ? "bravo" : pct>=60 ? "moyen" : "rate"; v.b = verdict==="bravo" ? Math.min(5, seeded ? Math.max(4, v.b+1) : v.b+1) : verdict==="moyen" ? Math.max(1, v.b-1) : 0; }   // déjà su (bilan) et revérifié : on espace tout de suite
     if(verdict==="deja" || verdict==="ok" || verdict==="bravo") v.ok++;
     if(verdict==="rate"){ v.x = (v.x||0) + 1; if(v.x>=2){ v.x = 0; v.m = Math.min(2, (v.m||0) + 1); stuck = coachStuck(c.id, v.m); } }
     else if(verdict!=="moyen"){ v.x = 0; if(v.m && v.b>=3) v.m--; }
     days = COACH_DAYS[v.b]; v.due = today + days;
     // déjà su : on passe tout de suite à la suite (4 notions nouvelles au plus par jour)
-    if(verdict==="deja" && step && C.plan.nw < COACH_NEW_MAX && C.plan.steps.length<8 && coachLate(today) <= COACH_REV_MAX+2){
+    if(verdict==="deja" && step && C.plan.nw < COACH_NEW_MAX && C.plan.steps.length<(D.court ? 3 : 8) && coachLate(today) <= COACH_REV_MAX+2){
       const nx = coachNextNew(C.plan.steps.map(x=>x.id), c.id[0]);
       if(nx){ C.plan.steps.splice(c.i+1, 0, {k:"new", id:nx, r:null}); C.plan.nw++; extra = nx; }
     }
@@ -8957,7 +8970,7 @@ $("hello-speak").addEventListener("click", ()=>{ speak(plain($("home-bubble").in
 $("p-sesfr").addEventListener("click", ()=>{ D.sesFr = !D.sesFr; persist(); sfx("tap"); SES = null; renderParents(); toast(D.sesFr ? "Français ajouté à l'entraînement libre" : "Entraînement libre : calcul seulement"); });
 $("p-court").addEventListener("click", ()=>{ D.court = !D.court;
   const P = D.coach && D.coach.plan; if(P && D.coach.last!==dayNum() && P.steps.every(x=>x.r==null)) P.d = 0;   // pas encore commencé : on refait le programme du jour
-  persist(); sfx("tap"); renderParents(); toast(D.court ? "Programme court activé (3 étapes au plus)" : "Programme normal activé"); });
+  persist(); sfx("tap"); renderParents(); toast((D.court ? "Programme court activé (3 étapes au plus)" : "Programme normal activé") + (P && P.d!==0 && P.steps.some(x=>x.r!=null) && D.coach.last!==dayNum() ? " : à partir de demain" : "")); });
 $("p-clair").addEventListener("click", ()=>{ D.view = D.view==="clair" ? "complet" : "clair"; persist(); sfx("tap"); renderParents(); toast(D.view==="clair" ? "Accueil simplifié activé" : "Accueil complet activé"); });
 
 /* ======================================================================
@@ -10497,6 +10510,7 @@ $("stuckbtn").addEventListener("click", ()=>{
   const fb = $("feedback"); fb.className = "bubble hint"; fb.innerHTML = `<b>Pas de souci, on regarde ensemble.</b> Après, tape ta réponse.`;
   sfx("tap");
   if(k==="bar") barOpen(S.cur); else if(k==="cubes") cubesOpen(S.cur); else lineOpen(S.cur);
+  if(k==="line"){ if(LN) LN.help = true; } else if(CB10) CB10.help = true;
 });
 $("hintbtn").addEventListener("click", ()=>{
   if(!S||S.locked) return;
@@ -10520,7 +10534,7 @@ function learn(q, ok){
   const up = eloUpdate(q, ok);
   const i = D.pool.findIndex(p=>p.t===q.t);
   if(ok && i>=0 && !q.hint) D.pool.splice(i,1);
-  if(!ok && i<0){ const {cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}=q; D.pool.push({cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}); if(D.pool.length>40) D.pool.shift(); }
+  if(!ok && i<0 && !(q.op==="v" && ["num","div","frac"].includes(q.cat))){ const {cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}=q; D.pool.push({cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}); if(D.pool.length>40) D.pool.shift(); }
   persist();
   return up;
 }
@@ -10951,6 +10965,7 @@ $("d-quit").addEventListener("click", ()=>{
    ====================================================================== */
 $("keypad").addEventListener("click", e=>{ const b=e.target.closest(".key"); if(!b) return; b.dataset.k==="ok" ? submit() : type(b.dataset.k); });
 document.addEventListener("keydown", e=>{
+  if(!$("cubes").hidden || !$("line").hidden){ if(e.key==="Escape"){ if(!$("cubes").hidden) cubesClose(); else lineClose(); } return; }
   if(current==="duel" && DU && !DU.over){
     if(/^[0-9]$/.test(e.key)){ duelType(0,e.key); e.preventDefault(); }
     else if(e.key==="Backspace"){ duelType(0,"del"); e.preventDefault(); }
