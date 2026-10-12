@@ -18,7 +18,7 @@
     radial-gradient(60px 20px at 6% 80%, rgba(255,255,255,.5) 96%, transparent 100%);
   --card:#ffffff; --soft:#eef3fb; --line:#dbe3f1; --ink:#1b2545; --ink-soft:#5c6789;
   --primary:#e46a06; --on-primary:#ffffff; --primary-ink:#b04f00;
-  --c-add:#2468d8; --c-sub:#d93a30; --c-mult:#0e7f4e; --c-comp:#0a7c87; --c-half:#b05e00; --c-prob:#7b3fc4; --c-dec:#a3366f; --c-big:#3f51b5; --c-deco:#76620a; --c-heure:#0f6e8c; --c-monnaie:#8a6100; --on-c:#ffffff;
+  --c-add:#2468d8; --c-sub:#d93a30; --c-mult:#0e7f4e; --c-comp:#0a7c87; --c-half:#b05e00; --c-prob:#7b3fc4; --c-dec:#a3366f; --c-big:#3f51b5; --c-num:#6b7a00; --c-div:#8a3f8f; --c-deco:#76620a; --c-heure:#0f6e8c; --c-monnaie:#8a6100; --on-c:#ffffff;
   --good:#138548; --good-ink:#0f7a40; --good-soft:#dcf5e5; --bad:#c4342b; --bad-ink:#b52c24; --bad-soft:#fde3e0; --on-bad:#ffffff; --warn:#e38a0c; --warn-ink:#9a5800; --on-warn:#2b1700; --warn-soft:#ffefd6;
   --star:#ffbe17; --xp:#6844e6; --plume:#a85b00; --locked:#c3cbdb; --pet-ink:#b8264f;
   --f-display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
@@ -44,7 +44,7 @@
     radial-gradient(1.8px 1.8px at 56% 92%, #fff 60%, transparent 100%);
   --card:#19224a; --soft:#222d5b; --line:#2f3b70; --ink:#eef1ff; --ink-soft:#a8b2da;
   --primary:#ff9a3c; --on-primary:#1a1200; --primary-ink:#ffb066;
-  --c-add:#6ea6ff; --c-sub:#ff7f74; --c-mult:#4ed699; --c-comp:#5fd5df; --c-half:#ffb166; --c-prob:#c39bff; --c-dec:#ff8fc8; --c-big:#9fb0ff; --c-deco:#e6d36a; --c-heure:#6fd0ee; --c-monnaie:#f2c45a; --on-c:#0d1433;
+  --c-add:#6ea6ff; --c-sub:#ff7f74; --c-mult:#4ed699; --c-comp:#5fd5df; --c-half:#ffb166; --c-prob:#c39bff; --c-dec:#ff8fc8; --c-big:#9fb0ff; --c-num:#d2e070; --c-div:#e7a6ec; --c-deco:#e6d36a; --c-heure:#6fd0ee; --c-monnaie:#f2c45a; --on-c:#0d1433;
   --good:#5fe093; --good-soft:rgba(95,224,147,.14); --bad:#ff7b70; --bad-soft:rgba(255,123,112,.15); --warn:#ffb54a; --warn-soft:rgba(255,181,74,.15);
   --star:#ffcf3f; --xp:#a690ff; --plume:#ffaa3a; --locked:#3b4780; --pet-ink:#ff9fb8;
   --good-ink:#5fe093; --bad-ink:#ff8a80; --on-bad:#1a0d0d; --warn-ink:#ffb54a; --on-warn:#1a1200;
@@ -70,7 +70,7 @@
     radial-gradient(1.8px 1.8px at 56% 92%, #fff 60%, transparent 100%);
   --card:#19224a; --soft:#222d5b; --line:#2f3b70; --ink:#eef1ff; --ink-soft:#a8b2da;
   --primary:#ff9a3c; --on-primary:#1a1200; --primary-ink:#ffb066;
-  --c-add:#6ea6ff; --c-sub:#ff7f74; --c-mult:#4ed699; --c-comp:#5fd5df; --c-half:#ffb166; --c-prob:#c39bff; --c-dec:#ff8fc8; --c-big:#9fb0ff; --c-deco:#e6d36a; --c-heure:#6fd0ee; --c-monnaie:#f2c45a; --on-c:#0d1433;
+  --c-add:#6ea6ff; --c-sub:#ff7f74; --c-mult:#4ed699; --c-comp:#5fd5df; --c-half:#ffb166; --c-prob:#c39bff; --c-dec:#ff8fc8; --c-big:#9fb0ff; --c-num:#d2e070; --c-div:#e7a6ec; --c-deco:#e6d36a; --c-heure:#6fd0ee; --c-monnaie:#f2c45a; --on-c:#0d1433;
   --good:#5fe093; --good-soft:rgba(95,224,147,.14); --bad:#ff7b70; --bad-soft:rgba(255,123,112,.15); --warn:#ffb54a; --warn-soft:rgba(255,181,74,.15);
   --star:#ffcf3f; --xp:#a690ff; --plume:#ffaa3a; --locked:#3b4780; --pet-ink:#ff9fb8;
   --good-ink:#5fe093; --bad-ink:#ff8a80; --on-bad:#1a0d0d; --warn-ink:#ffb54a; --on-warn:#1a1200;
@@ -898,6 +898,7 @@ svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
 .cb-bar.gone,.cb-cube.gone{opacity:.22;outline:2px dashed var(--bad);outline-offset:1px}
 .numline{position:relative;height:120px;margin:8px 0;overflow-x:auto}
 .numline svg{display:block;min-width:100%;height:120px}
+.vpic svg.blocks,#lesson-rule svg.blocks{display:block;margin:6px auto;max-width:100%;height:auto}
 .cb-rect{display:flex;flex-direction:column;gap:4px}
 .cb-row{display:flex;gap:4px;align-items:center}
 .cb-row.cut{margin-top:10px;padding-top:10px;border-top:3px dashed var(--ink)}
@@ -2052,6 +2053,8 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
       <p class="muted" style="margin:0">Désactivés par défaut. Une fois activés, ils apparaissent dans « Que veux-tu travailler ? », avec leurs propres paliers.</p>
       <div class="switch"><span>Compléments <span class="muted">(37 + ? = 100)</span></span><button id="p-x-comp" data-x="comp" aria-label="Compléments"></button></div>
       <div class="switch"><span>Lire l'heure <span class="muted">(horloge à aiguilles, durées, l'après-midi)</span></span><button id="p-x-heure" data-x="heure" aria-label="Lire l'heure"></button></div>
+      <div class="switch"><span>La division <span class="muted">(partager, paquets, ÷ avec les tables)</span></span><button id="p-x-div" data-x="div" aria-label="La division"></button></div>
+      <div class="switch"><span>Les nombres <span class="muted">(dizaines, centaines, milliers, comparer)</span></span><button id="p-x-num" data-x="num" aria-label="Les nombres"></button></div>
       <div class="switch"><span>La monnaie <span class="muted">(compter les pièces et billets, rendre la monnaie)</span></span><button id="p-x-monnaie" data-x="monnaie" aria-label="La monnaie"></button></div>
       <div class="switch"><span>Décomposer les nombres <span class="muted">(7 = 5 + ?, 18 = 10 + ?, 13 − 5 = 13 − 3 − ?)</span></span><button id="p-x-deco" data-x="deco" aria-label="Décomposer les nombres"></button></div>
       <div class="switch"><span>Doubles et moitiés <span class="muted">(double de 36, moitié de 84)</span></span><button id="p-x-half" data-x="half" aria-label="Doubles et moitiés"></button></div>
@@ -2248,6 +2251,8 @@ const CATS = [
   {id:"deco", nm:"Décomposer", sym:"⇄", extra:true, ex:"18 = 10 + ?"},
   {id:"heure", nm:"Lire l'heure", sym:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`, extra:true, ex:"il est 7 h 30"},
   {id:"monnaie", nm:"La monnaie", sym:"€", extra:true, ex:"rendre la monnaie"},
+  {id:"num", nm:"Les nombres", sym:"123", extra:true, ex:"345 = 3 centaines…"},
+  {id:"div", nm:"La division", sym:"÷", extra:true, ex:"24 ÷ 6, partager"},
   {id:"half", nm:"Doubles, moitiés", sym:"½", extra:true, ex:"double de 36, moitié de 84"},
   {id:"big", nm:"Grands nombres", sym:'<span style="font-size:.5em;letter-spacing:-.02em">1 000</span>', extra:true, ex:"25 000 + 5 000"},
   {id:"dec", nm:"Nombres à virgule", sym:",5", extra:true, ex:"2,5 + 1,3"},
@@ -3258,6 +3263,23 @@ const LADDER = {
     {nm:"Combien de temps ça dure ?", g:()=>mkHeure(6)},
     {nm:"Heures et minutes", g:()=>mkHeure(7)}
   ],
+  div:[
+    {nm:"Partager en parts égales", g:()=>mkDiv(1)},
+    {nm:"Faire des paquets", g:()=>mkDiv(2)},
+    {nm:"÷ avec les tables de 2 à 5", g:()=>mkDiv(3)},
+    {nm:"÷ avec les tables de 6 à 9", g:()=>mkDiv(4)},
+    {nm:"Avec un reste", g:()=>mkDiv(5)},
+    {nm:"Diviser des dizaines", g:()=>mkDiv(6)}
+  ],
+  num:[
+    {nm:"Dizaines et unités", g:()=>mkNum(1)},
+    {nm:"Centaines, dizaines, unités", g:()=>mkNum(2)},
+    {nm:"Combien de dizaines en tout ?", g:()=>mkNum(3)},
+    {nm:"Plus grand, plus petit", g:()=>mkNum(4)},
+    {nm:"Juste avant, juste après", g:()=>mkNum(5)},
+    {nm:"Les milliers", g:()=>mkNum(6)},
+    {nm:"Les grands nombres", g:()=>mkNum(7)}
+  ],
   monnaie:[
     {nm:"Pièces de 1 € et 2 €", g:()=>mkMonnaie(1)},
     {nm:"Billets et pièces", g:()=>mkMonnaie(2)},
@@ -3932,6 +3954,8 @@ const MISSION_T = {
   redo:{lab:n=>`Corrige ${n} erreurs avec « Refaire mes erreurs »`, g:[3,5,8], rw:20, ic:"↺"},
   comp:{lab:n=>`Réussis ${n} compléments`, g:[20,35,50], rw:20, ic:"?"},
   half:{lab:n=>`Réussis ${n} doubles ou moitiés`, g:[20,35,50], rw:20, ic:"½"},
+  num:{lab:n=>`Réussis ${n} questions sur les nombres`, g:[20,35,50], rw:20, ic:"123"},
+  div:{lab:n=>`Réussis ${n} divisions`, g:[15,30,45], rw:20, ic:"÷"},
   prob:{lab:n=>`Résous ${n} petits problèmes`, g:[8,12,16], rw:25, ic:"?"},
   dec:{lab:n=>`Réussis ${n} calculs à virgule`, g:[15,25,40], rw:25, ic:","},
   big:{lab:n=>`Réussis ${n} calculs avec de grands nombres`, g:[15,25,40], rw:25, ic:"k"}
@@ -3940,15 +3964,15 @@ const MISSION_T = {
    LE COACH « APPRENDRE » : les notions dans l'ordre du CM1 (des bases vers le programme de l'année),
    une notion nouvelle par jour si tout va bien, des révisions espacées (raté → demain ; réussi → de plus en plus tard)
    ====================================================================== */
-const COACH_CALC = ("add:1 sub:1 deco:1 comp:1 deco:2 half:1 deco:3 add:2 deco:4 sub:2 mult:1 heure:1 monnaie:1 half:2 comp:2 heure:2 add:3 sub:3 mult:2 monnaie:2 add:4 sub:4 comp:3 heure:3 mult:3 half:3 monnaie:3 add:5 sub:5 mult:4 heure:4 comp:4 half:4 monnaie:4 prob:1 "
-  + "add:6 sub:6 mult:5 heure:5 prob:2 monnaie:5 add:7 sub:7 mult:6 heure:6 comp:5 half:5 monnaie:6 prob:3 heure:7 add:8 sub:8 mult:7 prob:4 mult:8 half:6 big:1 add:9 sub:9 mult:9 comp:6 big:2 prob:5 "
-  + "add:10 sub:10 half:7 big:3 comp:7 dec:1 prob:6 add:11 sub:11 big:4 dec:2 half:8 comp:8 big:5 dec:3 prob:7 add:12 sub:12 big:6 dec:4 dec:5 big:7 prob:8 dec:6 dec:7 big:8 dec:8").split(" ").map(x=>"c:"+x);
+const COACH_CALC = ("add:1 sub:1 deco:1 comp:1 deco:2 num:1 half:1 deco:3 add:2 deco:4 sub:2 num:2 mult:1 heure:1 monnaie:1 half:2 comp:2 heure:2 add:3 sub:3 mult:2 div:1 monnaie:2 add:4 sub:4 num:3 comp:3 heure:3 mult:3 div:2 half:3 monnaie:3 add:5 sub:5 num:4 mult:4 div:3 heure:4 comp:4 half:4 monnaie:4 prob:1 "
+  + "add:6 sub:6 num:5 mult:5 heure:5 prob:2 monnaie:5 add:7 sub:7 mult:6 heure:6 comp:5 half:5 monnaie:6 prob:3 heure:7 add:8 sub:8 mult:7 prob:4 mult:8 div:4 half:6 num:6 big:1 add:9 sub:9 mult:9 div:5 comp:6 big:2 num:7 prob:5 "
+  + "add:10 sub:10 half:7 big:3 div:6 comp:7 dec:1 prob:6 add:11 sub:11 big:4 dec:2 half:8 comp:8 big:5 dec:3 prob:7 add:12 sub:12 big:6 dec:4 dec:5 big:7 prob:8 dec:6 dec:7 big:8 dec:8").split(" ").map(x=>"c:"+x);
 const COACH_FR = (()=>{ const out = [], ids = ["mots","gram","conj","accord","lire"], mx = Math.max(...ids.map(i=>FR_LADDER[i].length));
   for(let p=1; p<=mx; p++) ids.forEach(i=>{ if(FR_LADDER[i][p-1]) out.push(`f:${i}:${p}`); }); return out; })();
 const COACH_IDS = new Set([...COACH_CALC, ...COACH_FR]);
 const COACH_DAYS = [1,2,4,8,16,32];      // boîte 0 = pas encore su → demain ; puis 2, 4, 8, 16, 32 jours
 const COACH_PRIZE = 25, COACH_NEW_MAX = 4, COACH_REV_MAX = 3;
-const COACH_PRE = {heure:"L'heure", monnaie:"La monnaie", deco:"Décomposer", add:"Additions", sub:"Soustractions", big:"Grands nombres", dec:"Nombres à virgule", prob:"Problèmes"};
+const COACH_PRE = {div:"La division", num:"Les nombres", heure:"L'heure", monnaie:"La monnaie", deco:"Décomposer", add:"Additions", sub:"Soustractions", big:"Grands nombres", dec:"Nombres à virgule", prob:"Problèmes"};
 /* sections du grand bilan (voir plus bas) */
 const BL_CALC = ["add","sub","mult","comp","half","prob","big","dec"];
 const BL_FR = ["mots","gram","accord","conj","lire"];
@@ -5455,6 +5479,98 @@ function mkDeco(kd){
   if(kd===3){ const a = rand(6,9), b = rand(11-a,9), c = 10-a; return {cat:"deco", op:"k", kd, a, b, c, r:b-c, t:`${a} + ${b} = ${a} + ${c} + □`}; }
   const a = rand(11,18), u = a%10, b = rand(u+1,9); return {cat:"deco", op:"k", kd:4, a, b, c:u, r:b-u, t:`${a} − ${b} = ${a} − ${u} − □`};
 }
+/* ---------- Numération : centaines, dizaines, unités (avec plaques, barres et cubes dessinés) ---------- */
+function numBlocks(h, t, u){
+  const c = 9, g = 2, P = 10*c + 9*g, B = c;            // plaque 100 = 10×10 petits carrés ; barre = 1×10 ; cube = 1
+  let x = 0, out = "";
+  const sq = (X, Y, col) => `<rect x="${X}" y="${Y}" width="${c}" height="${c}" rx="1.6" fill="${col}"/>`;
+  for(let k=0;k<h;k++){ for(let i=0;i<10;i++) for(let j=0;j<10;j++) out += sq(x + j*(c+g), i*(c+g), "var(--c-num)"); x += P + 10; }
+  if(h) x += 6;
+  for(let k=0;k<t;k++){ for(let i=0;i<10;i++) out += sq(x, i*(c+g), "var(--c-add)"); x += B + 5; }
+  if(t) x += 10;
+  for(let k=0;k<u;k++){ const col = Math.floor(k/5), row = k%5; out += sq(x + col*(c+3), P - (row+1)*(c+3) + 3, "var(--primary)"); }
+  x += Math.ceil(u/5)*(c+3);
+  const W = Math.max(x, 40);
+  return `<svg class="blocks" viewBox="-4 -4 ${W+8} ${P+8}" width="${Math.min(520, (W+8)*1.6)}" role="img" aria-label="${h} centaines, ${t} dizaines, ${u} unités">${out}</svg>`;
+}
+const NUMW = (k, w, wp) => `${k} ${k>1 ? (wp||w+"s") : w}`;
+function mkNum(kd){
+  const V = (o) => Object.assign({cat:"num", op:"v", kd}, o), F = fmt;
+  const hdu = n => [Math.floor(n/100)%10, Math.floor(n/10)%10, n%10];
+  if(kd===1){                                   // dizaines et unités
+    const t = rand(1,9), u = rand(0,9), n = 10*t+u, v = rand(0,2);
+    if(v===0) return V({r:n, pic:numBlocks(0,t,u), pre:"Compte les barres de 10, puis les cubes.", t:"Ce nombre est □", say:"Compte les barres de 10, puis les cubes. Quel est ce nombre ?",
+      sh:"Compte les barres de 10 en 10 : 10, 20, 30… Puis ajoute les cubes un par un.", sf:`${NUMW(t,"barre")} de 10 = ${10*t}, plus ${NUMW(u,"cube")} : ${n}.`});
+    if(v===1) return V({r:n, t:`${NUMW(t,"dizaine")} et ${NUMW(u,"unité")} = □`, sh:"Une dizaine, c'est 10. Les dizaines s'écrivent à gauche, les unités à droite.", sf:`${t} dizaines = ${10*t}, et ${u} unités : ${n}.`});
+    return V({r:t, pre:`${n}, c'est combien de dizaines et d'unités ?`, t:`${n} = □ dizaines et ${NUMW(u,"unité")}`, sh:`Dans ${n}, le chiffre de gauche dit combien de dizaines.`, sf:`${n} = ${t} dizaines (${10*t}) + ${u} unités.`});
+  }
+  if(kd===2){                                   // centaines, dizaines, unités
+    const h = rand(1,4), t = rand(0,9), u = rand(0,9), n = 100*h+10*t+u, v = rand(0,2);
+    if(v===0) return V({r:n, pic:numBlocks(h,t,u), pre:"Les grandes plaques valent 100, les barres 10, les cubes 1.", t:"Ce nombre est □", say:"Les grandes plaques valent 100, les barres 10, les cubes 1. Quel est ce nombre ?",
+      sh:"Compte d'abord les plaques de 100, puis les barres de 10, puis les cubes.", sf:`${h} × 100 = ${100*h}, ${t} × 10 = ${10*t}, et ${u} : ${n}.`});
+    const h2 = rand(1,9), t2 = R()<.35 ? 0 : rand(1,9), u2 = rand(0,9), n2 = 100*h2+10*t2+u2;
+    if(v===1) return V({r:n2, t:`${NUMW(h2,"centaine")}, ${NUMW(t2,"dizaine")} et ${NUMW(u2,"unité")} = □`, sh:"Écris le chiffre des centaines, puis celui des dizaines, puis celui des unités. S'il n'y a aucune dizaine, on écrit 0 au milieu !",
+      sf:`${h2} centaines = ${100*h2}, ${t2} dizaines = ${10*t2}, ${u2} unités : ${n2}.`});
+    return V({r:t2, t:`${n2} = ${NUMW(h2,"centaine")}, □ dizaines et ${NUMW(u2,"unité")}`, sh:"Dans un nombre à 3 chiffres : centaines, dizaines, unités, de gauche à droite.", sf:`Dans ${n2}, le chiffre du milieu (les dizaines) est ${t2}.`});
+  }
+  if(kd===3){                                   // combien de dizaines / centaines EN TOUT
+    const v = rand(0,2);
+    if(v===0){ const n = rand(12,98)*10 + rand(0,9); return V({r:Math.floor(n/10), pre:`Avec ${F(n)} cubes, on fait des paquets de 10.`, t:`On peut faire □ paquets de 10`, sh:"Cache le chiffre des unités : ce qui reste, c'est le nombre de dizaines en tout.", sf:`${F(n)} : on cache le ${n%10} des unités, il reste ${Math.floor(n/10)}. Donc ${Math.floor(n/10)} dizaines en tout.`}); }
+    if(v===1){ const n = rand(12,99)*10; return V({r:n/10, t:`Dans ${F(n)}, il y a □ dizaines en tout`, sh:"Combien de fois 10 dans ce nombre ? Enlève le 0 de la fin.", sf:`${F(n)} = ${n/10} × 10. Il y a ${n/10} dizaines.`}); }
+    const n = rand(11,99)*100; return V({r:n/100, t:`Dans ${F(n)}, il y a □ centaines en tout`, sh:"Combien de fois 100 ? Enlève les deux 0 de la fin.", sf:`${F(n)} = ${n/100} × 100. Il y a ${n/100} centaines.`});
+  }
+  if(kd===4){                                   // plus grand, plus petit (pièges de position)
+    const a = rand(1,9), b = rand(0,9), c = rand(0,9), x = 100*a+10*b+c;
+    let y = R()<.5 ? 100*a+10*c+b : 100*b+10*a+c; if(y===x || y<100) y = x + pick([-90,-9,9,90]); if(y<100 || y>999) y = x>500 ? x-90 : x+90;
+    const big = R()<.6, r = big ? Math.max(x,y) : Math.min(x,y), pr = R()<.5 ? [x,y] : [y,x];
+    return V({r, t:`Le plus ${big?"grand":"petit"} de ${F(pr[0])} et ${F(pr[1])} est □`, sh:"Compare d'abord les centaines. Si c'est pareil, compare les dizaines, puis les unités.",
+      sf:`${F(Math.max(x,y))} > ${F(Math.min(x,y))} : on regarde le chiffre le plus à gauche qui change.`});
+  }
+  if(kd===5){                                   // juste avant / juste après, 10 de plus, 100 de moins
+    const v = rand(0,3), n = rand(1,9)*100 + pick([0, 9, 90, 99, rand(10,89)]);
+    if(v===0){ const m = R()<.6 ? rand(1,9)*100 + 99 : rand(1,9)*100 + rand(1,8)*10 + 9; return V({r:m+1, t:`Juste après ${F(m)}, il y a □`, sh:"On ajoute 1. Si les unités font 10, on passe à la dizaine suivante.", sf:`${F(m)} + 1 = ${F(m+1)}.`}); }
+    if(v===1){ const m = rand(2,9)*100 + pick([0, 10, rand(1,9)*10]); return V({r:m-1, t:`Juste avant ${F(m)}, il y a □`, sh:"On enlève 1. Si les unités sont à 0, on casse une dizaine.", sf:`${F(m)} − 1 = ${F(m-1)}.`}); }
+    if(v===2){ const m = rand(1,8)*100 + rand(90,99); return V({r:m+10, t:`10 de plus que ${F(m)}, c'est □`, sh:"On ajoute une dizaine : le chiffre des dizaines augmente de 1 (attention à la retenue).", sf:`${F(m)} + 10 = ${F(m+10)}.`}); }
+    const m = rand(2,9)*100 + rand(0,99); return V({r:m-100, t:`100 de moins que ${F(m)}, c'est □`, sh:"On enlève une centaine : seul le chiffre des centaines baisse de 1.", sf:`${F(m)} − 100 = ${F(m-100)}.`});
+  }
+  if(kd===6){                                   // les milliers
+    const v = rand(0,2), M = rand(1,9), h = rand(0,9), t = R()<.4 ? 0 : rand(0,9), u = rand(0,9), n = 1000*M+100*h+10*t+u;
+    if(v===0) return V({r:n, t:`${NUMW(M,"millier")}, ${NUMW(h,"centaine")}, ${NUMW(t,"dizaine")} et ${NUMW(u,"unité")} = □`, sh:"4 chiffres : milliers, centaines, dizaines, unités. N'oublie pas les 0 !", sf:`${M} milliers ${h} centaines ${t} dizaines ${u} unités : ${F(n)}.`});
+    if(v===1){ const w = pick([["milliers",M],["centaines",h],["dizaines",t]]); return V({r:w[1], t:`Dans ${F(n)}, le chiffre des ${w[0]} est □`, sh:"De droite à gauche : unités, dizaines, centaines, milliers.", sf:`${F(n)} : milliers ${M}, centaines ${h}, dizaines ${t}, unités ${u}.`}); }
+    const m = rand(11,99)*100; return V({r:m/100, t:`Dans ${F(m)}, il y a □ centaines en tout`, sh:"Combien de fois 100 ? Enlève les deux 0 de la fin.", sf:`${F(m)} = ${m/100} × 100.`});
+  }
+  // kd 7 : grands nombres (jusqu'à 99 999)
+  const v = rand(0,2), n = rand(10,99)*1000 + rand(0,9)*100 + pick([0, rand(1,99)]);
+  if(v===0){ const w = pick([["dizaines de mille",Math.floor(n/10000)%10],["milliers",Math.floor(n/1000)%10],["centaines",Math.floor(n/100)%10]]); return V({r:w[1], t:`Dans ${F(n)}, le chiffre des ${w[0]} est □`, sh:"Par groupes de 3 à partir de la droite : le groupe de gauche, ce sont les milliers.", sf:`${F(n)} : le chiffre des ${w[0]} est ${w[1]}.`}); }
+  if(v===1){ const m = pick([9999, 19999, 49999, rand(1,9)*10000 - 1]); return V({r:m+1, t:`Juste après ${F(m)}, il y a □`, sh:"Quand tous les chiffres sont des 9, ajouter 1 fait tout passer au rang suivant.", sf:`${F(m)} + 1 = ${F(m+1)}.`}); }
+  const a = rand(10,99)*1000 + rand(0,9)*100, b = a + pick([90, 900, -90, -900, 9000]); const big = R()<.5;
+  return V({r: big ? Math.max(a,b) : Math.min(a,b), t:`Le plus ${big?"grand":"petit"} de ${F(a)} et ${F(b)} est □`, sh:"Compare chiffre par chiffre, de gauche à droite.", sf:`${F(Math.max(a,b))} > ${F(Math.min(a,b))}.`});
+}
+/* ---------- Division : partager, faire des paquets, le lien avec les tables, le reste ---------- */
+const DIV_OBJ = [["bonbons","bonbon",0],["billes","bille",1],["cartes","carte",1],["images","image",1],["gâteaux","gâteau",0],["crayons","crayon",0],["autocollants","autocollant",0]];
+function mkDiv(kd){
+  const V = (o) => Object.assign({cat:"div", op:"v", kd}, o);
+  if(kd===1){                                    // partager en parts égales (tables 2 à 5)
+    const b = rand(2,5), q = rand(2,6), a = b*q, o = pick(DIV_OBJ);
+    return V({r:q, a, b, dv:true, pre:`${a} ${o[0]} partagé${o[2]?"e":""}s entre ${b} enfants, en parts égales.`, t:"Chacun en a □", sh:`On distribue un par un à chaque enfant, comme aux cartes. Ou on cherche : ${b} × ? = ${a}.`, sf:`${b} × ${q} = ${a}, donc chacun en a ${q}.`});
+  }
+  if(kd===2){                                    // faire des paquets
+    const b = rand(2,5), q = rand(2,8), a = b*q, o = pick(DIV_OBJ);
+    return V({r:q, a, b, dv:true, pre:`J'ai ${a} ${o[0]}. Je fais des paquets de ${b}.`, t:"Je fais □ paquets", sh:`Compte de ${b} en ${b} jusqu'à ${a} : combien de fois ?`, sf:`${Array.from({length:q}, (_,k)=>(k+1)*b).join(", ")} : ${q} paquets.`});
+  }
+  if(kd===3 || kd===4){                          // ÷ avec les tables (2 à 5, puis 6 à 9)
+    const b = kd===3 ? rand(2,5) : rand(6,9), q = rand(2,10), a = b*q;
+    return V({r:q, a, b, dv:true, t:`${a} ÷ ${b} = □`, sh:`Diviser, c'est l'inverse de multiplier : cherche ${b} × ? = ${a}.`, sf:`${b} × ${q} = ${a}, donc ${a} ÷ ${b} = ${q}.`});
+  }
+  if(kd===5){                                    // avec un reste
+    const b = rand(2,9), q = rand(2,9), rst = rand(1,b-1), a = b*q + rst, o = pick(DIV_OBJ);
+    return R()<.5 ? V({r:q, a, b, dv:true, pre:`${a} ${o[0]}, des paquets de ${b}.`, t:`□ paquets complets (il en reste ${rst})`, sh:`Cherche le plus grand nombre de la table de ${b} qui ne dépasse pas ${a}.`, sf:`${b} × ${q} = ${b*q}, et ${a} − ${b*q} = ${rst} qui reste.`})
+      : V({r:rst, a, b, pre:`On partage ${a} ${o[0]} entre ${b} enfants, chacun en a ${q}.`, t:"Il en reste □", sh:`${b} enfants × ${q} = combien ? Puis ce qui reste jusqu'à ${a}.`, sf:`${b} × ${q} = ${b*q}, et ${a} − ${b*q} = ${rst}.`});
+  }
+  // kd 6 : diviser des dizaines / centaines
+  const b = rand(2,9), q = rand(2,9), m = pick([10,100]), a = b*q*m;
+  return V({r:q*m, a, b, t:`${fmt(a)} ÷ ${b} = □`, sh:`Pense à ${b*q} ÷ ${b} = ${q}, puis remets le${m===100?"s deux":""} 0.`, sf:`${b*q} ÷ ${b} = ${q}, donc ${fmt(a)} ÷ ${b} = ${fmt(q*m)}.`});
+}
 const mkComp = (a,tg) => ({cat:"comp", op:"c", a, b:tg, r:tg-a, t:`${fmt(a)} + □ = ${fmt(tg)}`});
 const mkDbl = n => ({cat:"half", op:"d", a:n, b:2, r:2*n, t:`Double de ${fmt(n)} = □`});
 const mkHalf = n => ({cat:"half", op:"h", a:n, b:2, r:n/2, t:`Moitié de ${fmt(n)} = □`});
@@ -5538,6 +5654,7 @@ function strategy(q){
     if(k===6) return {h:`Compte les minutes de ${hm(q.hh,q.mm)} jusqu'à ${hm(q.eh,q.em)} : de 5 en 5, ou en passant par l'heure pile.`, f:`De ${hm(q.hh,q.mm)} à ${hm(q.eh,q.em)}, il s'écoule ${q.r} minutes.`};
     return {h:"1 heure = 60 minutes ; une demi-heure = 30 minutes ; un quart d'heure = 15 minutes.", f:q.t.replace("□", q.r)};
   }
+  if(q.cat==="num" || q.cat==="div") return {h:q.sh, f:q.sf};
   if(q.cat==="monnaie"){
     if(q.sh) return {h:q.sh, f:q.sf};
     const k = q.kd, L = q.list || [];
@@ -6231,7 +6348,7 @@ function coachInfo(id){
   }
   return {dom:"f", fr:a, p, name:`${frName(a)} · ${FR_LADDER[a][p-1].nm}`};
 }
-const PREREQ = {"c:deco:3":["c:deco:1","c:comp:1"], "c:deco:4":["c:deco:1","c:deco:2"], "c:add:2":["c:deco:3"], "c:sub:2":["c:deco:4"], "c:add:5":["c:add:2"], "c:sub:5":["c:sub:2"]};
+const PREREQ = {"c:div:1":["c:mult:2"], "c:div:3":["c:mult:4"], "c:div:4":["c:mult:8"], "c:deco:3":["c:deco:1","c:comp:1"], "c:deco:4":["c:deco:1","c:deco:2"], "c:add:2":["c:deco:3"], "c:sub:2":["c:deco:4"], "c:add:5":["c:add:2"], "c:sub:5":["c:sub:2"]};
 const coachKnown = id => { const v = D.coach.n[id]; return !!v && v.b>=2 && (v.ok>=1 || v.n===0); };   // n=0 : placée par le bilan (déjà sue)
 const coachReady = id => (PREREQ[id]||[]).every(coachKnown);
 function coachNextNew(excl=[], prefer){
@@ -6356,6 +6473,19 @@ const LESSON = {
   "heure:5":"La journée a 24 heures. L'après-midi, on <b>ajoute 12</b> à l'heure de l'horloge : 1 h → 13 h, 3 h → 15 h, 6 h → 18 h.",
   "heure:6":"Pour savoir combien de temps ça dure, on <b>avance de 5 en 5 minutes</b> du début jusqu'à la fin, ou on passe par l'heure pile : de 14 h 40 à 15 h 10, c'est 20 min + 10 min = 30 minutes.",
   "heure:7":"<b>1 heure = 60 minutes.</b> Une demi-heure = 30 minutes, un quart d'heure = 15 minutes. 1 h 30, c'est 60 + 30 = 90 minutes.",
+  "div:1":"<b>Partager en parts égales</b>, c'est donner à chacun la même chose. 12 bonbons pour 3 enfants : on distribue un par un… chacun en a 4. On écrit <b>12 ÷ 3 = 4</b>, car 3 × 4 = 12.",
+  "div:2":"<b>Faire des paquets</b> : avec 15 cubes, des paquets de 5 → on compte de 5 en 5 : 5, 10, 15 → <b>3 paquets</b>. 15 ÷ 5 = 3.",
+  "div:3":"La division, c'est la <b>multiplication à l'envers</b>. 20 ÷ 4 = ? → je cherche dans la table de 4 : 4 × <b>5</b> = 20. Donc 20 ÷ 4 = 5.",
+  "div:4":"Même méthode avec les grandes tables : 56 ÷ 7 = ? → 7 × <b>8</b> = 56. Si tu connais tes tables, tu sais diviser !",
+  "div:5":"Parfois, ça ne tombe pas juste : 17 bonbons en paquets de 5 → 5 × 3 = 15, donc <b>3 paquets</b>, et il en <b>reste 2</b> (17 − 15). Le reste est toujours plus petit que la taille du paquet.",
+  "div:6":"Pour 240 ÷ 6, pense à <b>24 ÷ 6 = 4</b>, puis remets le 0 : <b>40</b>. Même chose avec 3 600 ÷ 9 : 36 ÷ 9 = 4 → 400.",
+  "num:1":`Une <b>dizaine</b>, c'est un paquet de 10. Dans 34, il y a <b>3 dizaines</b> (3 barres de 10) et <b>4 unités</b> (4 cubes) : 30 + 4 = 34.<br>${numBlocks(0,3,4)}`,
+  "num:2":`Une <b>centaine</b>, c'est 10 dizaines : une plaque de 100. Dans 245 : <b>2 centaines</b>, <b>4 dizaines</b>, <b>5 unités</b>. S'il n'y a aucune dizaine, on écrit un <b>0</b> au milieu : 2 centaines et 5 unités = 205.<br>${numBlocks(2,4,5)}`,
+  "num:3":"Dans 347, le chiffre des dizaines est 4, mais il y a <b>34 dizaines en tout</b> (300 = 30 dizaines, plus 4). Astuce : on cache le chiffre des unités, ce qui reste = le nombre de dizaines.",
+  "num:4":"Pour comparer, on regarde <b>de gauche à droite</b> : d'abord les centaines. 370 &gt; 307 car 7 dizaines, c'est plus que 0 dizaine. Le plus long nombre est toujours le plus grand.",
+  "num:5":"Juste après 399, c'est 400 : 9 unités + 1 = une dizaine de plus, et 9 dizaines + 1 = une centaine de plus. <b>10 de plus</b> : seul le chiffre des dizaines change (sauf retenue).",
+  "num:6":"Un <b>millier</b>, c'est 1 000 = 10 centaines. 3 405 : 3 milliers, 4 centaines, <b>0 dizaine</b>, 5 unités. Le 0 garde la place des dizaines.",
+  "num:7":"Les grands nombres se lisent par <b>groupes de 3 chiffres</b> à partir de la droite : 45 607 = « quarante-cinq mille six cent sept ». Le groupe de gauche, ce sont les milliers.",
   "monnaie:1":"Pour compter l'argent, on commence par les <b>plus grosses pièces</b> : d'abord les pièces de 2 € (on compte de 2 en 2), puis celles de 1 €.",
   "monnaie:2":"Les billets d'abord (20 €, 10 €, 5 €), puis les pièces. 20 + 10 + 5 = 35, puis + 2 = 37 €.",
   "monnaie:3":"<b>1 € = 100 centimes.</b> On compte les pièces de centimes de la plus grosse à la plus petite : 50 + 20 + 10 = 80 centimes.",
@@ -6624,12 +6754,19 @@ function aiFrFallback(it){
 /* ---------- « Voir avec les cubes » : le calcul raté montré avec des barres de 10 et des cubes (concret → imagé → chiffres) ---------- */
 let CB10 = null;
 const cubesOk = q => q && [q.a,q.b,q.r].every(v=>Number.isInteger(v) && v>=0) && (((q.cat==="add" || q.cat==="sub") && (q.op==="+" || q.op==="-") && q.a<=99 && q.b<=99)
-  || (q.cat==="mult" && q.op==="x" && q.a>=1 && q.b>=1 && q.a<=10 && q.b<=10));
-const cubesSym = op => op==="+" ? "+" : op==="x" ? "×" : "−";
+  || (q.cat==="mult" && q.op==="x" && q.a>=1 && q.b>=1 && q.a<=10 && q.b<=10)
+  || (q.cat==="div" && q.dv && q.b>=2 && q.b<=10 && q.r>=1 && q.r<=10 && q.a===q.b*q.r));
+const cubesSym = op => op==="+" ? "+" : op==="x" ? "×" : op==="÷" ? "÷" : "−";
 function cubesSteps(a, b, op){
   const ta = Math.floor(a/10), ua = a%10, tb = Math.floor(b/10), ub = b%10, S = [], n = (k,w) => `${k} ${w}${k>1?"s":""}`;
   const bars = k => k ? n(k, "barre") + " de 10" : "aucune barre", cubes = k => k ? n(k, "cube") : "aucun cube";
   const both = (t,u) => t && u ? `${bars(t)} et ${cubes(u)}` : t ? bars(t) : cubes(u);
+  if(op==="÷"){ const q = a/b;
+    S.push({say:`On a ${a} cubes. On les range par ${b} sur chaque rangée.`, g:[{rect:true, rows:q, cols:b}]});
+    S.push({say:`On compte les cubes rangée par rangée : ${Array.from({length:q}, (_,k)=>(k+1)*b).join(", ")}.`, g:[{rect:true, rows:q, cols:b, cum:true}]});
+    S.push({ask:true, say:`À toi : combien de rangées de ${b} ? C'est la réponse de ${a} ÷ ${b}.`});
+    return S;
+  }
   if(op==="x"){
     S.push({say:`${a} × ${b}, c'est ${a} rangée${a>1?"s":""} de ${b} cube${b>1?"s":""}.`, g:[{rect:true, rows:a, cols:b}]});
     S.push({say:`On compte rangée par rangée : ${Array.from({length:Math.min(a,10)}, (_,k)=>(k+1)*b).join(", ")}.`, g:[{rect:true, rows:a, cols:b, cum:true}]});
@@ -6662,6 +6799,7 @@ function cubesDraw(g){
 }
 function cubesOpen(q){
   if(!cubesOk(q)) return;
+  if(q.cat==="div") q = Object.assign({}, q, {op:"÷"});
   CB10 = {q, steps: cubesSteps(q.a, q.b, q.op), i:0, last:null};
   $("cubes").hidden = false; cubesRender();
 }
@@ -6706,7 +6844,7 @@ function cubesRender(){
   $("cubes-pic").innerHTML = cubesDraw(prev.g);
   $("cubes-dots").innerHTML = C.steps.map((_,k)=>`<i class="${k<=C.i?"on":""}"></i>`).join("");
   $("cubes-ask").hidden = !st.ask; $("cubes-next").hidden = !!st.ask; $("cubes-res").textContent = "";
-  C.play = null; $("cubes-play").hidden = !st.ask || C.q.op==="x";
+  C.play = null; $("cubes-play").hidden = !st.ask || C.q.op==="x" || C.q.op==="÷";
   if(st.ask){ $("cubes-in").value = ""; setTimeout(()=>$("cubes-in").focus(), 50); } else setTimeout(()=>$("cubes-next").focus(), 50);
   speak(st.say, .9);
 }
@@ -6807,7 +6945,7 @@ const blSkip = id => (id==="c:big" || id==="c:dec") && !((D.bilan.res["c:add"]||
 const BL_NAME = {"c:add":"Les additions","c:sub":"Les soustractions","c:mult":"Les tables de multiplication","c:comp":"Les compléments","c:half":"Les doubles et les moitiés","c:prob":"Les petits problèmes","c:big":"Les grands nombres","c:dec":"Les nombres à virgule",
   "f:mots":"Les mots bien écrits","f:gram":"Sujet, verbe, complément","f:accord":"Les accords","f:conj":"La conjugaison","f:lire":"Comprendre une histoire","m:chif":"Retenir des chiffres","m:mots":"Retenir des mots","m:rep":"Le truc pour retenir"};
 /* repères indicatifs : à quel niveau de classe correspond chaque palier */
-const BL_CLASS = {add:["CP","CP","CE1","CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"], sub:["CP","CP","CE1","CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"],
+const BL_CLASS = {div:["CE1","CE2","CE2","CM1","CM1","CM2"], num:["CE1","CE2","CE2","CE2","CE2","CM1","CM2"], add:["CP","CP","CE1","CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"], sub:["CP","CP","CE1","CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"],
   mult:["CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"], comp:["CP","CE1","CE1","CE2","CE2","CM1","CM1","CM1"], half:["CP","CE1","CE2","CE2","CE2","CM1","CM1","CM1"],
   prob:["CP","CP","CE1","CE1","CE2","CE2","CE2","CM1"], big:["CE2","CM1","CM1","CM1","CM1","CM1","CM1","CM2"], dec:["CM1","CM1","CM1","CM1","CM1","CM1","CM2","CM2"],
   mots:["CP","CE1","CE1","CE2","CE2","CM1","CM1"], gram:["CE1","CE1","CE2","CE2","CM1","CM1"], accord:["CE1","CE1","CE2","CE2","CM1","CM1"], conj:["CE1","CE1","CE2","CE2","CE2","CM1","CM1"], lire:["CP","CE1","CE1","CE2","CE2","CM1"]};
@@ -9835,7 +9973,7 @@ function trialList(){
   const o = [], grp = (lab, items) => { if(items.length) o.push(`<optgroup label="${lab}">${items.map(([v,t])=>`<option value="${v}">${esc(t)}</option>`).join("")}</optgroup>`); };
   const by = {};
   COACH_CALC.forEach(id=>{ const a = id.split(":")[1]; (by[a] = by[a] || []).push(id); });
-  const order = ["heure","monnaie","deco","add","sub","comp","half","mult","prob","big","dec"];
+  const order = ["num","div","heure","monnaie","deco","add","sub","comp","half","mult","prob","big","dec"];
   Object.keys(by).sort((a,b)=>(order.indexOf(a)+99)%99 - (order.indexOf(b)+99)%99).forEach(a=>{
     const ids = by[a].sort((x,y)=>+x.split(":")[2] - +y.split(":")[2]);
     grp(`Calcul · ${COACH_PRE[a] || CAT[a] && CAT[a].nm || a}`, ids.map(id=>[id, `${id.split(":")[2]}. ${coachInfo(id).name}`]));
@@ -9900,7 +10038,7 @@ function renderParents(){
   renderVoices();
   document.querySelectorAll("#p-tts-rate button").forEach(b=>b.setAttribute("aria-pressed", +b.dataset.r===D.tts.rate));
   if(!TTS_OK){ $("p-tts-note").textContent = "Ce navigateur ne sait pas lire à voix haute."; $("p-tts-auto").disabled = true; }
-  ["comp","deco","heure","monnaie","half","prob","dec","big"].forEach(x=>$("p-x-"+x).setAttribute("aria-pressed", D.extras.includes(x)));
+  ["num","div","comp","deco","heure","monnaie","half","prob","dec","big"].forEach(x=>$("p-x-"+x).setAttribute("aria-pressed", D.extras.includes(x)));
   $("p-name").value = D.name;
   $("p-owl").value = D.owl && D.owl!=="Pythagore" ? D.owl : "";
   $("p-gardien").setAttribute("aria-pressed", D.gardien);
@@ -9974,7 +10112,7 @@ $("p-tts-auto").addEventListener("click", ()=>{ D.tts.auto=!D.tts.auto; persist(
 $("p-tts-rate").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b) return; D.tts.rate=+b.dataset.r; persist(); renderParents(); speak("Voici ma vitesse de lecture."); });
 $("p-tts-test").addEventListener("click", ()=>speak(`Bonjour${D.name.trim()?" "+D.name.trim():""} ! Je suis ${owlName()}. Aujourd'hui, on apprend la table de 7. Sept fois huit, ça fait combien ?`));
 $("p-voice").addEventListener("change", ()=>{ D.tts.voice = $("p-voice").value; persist(); pickVoice(); renderVoices(); speak("Voici ma nouvelle voix. On travaille ensemble ?"); });
-["comp","deco","heure","monnaie","half","prob","dec","big"].forEach(x=>$("p-x-"+x).addEventListener("click", ()=>{
+["num","div","comp","deco","heure","monnaie","half","prob","dec","big"].forEach(x=>$("p-x-"+x).addEventListener("click", ()=>{
   if(D.extras.includes(x)){ D.extras = D.extras.filter(y=>y!==x); D.cats = D.cats.filter(y=>y!==x); }
   else { D.extras.push(x); if(!D.cats.includes(x)) D.cats.push(x); }
   persist(); sfx("tap"); renderParents();
@@ -10254,7 +10392,7 @@ function submit(){
     }
     slot.classList.add("ko"); sfx("bad"); owlMood("s-play","sad");
     fb.className="bubble bad";
-    fb.innerHTML=`${near ? "Presque !" : "Pas tout à fait."} <span class="fix">${qFull(q)}</span>${dg ? `<div class="strat"><b>Ce qui s'est passé :</b> ${dg}</div>` : ""}<div class="strat">${strategy(q).f}</div>${cubesOk(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="cubes-open">${q.op==="x" ? "Voir en rectangle" : "Voir avec les cubes"}</button>` : ""}${lineOk(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="line-open">Voir sur la ligne</button>` : ""}${back ? `<div class="strat again"><b>Retiens-le bien :</b> il va revenir dans un instant.</div>` : ""}${eased ? `<div class="strat again"><b>On souffle un peu :</b> 3 calculs plus faciles (${esc(eased.name)}), puis on y retourne.</div>` : ""}${S.mode==="chrono"||S.mode==="course" ? "" : `<button class="aibtn" id="ai-explain">Explique-moi autrement</button><div class="aibox" id="ai-box" aria-live="polite" hidden></div>`}`;
+    fb.innerHTML=`${near ? "Presque !" : "Pas tout à fait."} <span class="fix">${qFull(q)}</span>${dg ? `<div class="strat"><b>Ce qui s'est passé :</b> ${dg}</div>` : ""}<div class="strat">${strategy(q).f}</div>${cubesOk(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="cubes-open">${q.op==="x" ? "Voir en rectangle" : q.cat==="div" ? "Voir en paquets" : "Voir avec les cubes"}</button>` : ""}${lineOk(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="line-open">Voir sur la ligne</button>` : ""}${back ? `<div class="strat again"><b>Retiens-le bien :</b> il va revenir dans un instant.</div>` : ""}${eased ? `<div class="strat again"><b>On souffle un peu :</b> 3 calculs plus faciles (${esc(eased.name)}), puis on y retourne.</div>` : ""}${S.mode==="chrono"||S.mode==="course" ? "" : `<button class="aibtn" id="ai-explain">Explique-moi autrement</button><div class="aibox" id="ai-box" aria-live="polite" hidden></div>`}`;
     S.aiGiven = S.typed;
     if(D.tts.auto) speak(`${near ? "Presque." : "Pas tout à fait."} ${dg ? plain(dg) + " " : ""}${sayAnswer(q)}`);
     if(S.mode==="survie") S.over=true;
