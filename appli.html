@@ -8419,7 +8419,7 @@ function trialList(){
   ["lire","mots","gram","conj","accord"].forEach(f=>grp(`Français · ${f}`, COACH_FR.filter(id=>id.split(":")[1]===f).sort((x,y)=>+x.split(":")[2] - +y.split(":")[2]).map(id=>[id, `${id.split(":")[2]}. ${coachInfo(id).name}`])));
   grp("Lire à voix haute", VOIX.map((v,k)=>[`voix:${k}`, v.t]));
   grp(`Lecture du soir · ${FEUILLETON.titre}`, FEUILLETON.ch.map((c,k)=>[`soir:${k}`, `Chapitre ${c.n} : ${c.t}`]));
-  grp("Autres", [["caisse","Ouvrir une caisse (2 diamants offerts pour l'essai)"], ["mem","Mon cerveau qui retient"], ["flash","Éclair (1 minute)"]].concat(D.fr.school.words.length ? [["ecole","Mes mots de la semaine"]] : []));
+  grp("Autres", [["caisse","Ouvrir des caisses (60 diamants offerts pour l'essai)"], ["mem","Mon cerveau qui retient"], ["flash","Éclair (1 minute)"]].concat(D.fr.school.words.length ? [["ecole","Mes mots de la semaine"]] : []));
   return o.join("");
 }
 function trialStart(val, noLesson){
@@ -8427,7 +8427,7 @@ function trialStart(val, noLesson){
   persist();
   TRIAL = JSON.stringify(D);
   let st;
-  if(val==="caisse"){ D.diam += CASE_PRICE; $("trialbar").hidden = false; document.body.classList.add("trial"); toast("Mode essai : rien n'est enregistré"); shopTab = "cases"; CASE = null; show("shop"); renderTop(); return; }
+  if(val==="caisse"){ D.diam += 60; $("trialbar").hidden = false; document.body.classList.add("trial"); toast("Mode essai : rien n'est enregistré"); shopTab = "cases"; CASE = null; show("shop"); renderTop(); return; }
   if(val.startsWith("soir:")){ D.soir.ch = +val.split(":")[1]; D.soir.last = 0; $("trialbar").hidden = false; document.body.classList.add("trial"); toast("Mode essai : rien n'est enregistré"); openSoir(); return; }
   if(val.startsWith("voix:")){ D.voix.i = +val.split(":")[1]; st = {k:"voix", id:"voix", r:null}; }
   else if(val==="mem" || val==="flash" || val==="ecole") st = {k:val, id:val, r:null};
