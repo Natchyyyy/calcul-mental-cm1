@@ -21,7 +21,7 @@ function doPost(e) {
     const score = (d.score === undefined || d.score === '' || isNaN(Number(d.score))) ? '' : Math.max(0, Math.min(100, Number(d.score)));
     j.appendRow([v('date'), v('heure'), v('enfant'), v('type'), v('domaine'), v('notion'), score, v('verdict'), v('erreurs'), v('detail')]);
     // le résumé (qui relit tout le journal) est recalculé à la fin du programme, au déblocage, ou depuis le menu
-    if (locked && (d.type === 'programme fini' || d.type === 'déblocage' || j.getLastRow() % 10 === 0)) resume_(ss);
+    if (locked && (d.type === 'programme fini' || d.type === 'déblocage' || d.type === 'bilan de la semaine' || j.getLastRow() % 10 === 0)) resume_(ss);
     return ContentService.createTextOutput('ok');
   } finally {
     if (locked) lock.releaseLock();
@@ -124,7 +124,7 @@ function preparer_(ss) {
     r = ss.insertSheet('Résumé', 0);
   }
   if (!r.getCharts().length) {
-    r.setColumnWidth(5, 260); r.setColumnWidth(12, 260); r.setColumnWidth(13, 380);
+    r.setColumnWidth(5, 260); r.setColumnWidth(12, 260); r.setColumnWidth(13, 380); r.setColumnWidth(15, 170); r.setColumnWidth(16, 520);
     const chart = r.newChart().setChartType(Charts.ChartType.LINE)
       .addRange(r.getRange('A2:A62')).addRange(r.getRange('C2:C62'))
       .setNumHeaders(1)
@@ -152,7 +152,9 @@ function resume_(ss) {
     .sort((a, b) => a[2] - b[2]).slice(0, 60);
   // derniers calculs ratés
   const rates = rows.filter(x => x[8]).slice(-15).reverse().map(x => [texte_(jour_(x[0]), 10), texte_(heure_(x[1]), 8), texte_(x[5], 200), texte_(x[8], 600)]);
-  r.getRange('A1:M200').clearContent();
+  // bilans de la semaine (envoyés par l'appli au 1er lancement de chaque semaine)
+  const semaines = rows.filter(x => x[3] === 'bilan de la semaine').slice(-8).reverse().map(x => [texte_(String(x[5]).replace(/^'/, ''), 60), texte_(String(x[9]).replace(/^'/, ''), 600)]);
+  r.getRange('A1:P200').clearContent();
   r.getRange('A1').setValue('Chaque jour (programme « Apprendre »)').setFontWeight('bold');
   r.getRange('E1').setValue('Par notion (les plus difficiles en haut)').setFontWeight('bold');
   r.getRange('J1').setValue('Les 15 derniers calculs ratés').setFontWeight('bold');
@@ -162,5 +164,9 @@ function resume_(ss) {
   if (notions.length) r.getRange(3, 5, notions.length, 4).setValues(notions);
   r.getRange(2, 10, 1, 4).setValues([['Jour', 'Heure', 'Notion', 'Calculs ratés']]).setFontWeight('bold');
   if (rates.length) r.getRange(3, 10, rates.length, 4).setValues(rates);
+  r.setColumnWidth(15, 170); r.setColumnWidth(16, 520);
+  r.getRange('O1').setValue('Bilans de la semaine (les 8 derniers)').setFontWeight('bold');
+  r.getRange(2, 15, 1, 2).setValues([['Semaine', 'Bilan']]).setFontWeight('bold');
+  if (semaines.length) r.getRange(3, 15, semaines.length, 2).setValues(semaines).setWrap(true);
   if (!jours.length) r.getRange('A3').setValue('Pas encore de données');
 }

@@ -19,7 +19,7 @@
 #  Compatible Windows PowerShell 5.1 (Windows 10 / 11).
 # ============================================================================
 param([switch]$Test, [switch]$Ouvrir)
-$GardienVersion = 6
+$GardienVersion = 7
 
 $ErrorActionPreference = 'Stop'
 $Self = $MyInvocation.MyCommand.Path
@@ -226,7 +226,8 @@ public static class GardienW {
     EnumWindows(delegate(IntPtr h, IntPtr l) {
       if (!IsWindowVisible(h)) return true;
       if (Array.IndexOf(pids, Pid(h)) < 0) return true;
-      if (Title(h).StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) { found = h; return false; }
+      string t = Title(h);
+      if (t.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) && t.IndexOf("Edge", StringComparison.OrdinalIgnoreCase) < 0) { found = h; return false; }
       return true;
     }, IntPtr.Zero);
     return found;
@@ -277,7 +278,13 @@ function Restart-Self {
   Start-Process -WindowStyle Hidden -FilePath (Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe') -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-STA', '-File', "`"$Self`"") | Out-Null
   Exit-Gardien
 }
+$script:InNewDay = $false
 function Start-NewDay {
+  if ($script:InNewDay) { return }
+  $script:InNewDay = $true
+  try { Start-NewDayCore } finally { $script:InNewDay = $false }
+}
+function Start-NewDayCore {
   $script:Today = (Get-Date).ToString('yyyy-MM-dd')
   $script:Start = Get-Date
   $script:ActiveSec = 0
@@ -465,7 +472,7 @@ $fast.Add_Tick({
     $pid0 = [int][GardienW]::Pid($fg)
     if ($script:EdgePids -contains $pid0) {
       $tt = [GardienW]::Title($fg)
-      if ($tt -like $AppTitle) { $script:AppWin = $fg; return }
+      if ($tt -like $AppTitle -and $tt -notlike '*Edge*') { $script:AppWin = $fg; return }
       if ($tt -notlike '*Edge*') { return }                                          # bulle d'Edge (ex. « autoriser le micro ») : on la laisse
       [void][GardienW]::PostMessage($fg, 0x0010, [IntPtr]::Zero, [IntPtr]::Zero)   # autre fenêtre de navigateur : fermée
       Write-Log ("Fenêtre fermée : " + [GardienW]::Title($fg))
@@ -499,6 +506,9 @@ $timer.Add_Tick({
     }
     $running = Test-AppRunning
     $script:Running = $running
+    if ($running -and $script:LastTitle -notmatch 'Edge' -and $script:LastTitle -match 'code du jour obtenu (\d{4})' -and ($Matches[1] -eq (Get-DayCode $script:Today) -or $Matches[1] -eq (Get-DayCode (Get-LockDay $now)))) {   # programme fini (le matin, le week-end…) : pas besoin de taper le code
+      Set-Unlocked 'programme du jour fini (vu dans l''appli)'; Enter-Free; return
+    }
     Show-Covers
     if ($running) { if ($form.Visible) { $form.Hide() }; return }
     if (($now - $script:LastLaunch).TotalSeconds -lt $script:Grace) { return }  # Edge est en train de s'ouvrir
@@ -513,7 +523,7 @@ $timer.Add_Tick({
 
 try {
   if ($StartFree) { Write-Log 'Déjà débloqué aujourd''hui : le gardien attend demain.' }
-  else { Write-Log "Démarrage du gardien (plafond $MinutesMax min)."; Show-Covers; Start-App }
+  else { Write-Log "Démarrage du gardien (plafond $MinutesMax min)."; Show-Covers; if (-not (Test-AppRunning)) { Start-App } else { $script:LastLaunch = Get-Date } }
   $timer.Start()
   $fast.Start()
   [System.Windows.Forms.Application]::Run($Ctx)
