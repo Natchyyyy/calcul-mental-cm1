@@ -1507,7 +1507,7 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
       <button class="hello-speak" id="hello-speak" aria-label="Écouter Pythagore" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg></button>
     </div>
 
-    <button class="learncta" id="hub-learn"><span class="lc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/><path d="M22 9v6"/></svg></span><span class="lc-txt"><small class="lc-k">Mon programme du jour</small><b id="hub-learn-t">Aujourd'hui</b><small class="lc-s" id="hub-learn-s"></small><span class="lc-dots" id="hub-learn-dots" aria-hidden="true"></span></span></button>
+    <button class="learncta" id="hub-learn"><span class="lc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/><path d="M22 9v6"/></svg></span><span class="lc-txt"><b id="hub-learn-t">Aujourd'hui</b><small class="lc-s" id="hub-learn-s"></small><span class="lc-dots" id="hub-learn-dots" aria-hidden="true"></span></span></button>
     <div class="hubstrip" id="hub-strip" hidden><button class="rewardcta" id="hub-reward" hidden></button><button class="soircta" id="hub-soir" hidden></button></div>
     <div class="hub" id="hub">
       <p class="hubsec">En plus, pour s'entraîner</p>
@@ -7318,7 +7318,7 @@ function renderLearnCta(){
   const P = coachEnsure(), steps = P.steps, left = steps.filter(x=>x.r==null), done = !left.length;
   const n0 = left.find(x=>x.k==="new");
   $("hub-learn").classList.toggle("done", done);
-  $("hub-learn-t").textContent = done ? "Programme du jour terminé" : n0 ? `Aujourd'hui : ${coachInfo(n0.id).name}` : left[0].k==="ecole" ? "Aujourd'hui : mes mots de la semaine" : left.every(x=>x.k==="mem") ? "Aujourd'hui : entraîner ma mémoire" : left.every(x=>x.k==="flash") ? "Encore le défi Éclair !" : "Aujourd'hui : on révise";
+  $("hub-learn-t").textContent = done ? "Programme du jour terminé" : "Mon programme du jour";
   const min = left.reduce((a,x)=>a + (x.k==="new" ? 4 : x.k==="ecole" || x.k==="mem" ? 3 : x.k==="flash" ? 1 : x.k==="voix" ? 5 : 2), 0);
   $("hub-learn-s").textContent = done ? (codeOk() ? `Bravo ! Ton code du jour : ${dayCode()}` : "Bravo ! Reviens demain pour la suite.")
     : codeOk() ? `${etapes(left.length)} · ton code du jour : ${dayCode()}`
