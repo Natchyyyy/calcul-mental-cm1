@@ -688,6 +688,17 @@ svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
 .soircta b{font-family:var(--f-display);font-size:1.12rem;line-height:1.2;color:#fff}
 .soircta.done{opacity:.85}
 .vx-prev{margin:0;padding:8px 12px;border-radius:12px;background:var(--soft);color:var(--ink-soft);font-weight:600}
+.muscard{display:flex;align-items:center;gap:12px;width:100%;padding:10px 14px;border-radius:22px;background:var(--card);box-shadow:0 8px 24px -14px rgba(0,0,0,.35),inset 0 0 0 1px var(--line)}
+.mus-pp,.mus-nx{flex:none;display:grid;place-items:center;border:0;border-radius:50%;cursor:pointer;font:700 1rem/1 system-ui,sans-serif}
+.mus-pp{width:44px;height:44px;background:var(--ink);color:var(--card)}
+.mus-pp.on{font-size:.85rem;letter-spacing:-2px}
+.mus-nx{width:36px;height:36px;background:var(--soft);color:var(--ink)}
+.mus-mid{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.mus-mid b{font:600 .98rem/1.2 system-ui,-apple-system,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mus-vol{width:100%;max-width:220px;height:4px;accent-color:var(--ink);cursor:pointer}
+#p-mus-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+#p-mus-list li{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#p-mus-list li span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .spotcard{display:flex;flex-direction:column;gap:8px;width:100%}
 .spotbtn{display:flex;align-items:center;gap:12px;width:100%;padding:10px 16px;border:0;border-radius:18px;background:var(--card);color:var(--ink);box-shadow:inset 0 0 0 2px var(--line);cursor:pointer;text-align:left;font:inherit}
 .spotbtn svg{width:30px;height:30px;flex:none;color:#1db954}
@@ -1530,7 +1541,7 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
       <button class="hubbtn h-fr" id="hub-fr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></svg><span><b>Français</b><small>Lire, écrire, grammaire</small></span></button>
       <button class="hubmore" id="hub-more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg>Plus de jeux</button>
     </div>
-    <div class="spotcard" id="hub-spot" hidden><button class="spotbtn" id="hub-spot-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span><b>Ma musique</b><small>La playlist choisie par tes parents</small></span></button><div id="hub-spot-frame"></div></div>
+    <div class="spotcard" id="hub-spot" hidden><div class="muscard" id="hub-mus" hidden><button class="mus-pp" id="mus-pp" aria-label="Lecture">▶</button><div class="mus-mid"><b id="mus-t"></b><input type="range" id="mus-vol" min="0" max="100" step="1" aria-label="Volume"></div><button class="mus-nx" id="mus-nx" aria-label="Morceau suivant">⏭</button></div><button class="spotbtn" id="hub-spot-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span><b>Ma musique</b><small>La playlist choisie par tes parents</small></span></button><div id="hub-spot-frame"></div></div>
     <div class="subtop" id="calc-top"><button class="backbtn" id="calc-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Retour</button><h2>Calcul</h2></div>
     <div class="subtop" id="more-top"><button class="backbtn" id="more-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Retour</button><h2>Plus de jeux</h2></div>
 
@@ -1929,6 +1940,11 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
       <div class="field"><label for="p-spot-url">Lien Spotify</label><input class="input" id="p-spot-url" type="url" placeholder="https://open.spotify.com/playlist/…" maxlength="300"></div>
       <div class="btnrow"><button class="btn sm" id="p-spot-go">Enregistrer</button><button class="btn sm alt" id="p-spot-off">Retirer</button></div>
       <p class="muted" style="margin:0" id="p-spot-st" role="status"></p>
+      <h4 style="margin:6px 0 0">Ou ses propres musiques (fichiers MP3)</h4>
+      <p class="muted" style="margin:0">Sur SON ordinateur, touchez « Ajouter des musiques » et choisissez des fichiers MP3 (depuis une clé USB, Téléchargements…). Elles restent dans l'appli, sans internet, en entier. Si vous en mettez, elles remplacent Spotify sur l'accueil.</p>
+      <div class="btnrow"><label class="btn sm" for="p-mus-add" style="cursor:pointer">Ajouter des musiques</label><input type="file" id="p-mus-add" accept="audio/*,.mp3,.m4a" multiple hidden></div>
+      <p class="muted" style="margin:0" id="p-mus-st" role="status"></p>
+      <ul id="p-mus-list"></ul>
     </div>
     <div class="card" id="preward-card">
       <h3>Récompense de la vraie vie</h3>
@@ -3897,7 +3913,7 @@ const BL_CALC = ["add","sub","mult","comp","half","prob","big","dec"];
 const BL_FR = ["mots","gram","accord","conj","lire"];
 const BL_SECS = [...BL_CALC.map(c=>({id:"c:"+c, part:0})), ...BL_FR.map(f=>({id:"f:"+f, part:1})), {id:"m:chif", part:2}, {id:"m:mots", part:2}, {id:"m:rep", part:2}];
 const blNmax = id => { const [d,a] = id.split(":"); return d==="c" ? LADDER[a].length : d==="f" ? FR_LADDER[a].length : 0; };
-const DEF = () => ({schema:SCHEMA, name:"", owl:"Pythagore", owlSet:false, gardien:false, statQ:[], statDay:"", spot:{on:false, t:"", id:""}, voix:{i:0, last:0, rep:0, w1:0, hard:[], hist:[]}, soir:{on:true, duo:true, h:19, ch:0, last:0, hist:[]}, diam:0, skins:[], cases:{n:0, pity:0, cn:0}, crea:{have:["hibou"], cur:"hibou", sk:{}}, reward:{on:false, label:"", goal:7, n:0, done:false, got:[]}, started:false, sound:true, musicOn:false, musicVol:0.5,
+const DEF = () => ({schema:SCHEMA, name:"", owl:"Pythagore", owlSet:false, gardien:false, statQ:[], statDay:"", spot:{on:false, t:"", id:""}, mvol:.6, voix:{i:0, last:0, rep:0, w1:0, hard:[], hist:[]}, soir:{on:true, duo:true, h:19, ch:0, last:0, hist:[]}, diam:0, skins:[], cases:{n:0, pity:0, cn:0}, crea:{have:["hibou"], cur:"hibou", sk:{}}, reward:{on:false, label:"", goal:7, n:0, done:false, got:[]}, started:false, sound:true, musicOn:false, musicVol:0.5,
   cats:["add","sub","mult"], tables:ALL_T.slice(), level:3, mode:"serie", elo:{add:ELO_START,sub:ELO_START,mult:ELO_START}, eloBest:{add:1,sub:1,mult:1}, eloSlow:{add:0,sub:0,mult:0},
   xp:0, plumes:0, owned:FREE.slice(),
   equip:{color:"brun",hat:null,face:null,neck:null,dance:"saut",bg:"ciel",music:"douce",sfx:"classique",fx:"confettis",kp:"classique"},
@@ -3917,6 +3933,7 @@ function migrate(d){
   out.gardien = d.gardien===true;
   out.statDay = typeof d.statDay==="string" ? d.statDay.slice(0,10) : "";
   { const sp = isObj(d.spot) ? d.spot : {}; const okT = ["playlist","album","track","artist"].includes(sp.t), okI = typeof sp.id==="string" && /^[A-Za-z0-9]{22}$/.test(sp.id);
+    out.mvol = num(d.mvol, .6, 0, 1);
     out.spot = {on: sp.on===true && okT && okI, t: okT ? sp.t : "", id: okI ? sp.id : ""}; }
   out.wk = Number.isInteger(d.wk) && d.wk>0 && d.wk<1e6 ? d.wk : 0;
   { const vx = isObj(d.voix) ? d.voix : {};
@@ -5620,6 +5637,7 @@ function show(name, opts={}){
   $("tabbar").hidden = !["home","adv","tables","trophies","shop","pets","tips","tip","ses","fr","learn"].includes(name);
   document.querySelectorAll(".tab").forEach(t => { if(t.dataset.go===name) t.setAttribute("aria-current","page"); else t.removeAttribute("aria-current"); });
   if(name!=="home") spotStop();        // on part travailler : la musique s'arrête
+  if(!["home","shop","trophies","pets"].includes(name) && typeof musStop==="function") musStop();
   if(name==="home"){ renderHome(); spotCard(); }
   if(name==="tables") renderTables();
   if(name==="trophies") renderTrophies();
@@ -9662,8 +9680,76 @@ function trialEnd(){
 $("p-try-go").addEventListener("click", ()=>{ sfx("tap"); trialStart($("p-try").value, false); });
 $("p-try-nol").addEventListener("click", ()=>{ sfx("tap"); trialStart($("p-try").value, true); });
 $("trial-stop").addEventListener("click", ()=>{ sfx("tap"); show("parents"); });
+/* ---------- Ma musique (fichiers MP3 ajoutés par le parent, gardés dans l'appli) ---------- */
+const MZ = {db:null, list:[], i:0, a:null, url:null};
+function musDb(){
+  return new Promise((ok, ko)=>{
+    if(MZ.db) return ok(MZ.db);
+    try{ const r = indexedDB.open("pythagore-musique", 1);
+      r.onupgradeneeded = () => { r.result.createObjectStore("pistes", {keyPath:"id", autoIncrement:true}); };
+      r.onsuccess = () => { MZ.db = r.result; ok(MZ.db); };
+      r.onerror = () => ko(r.error); }catch(e){ ko(e); }
+  });
+}
+function musTx(mode){ return musDb().then(db=>db.transaction("pistes", mode).objectStore("pistes")); }
+function musRefresh(){
+  return musTx("readonly").then(st=>new Promise(ok=>{ const out = []; const c = st.openCursor();
+    c.onsuccess = () => { const k = c.result; if(k){ out.push({id:k.value.id, nm:k.value.nm}); k.continue(); } else ok(out); };
+    c.onerror = () => ok([]); })).then(L=>{ MZ.list = L; musPaint(); return L; }).catch(()=>{ MZ.list = []; musPaint(); return []; });
+}
+function musAdd(files){
+  const ok = [...files].filter(f=>/^audio\//.test(f.type) || /\.(mp3|m4a|aac|ogg|wav)$/i.test(f.name)).slice(0,100);
+  return musTx("readwrite").then(st=>Promise.all(ok.map(f=>new Promise(res=>{ const r = st.add({nm: f.name.replace(/\.[^.]+$/,"").slice(0,80), blob:f}); r.onsuccess = res; r.onerror = res; }))))
+    .then(()=>musRefresh()).then(()=>ok.length);
+}
+function musDel(id){ musStop(); if(MZ.a){ MZ.a.removeAttribute("src"); MZ.a.load(); } MZ.i = 0; return musTx("readwrite").then(st=>new Promise(res=>{ const r = st.delete(id); r.onsuccess = res; r.onerror = res; })).then(()=>musRefresh()); }
+function musLoad(i){
+  const t = MZ.list[i]; if(!t) return Promise.resolve(false);
+  return musTx("readonly").then(st=>new Promise(res=>{ const r = st.get(t.id); r.onsuccess = () => res(r.result); r.onerror = () => res(null); })).then(rec=>{
+    if(!rec) return false;
+    if(MZ.url) URL.revokeObjectURL(MZ.url);
+    MZ.url = URL.createObjectURL(rec.blob); MZ.i = i;
+    if(!MZ.a){ MZ.a = new Audio(); MZ.a.addEventListener("ended", ()=>musNext(true)); MZ.a.addEventListener("play", musPaint); MZ.a.addEventListener("pause", musPaint); }
+    MZ.a.src = MZ.url; MZ.a.volume = D.mvol; return true; });
+}
+function musToggle(){
+  if(!MZ.list.length) return;
+  if(MZ.a && MZ.a.src && !MZ.a.paused){ MZ.a.pause(); return; }
+  if(typeof musicStop==="function") try{ musicStop(); }catch(e){}
+  (MZ.a && MZ.a.src ? Promise.resolve(true) : musLoad(MZ.i % MZ.list.length)).then(ok=>{ if(ok) MZ.a.play().catch(()=>{}); });
+}
+function musNext(auto){
+  if(!MZ.list.length) return;
+  const was = auto || (MZ.a && !MZ.a.paused);
+  musLoad((MZ.i + 1) % MZ.list.length).then(ok=>{ if(ok && was) MZ.a.play().catch(()=>{}); musPaint(); });
+}
+function musStop(){ if(MZ.a && !MZ.a.paused) MZ.a.pause(); }
+function musPaint(){
+  const w = document.getElementById("hub-mus"); if(!w) return;
+  const has = MZ.list.length > 0, on = !!(MZ.a && MZ.a.src && !MZ.a.paused);
+  const t = MZ.list[MZ.i % Math.max(1, MZ.list.length)];
+  document.getElementById("mus-t").textContent = has && t ? t.nm : "";
+  const pp = document.getElementById("mus-pp");
+  pp.textContent = on ? "❚❚" : "▶"; pp.setAttribute("aria-label", on ? "Pause" : "Lecture"); pp.classList.toggle("on", on);
+  document.getElementById("mus-vol").value = Math.round(D.mvol*100);
+  spotCard();
+  const st = document.getElementById("p-mus-st");
+  if(st) st.textContent = has ? `${MZ.list.length} musique${MZ.list.length>1?"s":""} dans son appli.` : "Aucune musique pour l'instant.";
+  const ul = document.getElementById("p-mus-list");
+  if(ul) ul.innerHTML = MZ.list.map(x=>`<li><span>${esc(x.nm)}</span><button class="mini" data-musdel="${x.id}">Retirer</button></li>`).join("");
+}
+
+$("mus-pp").addEventListener("click", ()=>{ musToggle(); });
+$("mus-nx").addEventListener("click", ()=>{ sfx("tap"); musNext(false); });
+$("mus-vol").addEventListener("input", e=>{ D.mvol = Math.max(0, Math.min(1, +e.target.value/100)); if(MZ.a) MZ.a.volume = D.mvol; });
+$("mus-vol").addEventListener("change", ()=>persist());
+$("p-mus-add").addEventListener("change", e=>{ const f = e.target.files; if(!f || !f.length) return;
+  musAdd(f).then(n=>{ toast(n ? `${n} musique${n>1?"s":""} ajoutée${n>1?"s":""}` : "Aucun fichier audio reconnu"); e.target.value = ""; }); });
+$("p-mus-list").addEventListener("click", e=>{ const b = e.target.closest("[data-musdel]"); if(b) musDel(+b.dataset.musdel); });
+setTimeout(()=>{ try{ musRefresh(); }catch(e){} }, 0);
 function spotStop(){ const f = document.getElementById("hub-spot-frame"); if(f && f.firstChild) f.innerHTML = ""; }
-function spotCard(){ const c = document.getElementById("hub-spot"); if(c) c.hidden = !(D.spot && D.spot.on) || TRIAL; }
+function spotCard(){ const c = document.getElementById("hub-spot"); if(!c) return; const mine = typeof MZ!=="undefined" && MZ.list.length>0;
+  c.hidden = !(mine || (D.spot && D.spot.on)) || TRIAL; $("hub-mus").hidden = !mine; $("hub-spot-go").hidden = mine; }
 function spotParse(u){ const m = /open\.spotify\.com\/(?:intl-[a-z]{2}\/)?(?:embed\/)?(playlist|album|track|artist)\/([A-Za-z0-9]{22})/.exec(String(u||"")); return m ? {t:m[1], id:m[2]} : null; }
 $("hub-spot-go").addEventListener("click", ()=>{ sfx("tap"); const f = $("hub-spot-frame"); if(f.firstChild){ f.innerHTML = ""; return; }
   if(!(D.spot && D.spot.on)) return;
