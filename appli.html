@@ -896,6 +896,14 @@ svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
 .cb-bar.m b,.cb-cube.m{background:var(--c-mult)}
 .cb-bar.n b,.cb-cube.n{background:var(--star);box-shadow:0 0 0 2px var(--ink) inset}
 .cb-bar.gone,.cb-cube.gone{opacity:.22;outline:2px dashed var(--bad);outline-offset:1px}
+.cb-rect{display:flex;flex-direction:column;gap:4px}
+.cb-row{display:flex;gap:4px;align-items:center}
+.cb-row.cut{margin-top:10px;padding-top:10px;border-top:3px dashed var(--ink)}
+.cb-cum{margin-left:10px;min-width:2.5em;font-family:var(--f-display);font-weight:800;font-size:1.05rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.cb-bar.click,.cb-cube.click{cursor:pointer}
+.cb-bar.click:hover,.cb-cube.click:hover{outline:3px solid var(--ink);outline-offset:1px}
+.cubes-pic{flex-wrap:wrap}
+.cb-tools{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px;width:100%}
 .cb-plus{font-family:var(--f-display);font-size:2rem;font-weight:800;align-self:center}
 .cubes-dots{display:flex;gap:6px;justify-content:center}
 .cubes-dots i{width:9px;height:9px;border-radius:50%;background:var(--line)}
@@ -1895,7 +1903,7 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
       <p class="cubes-say" id="cubes-say" aria-live="polite"></p>
       <div class="cubes-pic" id="cubes-pic"></div>
       <div class="cubes-dots" id="cubes-dots" aria-hidden="true"></div>
-      <div class="cubes-ask" id="cubes-ask" hidden><input class="input" id="cubes-in" type="text" inputmode="numeric" maxlength="3" aria-label="Ta réponse" autocomplete="off"><button class="btn" id="cubes-ok">Vérifier</button><button class="btn alt" id="cubes-again">Revoir</button></div>
+      <div class="cubes-ask" id="cubes-ask" hidden><input class="input" id="cubes-in" type="text" inputmode="numeric" maxlength="3" aria-label="Ta réponse" autocomplete="off"><button class="btn" id="cubes-ok">Vérifier</button><button class="btn alt" id="cubes-again">Revoir</button><button class="btn alt" id="cubes-play" hidden>À toi avec les cubes</button></div>
       <p class="cubes-res" id="cubes-res" aria-live="polite"></p>
       <div class="btnrow" style="justify-content:center"><button class="btn big" id="cubes-next">Ensuite</button></div>
     </div>
@@ -6602,11 +6610,20 @@ function aiFrFallback(it){
 }
 /* ---------- « Voir avec les cubes » : le calcul raté montré avec des barres de 10 et des cubes (concret → imagé → chiffres) ---------- */
 let CB10 = null;
-const cubesOk = q => q && (q.cat==="add" || q.cat==="sub") && (q.op==="+" || q.op==="-") && [q.a,q.b,q.r].every(v=>Number.isInteger(v) && v>=0) && q.a<=99 && q.b<=99;
+const cubesOk = q => q && [q.a,q.b,q.r].every(v=>Number.isInteger(v) && v>=0) && (((q.cat==="add" || q.cat==="sub") && (q.op==="+" || q.op==="-") && q.a<=99 && q.b<=99)
+  || (q.cat==="mult" && q.op==="x" && q.a>=1 && q.b>=1 && q.a<=10 && q.b<=10));
+const cubesSym = op => op==="+" ? "+" : op==="x" ? "×" : "−";
 function cubesSteps(a, b, op){
   const ta = Math.floor(a/10), ua = a%10, tb = Math.floor(b/10), ub = b%10, S = [], n = (k,w) => `${k} ${w}${k>1?"s":""}`;
   const bars = k => k ? n(k, "barre") + " de 10" : "aucune barre", cubes = k => k ? n(k, "cube") : "aucun cube";
   const both = (t,u) => t && u ? `${bars(t)} et ${cubes(u)}` : t ? bars(t) : cubes(u);
+  if(op==="x"){
+    S.push({say:`${a} × ${b}, c'est ${a} rangée${a>1?"s":""} de ${b} cube${b>1?"s":""}.`, g:[{rect:true, rows:a, cols:b}]});
+    S.push({say:`On compte rangée par rangée : ${Array.from({length:Math.min(a,10)}, (_,k)=>(k+1)*b).join(", ")}.`, g:[{rect:true, rows:a, cols:b, cum:true}]});
+    if(a>5) S.push({say:`Astuce : 5 rangées, ça fait ${5*b}. Il reste ${a-5} rangée${a-5>1?"s":""} : ${(a-5)*b}. Et ${5*b} + ${(a-5)*b} = ${a*b}.`, g:[{rect:true, rows:a, cols:b, split:5}]});
+    S.push({ask:true, say:`À toi : combien de cubes en tout ?`});
+    return S;
+  }
   if(op==="+"){
     S.push({say:`Voici ${a} : ${both(ta,ua)}.`, g:[{t:ta,u:ua,c:"a"}]});
     S.push({say:`On ajoute ${b} : ${both(tb,ub)}.`, g:[{t:ta,u:ua,c:"a"},{t:tb,u:ub,c:"b"}]});
@@ -6623,6 +6640,8 @@ function cubesSteps(a, b, op){
   return S;
 }
 function cubesDraw(g){
+  if(g[0] && g[0].rect){ const R = g[0];
+    return `<div class="cb-rect">${Array.from({length:R.rows}, (_,r)=>`<div class="cb-row${R.split && r===R.split ? " cut" : ""}">${Array.from({length:R.cols}, ()=>`<i class="cb-cube ${R.split && r>=R.split ? "b" : "a"}"></i>`).join("")}${R.cum ? `<span class="cb-cum">${(r+1)*R.cols}</span>` : ""}</div>`).join("")}</div>`; }
   return `<div class="cb-groups">${g.map(x=>{
     const bars = Array.from({length:x.t}, (_,k)=>`<i class="cb-bar ${x.c}${x.gt && k>=x.t-x.gt ? " gone" : ""}">${"<b></b>".repeat(10)}</i>`).join("");
     const cubes = Array.from({length:x.u}, (_,k)=>`<i class="cb-cube ${x.c}${x.gu && k>=x.u-x.gu ? " gone" : ""}"></i>`).join("");
@@ -6633,14 +6652,48 @@ function cubesOpen(q){
   CB10 = {q, steps: cubesSteps(q.a, q.b, q.op), i:0, last:null};
   $("cubes").hidden = false; cubesRender();
 }
+/* mode manipulation : T barres, U cubes ; soustraction : il reste « need » à enlever ; addition : « tA » barres et « uA » cubes à ajouter */
+function cubesPlayStart(){
+  const C = CB10; if(!C || C.q.op==="x") return;
+  const q = C.q;
+  C.play = q.op==="-" ? {T:Math.floor(q.a/10), U:q.a%10, X:0, need:q.b} : {T:Math.floor(q.a/10), U:q.a%10, X:0, tA:Math.floor(q.b/10), uA:q.b%10};
+  cubesPlayRender();
+}
+function cubesPlayRender(){
+  const C = CB10, P = C.play, q = C.q; if(!P) return;
+  const sub = q.op==="-", done = sub ? P.need===0 : P.tA===0 && P.uA===0 && P.U<10;
+  const say = sub ? (P.need>0 ? `Enlève ${q.b} en tout. Il reste à enlever : ${P.need}. Clique sur un cube pour l'enlever. Pas assez de cubes ? Clique sur une barre pour la casser en 10 cubes.` : `Bravo, tu as tout enlevé ! Maintenant compte ce qui reste.`)
+    : (P.tA>0 || P.uA>0 ? `Ajoute ${q.b} : clique sur « + 1 barre » et « + 1 cube ». Il reste à ajouter : ${P.tA ? `${P.tA} barre${P.tA>1?"s":""}` : ""}${P.tA && P.uA ? " et " : ""}${P.uA ? `${P.uA} cube${P.uA>1?"s":""}` : ""}.`
+      : P.U>=10 ? `Tu as ${P.U} cubes : 10 cubes, ça fait une barre ! Clique sur « Échanger 10 cubes ».` : `Bravo ! Maintenant compte les barres de 10, puis les cubes.`);
+  $("cubes-say").textContent = say;
+  $("cubes-pic").innerHTML = `<div class="cb-groups"><div class="cb-grp"><div class="cb-bars">${Array.from({length:P.T}, ()=>`<i class="cb-bar a click" data-cb="bar">${"<b></b>".repeat(10)}</i>`).join("")}</div>`
+    + `<div class="cb-cubes">${Array.from({length:P.U}, (_,k)=>`<i class="cb-cube ${k>=P.U-P.X ? "n" : "a"} click" data-cb="cube"></i>`).join("")}</div></div></div>`
+    + (sub ? "" : `<div class="cb-tools"><button class="btn sm" data-cb="addbar"${P.tA ? "" : " disabled"}>+ 1 barre</button><button class="btn sm" data-cb="addcube"${P.uA ? "" : " disabled"}>+ 1 cube</button>${P.U>=10 ? `<button class="btn sm" data-cb="swap">Échanger 10 cubes</button>` : ""}</div>`);
+  $("cubes-dots").innerHTML = ""; $("cubes-next").hidden = true; $("cubes-play").hidden = true;
+  $("cubes-ask").hidden = !done; $("cubes-res").textContent = "";
+  if(done){ $("cubes-in").value = ""; setTimeout(()=>$("cubes-in").focus(), 50); }
+}
+function cubesPlayClick(kind){
+  const C = CB10, P = C && C.play; if(!P) return;
+  if(C.q.op==="-"){
+    if(kind==="cube" && P.need>0 && P.U>0){ P.U--; if(P.X>0) P.X--; P.need--; sfx("pop"); }   // on prend d'abord dans la barre cassée
+    else if(kind==="bar" && P.T>0 && P.need>0){ if(P.need>=10){ P.T--; P.need -= 10; sfx("pop"); } else { P.T--; P.U += 10; P.X = 10; sfx("tap"); } }
+  } else {
+    if(kind==="addbar" && P.tA>0){ P.T++; P.tA--; sfx("pop"); }
+    else if(kind==="addcube" && P.uA>0){ P.U++; P.uA--; sfx("pop"); }
+    else if(kind==="swap" && P.U>=10){ P.U -= 10; P.T++; P.X = 0; sfx("tap"); }
+  }
+  cubesPlayRender();
+}
 function cubesRender(){
   const C = CB10; if(!C) return;
   const st = C.steps[C.i], prev = st.ask ? C.steps[C.i-1] : st;
-  $("cubes-t").textContent = `${C.q.a} ${C.q.op==="+" ? "+" : "−"} ${C.q.b}`;
+  $("cubes-t").textContent = `${C.q.a} ${cubesSym(C.q.op)} ${C.q.b}`;
   $("cubes-say").textContent = st.say;
   $("cubes-pic").innerHTML = cubesDraw(prev.g);
   $("cubes-dots").innerHTML = C.steps.map((_,k)=>`<i class="${k<=C.i?"on":""}"></i>`).join("");
   $("cubes-ask").hidden = !st.ask; $("cubes-next").hidden = !!st.ask; $("cubes-res").textContent = "";
+  C.play = null; $("cubes-play").hidden = !st.ask || C.q.op==="x";
   if(st.ask){ $("cubes-in").value = ""; setTimeout(()=>$("cubes-in").focus(), 50); } else setTimeout(()=>$("cubes-next").focus(), 50);
   speak(st.say, .9);
 }
@@ -6648,8 +6701,8 @@ function cubesCheck(){
   const C = CB10; if(!C) return;
   const v = parseInt($("cubes-in").value, 10); if(!Number.isFinite(v)) return;
   const ok = v===C.q.r;
-  $("cubes-res").innerHTML = ok ? `<b>Bravo !</b> ${C.q.a} ${C.q.op==="+" ? "+" : "−"} ${C.q.b} = ${C.q.r}. Tu l'as trouvé tout seul avec les cubes !`
-    : `Pas encore : recompte doucement, d'abord les barres (10, 20, 30…), puis les cubes. La réponse est ${C.q.r}.`;
+  $("cubes-res").innerHTML = ok ? `<b>Bravo !</b> ${C.q.a} ${cubesSym(C.q.op)} ${C.q.b} = ${C.q.r}. Tu l'as trouvé tout seul avec les cubes !`
+    : (C.q.op==="x" ? `Pas encore : recompte rangée par rangée, ${C.q.b}, ${2*C.q.b}, ${3*C.q.b}… La réponse est ${C.q.r}.` : `Pas encore : recompte doucement, d'abord les barres (10, 20, 30…), puis les cubes. La réponse est ${C.q.r}.`);
   $("cubes-res").className = ok ? "cubes-res ok" : "cubes-res ko";
   sfx(ok ? "good" : "bad"); speak(plain($("cubes-res").innerHTML), .9);
 }
@@ -6660,7 +6713,10 @@ $("cubes").addEventListener("click", e=>{ const b = e.target.closest("button"); 
   if(b.id==="cubes-x"){ sfx("tap"); cubesClose(); }
   else if(b.id==="cubes-next" && CB10){ sfx("tap"); CB10.i = Math.min(CB10.steps.length-1, CB10.i+1); cubesRender(); }
   else if(b.id==="cubes-again" && CB10){ sfx("tap"); CB10.i = 0; cubesRender(); }
-  else if(b.id==="cubes-ok"){ cubesCheck(); } });
+  else if(b.id==="cubes-ok"){ cubesCheck(); }
+  else if(b.id==="cubes-play"){ sfx("tap"); cubesPlayStart(); }
+  else if(b.dataset.cb){ cubesPlayClick(b.dataset.cb); } });
+$("cubes-pic").addEventListener("click", e=>{ const t = e.target.closest(".click[data-cb]"); if(t) cubesPlayClick(t.dataset.cb); });
 $("feedback").addEventListener("click", e=>{
   const b = e.target.closest("#ai-explain"); if(!b || !S || !S.cur) return;
   sfx("tap"); aiExplain($("ai-box"), b, aiCalcPrompt(S.cur, S.aiGiven||"?"), aiCalcFallback(S.cur));
@@ -10135,7 +10191,7 @@ function submit(){
     }
     slot.classList.add("ko"); sfx("bad"); owlMood("s-play","sad");
     fb.className="bubble bad";
-    fb.innerHTML=`${near ? "Presque !" : "Pas tout à fait."} <span class="fix">${qFull(q)}</span>${dg ? `<div class="strat"><b>Ce qui s'est passé :</b> ${dg}</div>` : ""}<div class="strat">${strategy(q).f}</div>${cubesOk(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="cubes-open">Voir avec les cubes</button>` : ""}${back ? `<div class="strat again"><b>Retiens-le bien :</b> il va revenir dans un instant.</div>` : ""}${eased ? `<div class="strat again"><b>On souffle un peu :</b> 3 calculs plus faciles (${esc(eased.name)}), puis on y retourne.</div>` : ""}${S.mode==="chrono"||S.mode==="course" ? "" : `<button class="aibtn" id="ai-explain">Explique-moi autrement</button><div class="aibox" id="ai-box" aria-live="polite" hidden></div>`}`;
+    fb.innerHTML=`${near ? "Presque !" : "Pas tout à fait."} <span class="fix">${qFull(q)}</span>${dg ? `<div class="strat"><b>Ce qui s'est passé :</b> ${dg}</div>` : ""}<div class="strat">${strategy(q).f}</div>${cubesOk(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="cubes-open">${q.op==="x" ? "Voir en rectangle" : "Voir avec les cubes"}</button>` : ""}${back ? `<div class="strat again"><b>Retiens-le bien :</b> il va revenir dans un instant.</div>` : ""}${eased ? `<div class="strat again"><b>On souffle un peu :</b> 3 calculs plus faciles (${esc(eased.name)}), puis on y retourne.</div>` : ""}${S.mode==="chrono"||S.mode==="course" ? "" : `<button class="aibtn" id="ai-explain">Explique-moi autrement</button><div class="aibox" id="ai-box" aria-live="polite" hidden></div>`}`;
     S.aiGiven = S.typed;
     if(D.tts.auto) speak(`${near ? "Presque." : "Pas tout à fait."} ${dg ? plain(dg) + " " : ""}${sayAnswer(q)}`);
     if(S.mode==="survie") S.over=true;
