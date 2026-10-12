@@ -19,12 +19,15 @@
 #  Compatible Windows PowerShell 5.1 (Windows 10 / 11).
 # ============================================================================
 param([switch]$Test, [switch]$Ouvrir)
-$GardienVersion = 7
+$GardienVersion = 8
 
 $ErrorActionPreference = 'Stop'
 $Self = $MyInvocation.MyCommand.Path
 $Dir = Split-Path -Parent $Self
 $LogFile = Join-Path $Dir 'gardien.log'
+$HeartFile = Join-Path $Dir 'heartbeat.txt'
+function Write-Heart { try { [IO.File]::WriteAllText($HeartFile, [string]([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())) } catch { } }
+function Read-Heart { try { return [int64]([IO.File]::ReadAllText($HeartFile)) } catch { return 0 } }
 
 function Write-Log([string]$msg) {
   try {
@@ -88,10 +91,11 @@ $st = Get-State
 $script:FreeDay = ''
 if ($st -and $st.debloque) { $script:FreeDay = [string]$st.jour }
 $StartFree = (-not $Ouvrir -and ((-not (Test-LockWindow (Get-Date))) -or $script:FreeDay -eq (Get-LockDay (Get-Date))))
+$script:WasKilled = (-not $Ouvrir -and (Test-LockWindow (Get-Date)) -and -not $StartFree -and ([DateTimeOffset]::UtcNow.ToUnixTimeSeconds() - (Read-Heart)) -lt 180)
 if (-not $Ouvrir) {   # un seul gardien à la fois
   $created = $false
   $script:Mutex = New-Object System.Threading.Mutex($true, 'Local\CalculMentalCM1Gardien', [ref]$created)
-  if (-not $created) { Write-Log 'Un gardien tourne déjà : rien à faire.'; return }
+  if (-not $created) { return }   # un gardien tourne déjà (la surveillance passe chaque minute)
 }
 
 # --- Microsoft Edge ---
@@ -194,6 +198,32 @@ function Build-Url {
   if ($script:StatsUrl) { $script:Url += '&stats=' + [System.Uri]::EscapeDataString($script:StatsUrl) }
 }
 if ($StartFree) { Update-App -Quiet } else { Update-App }
+if ($script:WasKilled) { Write-Log 'Gardien relancé (fermé pendant le programme ?).'; Send-Stat 'gardien relancé' 'fermé (ou PC redémarré) pendant le programme ?' }
+# surveillance : une tâche planifiée relance le gardien chaque minute s'il a été fermé (créée une seule fois)
+if (-not $Ouvrir) {
+  try {
+    $wTask = 'Calcul mental CM1 (surveillance)'
+    if (-not (Get-ScheduledTask -TaskName $wTask -ErrorAction SilentlyContinue)) {
+      $wPs = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+      $wAct = New-ScheduledTaskAction -Execute $wPs -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File `"$Self`"" -WorkingDirectory $Dir
+      $wSet = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 0)
+      $wRep = (New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1)).Repetition
+      try {   # à l'ouverture de session + chaque minute
+        $wTrg = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME; $wTrg.Repetition = $wRep
+        Register-ScheduledTask -TaskName $wTask -Action $wAct -Trigger $wTrg -Settings $wSet -Description 'Relance le gardien de Calcul mental CM1 s''il a été fermé.' -Force | Out-Null
+      } catch {   # plan B (sans droits élevés) : chaque minute, à partir de maintenant
+        $wTrg = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1)
+        Register-ScheduledTask -TaskName $wTask -Action $wAct -Trigger $wTrg -Settings $wSet -Description 'Relance le gardien de Calcul mental CM1 s''il a été fermé.' -Force | Out-Null
+      }
+      Write-Log 'Surveillance installée (relance chaque minute si le gardien est fermé).'
+    }
+    $wT = Get-ScheduledTask -TaskName $wTask -ErrorAction SilentlyContinue
+    if ($wT -and ($wT.Triggers | Where-Object { $_.CimClass.CimClassName -eq 'MSFT_TaskLogonTrigger' })) {   # la tâche lance aussi le gardien à l'ouverture de session
+      $oldLnk = Join-Path ([Environment]::GetFolderPath('Startup')) 'Calcul mental CM1 (gardien).lnk'
+      if (Test-Path $oldLnk) { Remove-Item -Force -ErrorAction SilentlyContinue $oldLnk; Write-Log 'Raccourci de démarrage retiré (la surveillance lance le gardien).' }
+    }
+  } catch { Write-Log ('Surveillance non installée : ' + $_.Exception.Message) }
+}
 Build-Url
 if ($Ouvrir) { Start-App; return }
 
@@ -248,12 +278,14 @@ $script:Grace = 30          # 1re ouverture (démarrage de Windows, parfois lent
 $script:Unlocked = [bool]$StartFree
 $script:Start = $Start
 $script:LastTick = $null
+$script:HeartN = 0
 $script:ActiveSec = 0      # temps passé devant l'ordinateur (clavier ou souris utilisés dans la dernière minute)
 $Ctx = New-Object System.Windows.Forms.ApplicationContext
 # débloqué : on cache tout et on attend le lendemain (le gardien reste lancé)
 function Enter-Free {
   $script:Unlocked = $true
   $script:Running = $false
+  try { Remove-Item -Force -ErrorAction SilentlyContinue $HeartFile } catch { }
   foreach ($cv in $script:Covers) { try { $cv.Hide() } catch { } }
   try { $form.Hide() } catch { }
   Write-Log ("Mode libre jusqu'au prochain verrou ($LockHour h).")
@@ -274,6 +306,7 @@ function Test-NewerGardien {
 }
 function Restart-Self {
   Write-Log 'Redémarrage du gardien.'
+  try { Remove-Item -Force -ErrorAction SilentlyContinue $HeartFile } catch { }
   try { if ($script:Mutex) { $script:Mutex.ReleaseMutex(); $script:Mutex.Dispose(); $script:Mutex = $null } } catch { }
   Start-Process -WindowStyle Hidden -FilePath (Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe') -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-STA', '-File', "`"$Self`"") | Out-Null
   Exit-Gardien
@@ -499,6 +532,7 @@ $timer.Add_Tick({
     if ($d -ne $script:Today) { $script:Today = $d; $script:Start = $now }   # minuit pendant le verrou : nouveau code (le temps actif continue)
     if ($script:LastTick -and ($now - $script:LastTick).TotalMinutes -gt 60 -and $now.Hour -ge 5) { $script:ActiveSec = 0; Write-Log 'Longue pause (veille) : temps actif remis à zéro.' }
     $script:LastTick = $now
+    $script:HeartN = ($script:HeartN + 1) % 15; if ($script:HeartN -eq 0) { Write-Heart }
     $idle = 0; if ($script:Win32) { try { $idle = [GardienW]::IdleMs() } catch { $idle = 0 } }
     if ($idle -lt 60000) { $script:ActiveSec += 2 }
     if ($script:ActiveSec / 60 -ge $MinutesMax) {                                # plafond de temps ACTIF atteint : c'est bon pour aujourd'hui
