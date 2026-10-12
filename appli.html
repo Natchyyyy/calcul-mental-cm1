@@ -4040,7 +4040,8 @@ function migrate(d){
   { const cs = isObj(d.cases) ? d.cases : {}; out.cases = {n: Math.round(num(cs.n,0,0,99999)), pity: Math.round(num(cs.pity,0,0,99)), cn: Math.round(num(cs.cn,0,0,99999))}; }
   { const cr = isObj(d.crea) ? d.crea : {};
     const have = ["hibou"].concat(Array.isArray(cr.have) ? cr.have.filter(k=>CREA_BY[k] && k!=="hibou") : []);
-    const sk = {}; if(isObj(cr.sk)) Object.entries(cr.sk).forEach(([k,v])=>{ if(CSK[k] && typeof v==="string" && out.skins.includes(`${k}.${v}`)) sk[k] = v; });
+    const sk = {}; if(isObj(cr.sk)) Object.entries(cr.sk).forEach(([k,v])=>{ if(!CSK[k] || typeof v!=="string") return; const si = findItem("color", v);
+      if(out.skins.includes(`${k}.${v}`) || (si && out.owned.includes(si.uid))) sk[k] = v; });
     out.crea = {have:[...new Set(have)], cur: have.includes(cr.cur) ? cr.cur : "hibou", sk}; }
   const eq = Object.assign({}, base.equip, isObj(d.equip)?d.equip:{});
   SLOTS.forEach(slot => {
@@ -4568,7 +4569,7 @@ function owlSVG(eq, cls=""){
   const crId = eq.crea || creaCur();
   if(crId!=="hibou" && CREA_BY[crId]){
     const sk = eq.cskin!==undefined ? eq.cskin : ((D.crea.sk||{})[crId] || "");
-    return creatureSVG(CREA_BY[crId], eq, sk && SKIN[sk] ? SKIN[sk].c : null, cls);
+    return creatureSVG(CREA_BY[crId], eq, sk ? ((SKIN[sk] && SKIN[sk].c) || COLORS[sk] || null) : null, cls);
   }
   const id = "og"+(++owlUid);
   const c = COLORS[eq.color] || COLORS.brun;
@@ -8952,18 +8953,19 @@ const ICONS = {
   fx:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3"/></svg>`
 };
 const shopTabs = () => { const id = curEv(); return id ? [SHOP_TABS[0],[id,EVTS[id].tab],...SHOP_TABS.slice(1)] : SHOP_TABS; };
-const SHOP_TABS = [["cases","Caisses"],["owl","Hibou"],["dance","Danses"],["bg","Décors"],["music","Musiques"],["sfx","Bruitages"],["fx","Effets"],["kp","Claviers"],["chest","Coffre"]];
+const SHOP_TABS = [["cases","Caisses"],["owl","Skins"],["dance","Danses"],["bg","Décors"],["music","Musiques"],["sfx","Bruitages"],["fx","Effets"],["kp","Claviers"],["chest","Coffre"]];
 const TYPE_LABEL = {color:"Couleurs",hat:"Chapeaux",face:"Visage",neck:"Accessoires",dance:"Danses de victoire",bg:"Décors",music:"Musiques",sfx:"Bruitages",fx:"Effets de victoire",kp:"Claviers"};
 const TYPE_HELP = {dance:"Pythagore danse quand tu trouves la bonne réponse. Touche « Voir » pour essayer.",bg:"Change le fond de toute l'appli.",music:"Touche « Écouter » pour essayer. La note en haut de l'écran allume ou coupe la musique.",sfx:"Les sons quand c'est juste ou faux.",fx:"L'effet qui jaillit à chaque bonne réponse et à la fin des belles parties.",kp:"Le look des touches pendant le jeu."};
 let shopTab = "owl", chestState = null;
 function preview(it){
+  if(it.type==="color" && creaCur()!=="hibou") return owlSVG(Object.assign({}, D.equip, {crea:creaCur(), cskin:it.id}));
   if(OWL_SLOTS.includes(it.type)) return owlSVG(Object.assign({}, D.equip, {[it.type]:it.id}));
   if(it.type==="bg") return `<div class="bgprev" data-bg="${it.id}"></div>`;
   if(it.type==="kp") return `<div class="kp-prev" data-kp="${it.id}"><span class="key" style="--i:1;display:grid;place-items:center">1</span><span class="key" style="--i:2;display:grid;place-items:center">2</span><span class="key" style="--i:3;display:grid;place-items:center">3</span></div>`;
   return `<div class="icon">${ICONS[it.type]||""}</div>`;
 }
 function itemCard(it){
-  const own = D.owned.includes(it.uid), on = D.equip[it.type]===it.id;
+  const crc = creaCur(), own = D.owned.includes(it.uid), on = it.type==="color" && crc!=="hibou" ? (D.crea.sk[crc]||"")===it.id : D.equip[it.type]===it.id;
   let btn;
   if(on) btn = OPTIONAL.includes(it.type) ? `<button class="btn sm alt" data-off="${it.uid}">Enlever</button>` : `<button class="btn sm alt" disabled>Choisi</button>`;
   else if(own) btn = `<button class="btn sm" data-wear="${it.uid}">Choisir</button>`;
@@ -9112,7 +9114,10 @@ function renderShop(){
     const E = EVTS[shopTab];
     h = `<div class="card"><h3>Rayon ${E.tab}</h3><p class="muted" style="margin:0">${E.until} Ce que tu achètes, tu le gardes pour toujours.</p><div class="items">${SHOP.filter(i=>i.ev===shopTab).map(itemCard).join("")}</div></div>`;
   } else if(shopTab==="owl"){
-    ["color","hat","face","neck"].forEach(t=>{ h += `<div class="card"><h3>${TYPE_LABEL[t]}</h3><div class="items">${byType(t).map(itemCard).join("")}</div></div>`; });
+    const crc = creaCur(), cnm = (CREA_BY[crc]||{}).nm || "Hibou";
+    ["color","hat","face","neck"].forEach(t=>{
+      const orig = t==="color" && crc!=="hibou" ? `<div class="item ${D.crea.sk[crc] ? "" : "on"}">${owlSVG(Object.assign({}, D.equip, {crea:crc, cskin:""}))}<b>D'origine</b>${D.crea.sk[crc] ? `<button class="btn sm" data-skinbase="${crc}">Choisir</button>` : `<button class="btn sm alt" disabled>Choisi</button>`}</div>` : "";
+      h += `<div class="card"><h3>${TYPE_LABEL[t]}${t==="color" ? ` <small class="muted">· ${esc(cnm)}</small>` : ""}</h3><div class="items">${orig}${byType(t).map(itemCard).join("")}</div></div>`; });
   } else if(shopTab==="cases"){
     h = casesHtml();
   } else if(shopTab==="chest"){
@@ -9139,8 +9144,8 @@ function renderShop(){
   $("shop-body").innerHTML = h;
 }
 function equipItem(it){
-  D.equip[it.type] = it.id;
-  if(it.type==="color") D.crea.cur = "hibou";
+  if(it.type==="color" && creaCur()!=="hibou") D.crea.sk[creaCur()] = it.id;   // la couleur va sur le personnage choisi
+  else D.equip[it.type] = it.id;
   persist(); applyLook();
   if(it.type==="music"){
     endPreview();
