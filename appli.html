@@ -726,6 +726,9 @@ svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
 .learn-steps .ltx{flex:1;min-width:0}
 .learn-steps .lres{font-family:var(--f-display);font-weight:800;color:var(--good);font-variant-numeric:tabular-nums;flex:none}
 .learn-steps .lres.ko{color:var(--bad)}
+.lwins{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin:2px 0 10px}
+.lwins > b{font-family:var(--f-display);margin-right:2px}
+.lwins span{background:var(--soft, rgba(0,0,0,.05));border-radius:999px;padding:4px 10px;font-size:.92em}
 .learn-prog{display:flex;flex-direction:column;gap:10px}
 .learn-prog h3{margin:0}
 .lp-row{display:grid;grid-template-columns:5.5em 1fr auto;align-items:center;gap:10px}
@@ -1414,6 +1417,18 @@ body.trial{padding-top:42px}
 .vx-text span.sk{text-decoration:underline wavy var(--warn) 2px;text-underline-offset:5px}
 .vx-text span.hp{background:color-mix(in srgb,var(--c-add) 20%,transparent)}
 .vx-text span.cur{box-shadow:inset 0 -3px 0 var(--primary)}
+.vx-text span.py{color:var(--ink-soft);background:var(--soft);border-radius:0}
+.vx-hard{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 12px;border-radius:12px;background:var(--soft)}
+.vx-hard small{flex-basis:100%;color:var(--ink-soft)}
+.vx-hw{border:0;border-radius:99px;padding:5px 12px;background:var(--card);color:var(--ink);font-family:var(--f-body);font-size:1.1rem;font-weight:700;box-shadow:inset 0 0 0 2px var(--line)}
+.vx-reread{width:100%;border-radius:12px;background:var(--soft);padding:8px 12px}
+.vx-reread summary{cursor:pointer;font-weight:800}
+.vx-reread p{font-size:1.05rem;line-height:1.7;margin:8px 0 0}
+.wpm{display:flex;flex-direction:column;gap:6px}
+.wpm-row{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 3ch;gap:8px;align-items:center;font-size:.9rem}
+.wpm-row span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wpm-row i{display:block;height:10px;border-radius:99px;background:var(--good)}
+.wpm-row b{text-align:right;font-variant-numeric:tabular-nums}
 .vx-bar{height:12px;border-radius:99px;background:var(--soft);overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
 .vx-bar i{display:block;height:100%;background:var(--good);transition:width .4s}
 .vx-mic{display:inline-flex;align-items:center;gap:10px}
@@ -1430,6 +1445,7 @@ body.trial{padding-top:42px}
 
 .toast{position:fixed;left:50%;bottom:calc(98px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:20;background:var(--ink);color:var(--card);font-family:var(--f-display);font-weight:700;padding:8px 18px;border-radius:99px;box-shadow:var(--shadow);width:max-content;max-width:calc(100% - 32px);text-align:center}
 #fx{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:30}
+body:has(#cfull:not([hidden])) #fx{z-index:75}
 
 @media (prefers-reduced-motion:reduce){
   .owl.is-happy,.owl.float,.slot.ko,.stars .on,.chest.shake .chest-svg{animation:none!important}
@@ -1888,6 +1904,10 @@ body.trial{padding-top:42px}
       <div class="field"><label for="p-try">Exercice</label><select class="input" id="p-try"></select></div>
       <div class="btnrow"><button class="btn sm" id="p-try-go">Essayer avec la leçon</button><button class="btn sm alt" id="p-try-nol">Directement les questions</button></div>
     </div>
+    <div class="card" id="pwpm-card">
+      <h3>Vitesse de lecture</h3>
+      <div id="p-wpm"></div>
+    </div>
     <div class="card" id="preward-card">
       <h3>Récompense de la vraie vie</h3>
       <p class="muted" style="margin:0">Chaque programme « Apprendre » terminé et chaque lecture du soir le rapprochent de la récompense (1 point chacun). Il voit sa barre avancer sur l'accueil.</p>
@@ -1925,6 +1945,7 @@ body.trial{padding-top:42px}
         <input class="input" id="p-owl" type="text" maxlength="16" autocomplete="off" placeholder="Pythagore">
       </div>
       <div class="switch"><span>Lecture du soir <span class="muted">(le soir, un chapitre du feuilleton « Oscar et le Royaume Pixel » à lire à voix haute, environ 15 minutes ; compte pour la récompense)</span></span><button id="p-soir" aria-label="Lecture du soir"></button></div>
+      <div class="switch" id="p-duo-row"><span>Lecture du soir en duo <span class="muted">(conseillé pour un lecteur en difficulté : il lit une partie, Pythagore lit l'autre ; moins fatigant, il garde le plaisir de l'histoire)</span></span><button id="p-duo" aria-label="Lecture du soir en duo"></button></div>
       <div class="field" id="p-soir-hf"><label for="p-soir-h">La lecture du soir apparaît à partir de</label><select class="input" id="p-soir-h" style="max-width:220px"><option value="0">Toute la journée</option><option value="16">16 h</option><option value="17">17 h</option><option value="18">18 h</option><option value="19">19 h</option><option value="20">20 h</option><option value="21">21 h</option></select></div>
       <div class="switch"><span>Ordinateur avec le gardien Windows <span class="muted">(à la fin du programme du jour, l'appli montre le code du jour qui débloque l'ordinateur ; activé tout seul quand le gardien ouvre l'appli)</span></span><button id="p-gardien" aria-label="Ordinateur avec le gardien Windows"></button></div>
       <div class="switch"><span>Pythagore et l'IA <span class="muted">(le mot du jour et « Explique-moi autrement » écrits par l'IA de Claude ; seuls la notion, le calcul et la réponse sont envoyés, jamais le prénom ; sans IA, des textes tout prêts)</span></span><button id="p-ai" aria-label="Pythagore et l'IA"></button></div>
@@ -2203,7 +2224,7 @@ const SKINS = [
   {id:"sk_or", nm:"Hibou d'or", r:4, c:{grad:["#fff3b0","#f5c518","#b8860b","#ffe066"], belly:"#fff8dc", stroke:"#8a6508", pat:"sparkle", pc:"#ffffff", aura:"#ffd23a"}},
   {id:"sk_diamant", nm:"Hibou de diamant", r:4, c:{grad:["#ffffff","#b9f2ff","#5fd0ff","#e0fbff"], belly:"#ffffff", stroke:"#3aa8d8", pat:"crystals", pc:"#ffffff", aura:"#7fe3ff", sparkle:true}}
 ];
-const SKIN = Object.fromEntries(SKINS.map(k=>[k.id,k]));
+const SKIN = Object.assign(Object.create(null), Object.fromEntries(SKINS.map(k=>[k.id,k])));
 SKINS.forEach(k=>{ COLORS[k.id] = k.c; });
 const CASE_PRICE = 2, CREA_PRICE = 4;
 const DIAM = `<svg class="diam" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9z" fill="#5fd0ff"/><path d="M2 9h20M8.5 3 12 9l3.5-6M12 9v12M6 3l2.5 6M18 3l-2.5 6" fill="none" stroke="#1a6f99" stroke-width="1.3" stroke-linejoin="round"/><path d="M6 3h6L8.5 9H2z" fill="#b9f2ff"/></svg>`;
@@ -2950,7 +2971,7 @@ const CREA_HD_B = (()=>{
   return {golem, robot, kraken, trex, licorne};
 })();
 [CREA_HD, CREA_HD_A, CREA_HD_B].forEach(HD => Object.entries(HD).forEach(([k,v]) => { const i = CREA.findIndex(c=>c.id===k); if(i>=0) CREA[i] = Object.assign({}, CREA[i], v); }));
-const CREA_BY = Object.fromEntries(CREA.map(c=>[c.id,c]));
+const CREA_BY = Object.assign(Object.create(null), Object.fromEntries(CREA.map(c=>[c.id,c])));
 function creatureSVG(cr, eq, pal, cls){
   const id = "cg"+(++owlUid), c = pal || cr.pal, A = cr.acc || {};
   const fill = c.grad ? `url(#${id})` : c.b, st = c.stroke ? ` stroke="${c.stroke}" stroke-width="2"` : "";
@@ -2975,7 +2996,7 @@ function creatureSVG(cr, eq, pal, cls){
 }
 /* skins des créatures : on reprend les motifs des skins du hibou ; une créature commune n'a ni légendaire ni mythique */
 const CSK_N = [{0:6,1:4,2:2},{0:6,1:5,2:3,3:1},{0:6,1:5,2:4,3:2},{0:6,1:6,2:4,3:2,4:1},{0:6,1:6,2:4,3:2,4:2}];
-const CSK = {};
+const CSK = Object.create(null);
 CREA.forEach((cr,ci)=>{ if(cr.id==="hibou") return; const out = [];
   Object.entries(CSK_N[cr.r]).forEach(([t,n])=>{ const pool = SKINS.filter(k=>k.r===+t); for(let i=0;i<n;i++) out.push(pool[(i + ci*3) % pool.length].id); });
   CSK[cr.id] = [...new Set(out)]; });
@@ -3853,7 +3874,7 @@ const BL_CALC = ["add","sub","mult","comp","half","prob","big","dec"];
 const BL_FR = ["mots","gram","accord","conj","lire"];
 const BL_SECS = [...BL_CALC.map(c=>({id:"c:"+c, part:0})), ...BL_FR.map(f=>({id:"f:"+f, part:1})), {id:"m:chif", part:2}, {id:"m:mots", part:2}, {id:"m:rep", part:2}];
 const blNmax = id => { const [d,a] = id.split(":"); return d==="c" ? LADDER[a].length : d==="f" ? FR_LADDER[a].length : 0; };
-const DEF = () => ({schema:SCHEMA, name:"", owl:"Pythagore", owlSet:false, gardien:false, statQ:[], statDay:"", voix:{i:0, last:0, hist:[]}, soir:{on:true, h:19, ch:0, last:0, hist:[]}, diam:0, skins:[], cases:{n:0, pity:0, cn:0}, crea:{have:["hibou"], cur:"hibou", sk:{}}, reward:{on:false, label:"", goal:7, n:0, done:false, got:[]}, started:false, sound:true, musicOn:false, musicVol:0.5,
+const DEF = () => ({schema:SCHEMA, name:"", owl:"Pythagore", owlSet:false, gardien:false, statQ:[], statDay:"", voix:{i:0, last:0, rep:0, w1:0, hard:[], hist:[]}, soir:{on:true, duo:true, h:19, ch:0, last:0, hist:[]}, diam:0, skins:[], cases:{n:0, pity:0, cn:0}, crea:{have:["hibou"], cur:"hibou", sk:{}}, reward:{on:false, label:"", goal:7, n:0, done:false, got:[]}, started:false, sound:true, musicOn:false, musicVol:0.5,
   cats:["add","sub","mult"], tables:ALL_T.slice(), level:3, mode:"serie", elo:{add:ELO_START,sub:ELO_START,mult:ELO_START}, eloBest:{add:1,sub:1,mult:1}, eloSlow:{add:0,sub:0,mult:0},
   xp:0, plumes:0, owned:FREE.slice(),
   equip:{color:"brun",hat:null,face:null,neck:null,dance:"saut",bg:"ciel",music:"douce",sfx:"classique",fx:"confettis",kp:"classique"},
@@ -3873,12 +3894,14 @@ function migrate(d){
   out.gardien = d.gardien===true;
   out.statDay = typeof d.statDay==="string" ? d.statDay.slice(0,10) : "";
   { const vx = isObj(d.voix) ? d.voix : {};
-    out.voix = {i: Math.round(num(vx.i,0,0,1e4)), last: Math.round(num(vx.last,0,0,1e6)),
-      hist: Array.isArray(vx.hist) ? vx.hist.filter(isObj).slice(-30).map(h=>({id: String(h.id||"").slice(0,8), d: Math.round(num(h.d,0,0,1e6)), lu: Math.round(num(h.lu,-1,-1,100)), q: Math.round(num(h.q,0,0,3))})) : []}; }
+    out.voix = {i: Math.round(num(vx.i,0,0,1e4)), last: Math.round(num(vx.last,0,0,1e6)), rep: Math.round(num(vx.rep,0,0,2)), w1: Math.round(num(vx.w1,0,0,300)),
+      hard: Array.isArray(vx.hard) ? vx.hard.filter(w=>typeof w==="string" && /^[\p{L}' -]{2,30}$/u.test(w)).slice(-10) : [],
+      hist: Array.isArray(vx.hist) ? vx.hist.filter(isObj).slice(-30).map(h=>Object.assign({id: String(h.id||"").slice(0,8), d: Math.round(num(h.d,0,0,1e6)), lu: Math.round(num(h.lu,-1,-1,100)), q: Math.round(num(h.q,0,0,3))},
+        h.wpm ? {wpm: Math.round(num(h.wpm,0,0,300))} : {}, h.rep ? {rep: Math.round(num(h.rep,0,0,2))} : {})) : []}; }
   { const rw = isObj(d.reward) ? d.reward : {};
     { const so = isObj(d.soir) ? d.soir : {};
-      out.soir = {on: so.on!==false, h: [0,16,17,18,19,20,21].includes(so.h) ? so.h : 19, ch: Math.round(num(so.ch,0,0,999)), last: Math.round(num(so.last,0,0,1e6)),
-        hist: Array.isArray(so.hist) ? so.hist.filter(isObj).slice(-40).map(h=>({n: Math.round(num(h.n,1,1,999)), d: Math.round(num(h.d,0,0,1e6)), lu: Math.round(num(h.lu,-1,-1,100)), q: Math.round(num(h.q,0,0,3)), min: Math.round(num(h.min,0,0,600))})) : []}; }
+      out.soir = {on: so.on!==false, duo: so.duo!==false, h: [0,16,17,18,19,20,21].includes(so.h) ? so.h : 19, ch: Math.round(num(so.ch,0,0,999)), last: Math.round(num(so.last,0,0,1e6)),
+        hist: Array.isArray(so.hist) ? so.hist.filter(isObj).slice(-40).map(h=>Object.assign({n: Math.round(num(h.n,1,1,999)), d: Math.round(num(h.d,0,0,1e6)), lu: Math.round(num(h.lu,-1,-1,100)), q: Math.round(num(h.q,0,0,3)), min: Math.round(num(h.min,0,0,600))}, h.wpm ? {wpm: Math.round(num(h.wpm,0,0,300))} : {})) : []}; }
     out.reward = {on: rw.on===true, label: typeof rw.label==="string" ? rw.label.replace(/[<>]/g,"").slice(0,40) : "", goal: Math.round(num(rw.goal,7,1,60)), n: Math.round(num(rw.n,0,0,60)), done: rw.done===true,
       got: Array.isArray(rw.got) ? rw.got.filter(isObj).slice(-20).map(g=>({label: String(g.label||"").replace(/[<>]/g,"").slice(0,40), d: String(g.d||"").slice(0,10)})) : []};
     if(out.reward.n > out.reward.goal) out.reward.n = out.reward.goal; }
@@ -3952,7 +3975,7 @@ function migrate(d){
   out.coach.decoSeed = co.decoSeed===true;
   out.coach.stuck = Array.isArray(co.stuck) ? co.stuck.filter(x=>isObj(x) && COACH_IDS.has(x.id)).slice(0,10).map(x=>({id:x.id, d: Math.round(num(x.d,0,0,1e6)), m: Math.round(num(x.m,1,0,2)), pre: COACH_IDS.has(x.pre) ? x.pre : null})) : [];
   const cpl = isObj(co.plan) ? co.plan : {};
-  if(Array.isArray(cpl.steps)) out.coach.plan = {d: Math.round(num(cpl.d,0,0,1e6)), nw: Math.round(num(cpl.nw,0,0,COACH_NEW_MAX)),
+  if(Array.isArray(cpl.steps)) out.coach.plan = {d: Math.round(num(cpl.d,0,0,1e6)), nw: Math.round(num(cpl.nw,0,0,COACH_NEW_MAX)), ...(cpl.t0 ? {t0: Math.round(num(cpl.t0,0,0,1e14))} : {}), ...(cpl.short===true ? {short:true} : {}),
     steps: cpl.steps.filter(x=>isObj(x) && (((x.k==="new" || x.k==="rev") && COACH_IDS.has(x.id)) || x.k==="ecole" || x.k==="mem" || x.k==="flash" || x.k==="voix")).slice(0,8)
       .map(x=>Object.assign({k:x.k, id: x.k==="ecole" || x.k==="mem" || x.k==="flash" || x.k==="voix" ? x.k : x.id, r: typeof x.r==="number" && isFinite(x.r) ? Math.round(Math.min(100, Math.max(0, x.r))) : null}, x.k==="flash" && typeof x.sc==="number" ? {sc: Math.round(num(x.sc,0,0,999))} : {}))};
   if(out.coach.plan && !out.coach.plan.steps.length) out.coach.plan.d = 0;
@@ -5520,6 +5543,7 @@ function strategy(q){
 const SCREENS = ["welcome","home","adv","tables","trophies","shop","parents","play","result","duelset","duel","pets","cible","who","cmp","tips","tip","ses","fr","frq","learn","lesson","bilan","mem","voix"];
 let current = "home";
 function show(name, opts={}){
+  if(typeof CASE!=="undefined" && CASE && CASE.busy && current==="shop" && name!=="shop") return;   // on attend la fin de la caisse
   if(TRIAL && ["home","learn","parents","who"].includes(name)){ trialEnd(); if(name!=="who") name = "parents"; }
   if(current==="voix" && name!=="voix" && typeof vxStop==="function") vxStop();
   if(current==="shop" && name!=="shop" && typeof CASE!=="undefined" && CASE){ if(CASE.busy) return; CASE = null; cfullRender(); }
@@ -5619,7 +5643,7 @@ $("cpick").addEventListener("click", e=>{
   if(b.id==="cpick-x"){ $("cpick").hidden = true; return; }
   if(b.id==="cpick-cases"){ $("cpick").hidden = true; shopTab = "cases"; show("shop"); return; }
   if(b.id==="cpick-dress"){ $("cpick").hidden = true; shopTab = "owl"; show("shop"); return; }
-  if(b.dataset.crea){ const c = CREA_BY[b.dataset.crea]; if(c && D.crea.have.includes(c.id)){ D.crea.cur = c.id; persist(); applyLook(); sfx("pop"); toast(`Tu joues avec : ${c.nm}`); openPick(); } }
+  if(b.dataset.crea){ const c = CREA_BY[b.dataset.crea]; if(c && D.crea.have.includes(c.id)){ D.crea.cur = c.id; persist(); applyLook(); sfx("pop"); toast(`Tu joues avec : ${c.nm}`); openPick(); if(current==="shop") renderShop(); } }
 });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("cpick").hidden) $("cpick").hidden = true; });
 
@@ -5868,22 +5892,28 @@ const VOIX = ["v1", "v2", "v11", "v3", "v12", "v4", "v13", "v5", "v14", "v15", "
 let VX = null, VX_LAST = null;
 const VX_NUM = {"1":"un","2":"deux","3":"trois","4":"quatre","5":"cinq","6":"six","7":"sept","8":"huit","9":"neuf","10":"dix","20":"vingt","30":"trente","40":"quarante","une":"un"};
 const vxNorm = w => { const x = String(w).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/œ/g,"oe").replace(/[^a-z0-9]/g,""); return VX_NUM[x] || x; };
-const vxNeeded = today => !D.voix.last || today - D.voix.last >= 2;      // un jour sur deux dans le programme
+const vxNeeded = today => !D.voix.last || today - D.voix.last >= 1;      // tous les jours : 1re lecture (avec questions) ou relecture courte
 const vxStory = () => VOIX[D.voix.i % VOIX.length];
 function openVoix(run, story){
   const vh = $("vx-h"); if(vh) vh.textContent = story && story.soir ? "Lecture du soir" : "Lire à voix haute";
   const st = story || vxStory(), words = st.txt.split(/\s+/).filter(Boolean);
-  VX = {run, st, words, keys: words.map(vxNorm), read: words.map(()=>0), help: words.map(()=>0), base:0, p:0, marks:{}, rec:null, on:false,
-        mic: !!(window.SpeechRecognition || window.webkitSpeechRecognition), micErr:"", used:false, restarts:0, view:"read", qi:0, qok:0, ans:null, order:null, t0:Date.now(), res:null};
+  // lecture en duo (le soir) : on lit une phrase sur deux (par paquets de 2 phrases), Pythagore lit les autres
+  const duo = !!(st.soir && D.soir.duo!==false), py = words.map(()=>false), blk = words.map(()=>0);
+  if(duo){ let sent = 0; words.forEach((w,i)=>{ blk[i] = Math.floor(sent/2); py[i] = blk[i]%2===1; if(/[.!?]»?$/.test(w)) sent++; }); }
+  const keys = words.map((w,i)=>py[i] ? "" : vxNorm(w));
+  VX = {run, st, words, keys, py, blk, duo, rep: story ? 0 : D.voix.rep, tStart:0, read: words.map(()=>0), help: words.map(()=>0), base:0, p:0, marks:{}, rec:null, on:false,
+        mic: !!(window.SpeechRecognition || window.webkitSpeechRecognition), micErr:"", used:false, restarts:0, view:"read", qi:0, qok:0, ans:null, order:null, qs:[], tries:{}, t0:Date.now(), res:null};
   show("voix");
 }
+const vxWords = () => VX.keys.filter(Boolean).length;
+function vxWpm(){ if(!VX.tStart || !VX.tEnd) return 0; const sec = (VX.tEnd - VX.tStart)/1000, w = Math.round(vxWords()*60/sec); return sec>=15 && w>=10 && w<=250 ? w : 0; }
 function vxCount(){ let n = 0, r = 0; VX.keys.forEach((k,i)=>{ if(!k) return; n++; if(VX.read[i]===1 || VX.marks[i]===1) r++; }); return {n, r, pct: n ? Math.round(100*r/n) : 0}; }
 /* on compare ce que le micro a entendu (depuis le début de l'écoute) au texte, à partir du dernier mot validé */
 function vxApply(list){
   let p = VX.base; const marks = {};
   for(const w0 of list){ const w = vxNorm(w0); if(!w) continue;
-    for(let j=p; j<Math.min(VX.words.length, p+6); j++){
-      const k = VX.keys[j]; if(!k) continue;
+    for(let j=p, seen=0; j<VX.words.length && seen<6; j++){
+      const k = VX.keys[j]; if(!k) continue; seen++;
       const near = k===w || (k.length>=4 && w.length>=4 && k.slice(0,4)===w.slice(0,4) && Math.abs(k.length-w.length)<=2)
         || (w.length>=4 && k.length>w.length+2 && k.startsWith(w));   // mot à trait d'union entendu en morceaux (« pont levis »)
       if(near){ for(let s=p; s<j; s++) if(VX.keys[s] && VX.read[s]!==1) marks[s] = 2; marks[j] = 1; p = j+1; break; }
@@ -5896,11 +5926,11 @@ function vxCommit(){ if(!VX) return; Object.entries(VX.marks).forEach(([i,v])=>{
 function vxPaint(){
   if(!VX || VX.view!=="read") return;
   document.querySelectorAll("#vx-text span").forEach(sp=>{ const i = +sp.dataset.i, st = VX.marks[i] || VX.read[i];
-    sp.className = st===1 ? "rd" : st===2 ? "sk" : VX.help[i] ? "hp" : ""; if(i===VX.p && VX.on) sp.classList.add("cur"); });
+    sp.className = (VX.py[i] ? "py " : "") + (st===1 ? "rd" : st===2 ? "sk" : VX.help[i] ? "hp" : ""); if(i===VX.p && VX.on) sp.classList.add("cur"); });
   if(VX.on && VX.p!==VX.lastP){ VX.lastP = VX.p; const cur = document.querySelector("#vx-text span.cur"); if(cur && cur.scrollIntoView){ const r = cur.getBoundingClientRect(); if(r.top < 90 || r.bottom > innerHeight - 140) cur.scrollIntoView({block:"center", behavior:"smooth"}); } }
   const c = vxCount(), bar = $("vx-bar"); if(bar) bar.style.width = c.pct + "%";
-  const lab = $("vx-pct"); if(lab) lab.textContent = `${c.pct} % des mots bien lus`;
-  if(VX.on && c.pct>=90){ vxStop(); vxCommit(); toast("Bravo, tu as tout lu !"); sfx("win"); vxRender(); }
+  const lab = $("vx-pct"); if(lab) lab.textContent = c.pct>=80 ? `${c.pct} % des mots bien lus` : "Continue, tranquillement…";
+  if(VX.on && VX.p >= VX.words.length){ vxStop(); vxCommit(); VX.tEnd = VX.tEnd || Date.now(); toast("Bravo, tu as lu jusqu'au bout !"); sfx("win"); vxRender(); }
 }
 function vxStart(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -5914,7 +5944,7 @@ function vxStart(){
       VX.restarts = (VX.restarts||0) + 1;
       if(VX.on && VX.view==="read" && VX.restarts <= 4){ try{ r.start(); }catch(_){ VX.on = false; vxRender(); } }
       else { VX.on = false; vxRender(); } };
-    VX.rec = r; VX.on = true; VX.used = true; hush(); r.start(); vxRender();
+    VX.rec = r; VX.on = true; VX.used = true; VX.tStart = VX.tStart || Date.now(); hush(); r.start(); vxRender();
   }catch(e){ VX.mic = false; VX.on = false; vxRender(); }
 }
 function vxStop(){ if(VX && VX.rec){ VX.on = false; try{ VX.rec.stop(); }catch(e){} } }
@@ -5926,53 +5956,77 @@ function vxRender(){
     const micUI = VX.mic
       ? `<div class="cb-btns"><button class="btn big vx-mic ${VX.on ? "on" : ""}" id="vx-mic">${VX.on ? "J'écoute… (touche pour arrêter)" : c.r ? "Continuer à lire à voix haute" : "Je lis à voix haute"}</button></div>
          <div class="vx-bar" aria-hidden="true"><i id="vx-bar" style="width:${c.pct}%"></i></div><p class="muted" id="vx-pct" style="margin:0;text-align:center">${c.pct} % des mots bien lus</p>`
-      : `<p class="learn-ai" style="margin:0">${VX.micErr ? "Le micro n'est pas disponible. " : ""}Lis l'histoire <b>à voix haute</b>, doucement, en suivant avec ton doigt. Touche un mot difficile pour l'entendre.</p>`;
+      : `<p class="learn-ai" style="margin:0">${VX.micErr ? "Le micro n'est pas disponible. " : ""}Lis <b>à voix haute</b>, doucement, en suivant avec ton doigt. Touche un mot difficile pour l'entendre.</p>
+         ${VX.tStart ? "" : `<div class="cb-btns"><button class="btn big" id="vx-go">Je commence à lire</button></div>`}`;
+    const intro = st.soir ? (VX.duo ? `<b>Lecture en duo :</b> tu lis les parties blanches, je lis les parties grises (touche-les pour m'écouter).` : "")
+      : VX.rep ? `<b>Relecture n° ${VX.rep+1}</b> : tu connais déjà l'histoire. Essaie de lire un peu plus vite que la dernière fois, sans te tromper.` + (D.voix.w1 ? ` La 1re fois : <b>${D.voix.w1} mots par minute</b>.` : "")
+      : `<b>D'abord, écoute-moi</b> lire l'histoire en suivant avec ton doigt. Ensuite, à toi !`;
+    const hard = !st.soir && VX.rep===0 && D.voix.hard.length ? `<div class="vx-hard"><b>Les mots difficiles de la dernière fois :</b> ${D.voix.hard.slice(-5).map(w=>`<button class="vx-hw" data-w="${esc(w)}">${esc(w)}</button>`).join("")}<small>Touche-les pour les entendre, puis lis-les tout haut.</small></div>` : "";
     card.innerHTML = `<div class="lesson-head"><div class="owl-host" data-mood="float"></div><div class="bubble">${st.soir ? `Lecture du soir : le <b>chapitre ${st.soir}</b> du feuilleton. Lis-le <b>à voix haute</b>, tranquillement.` : `Lis cette histoire <b>à voix haute</b>.`} ${VX.mic ? "Les mots que tu lis bien deviennent verts." : ""} Un mot difficile ? Touche-le pour l'entendre.</div></div>
       ${st.prev ? `<p class="vx-prev"><b>Avant :</b> ${esc(st.prev)}</p>` : ""}
+      ${intro ? `<p class="vx-prev">${intro}</p>` : ""}${hard}
+      ${!st.soir && VX.rep===0 && TTS_OK ? `<div class="cb-btns"><button class="btn sm alt" id="vx-listen">Écouter l'histoire</button></div>` : ""}
       <h3 class="vx-title">${esc(st.t)}</h3>
-      <p class="vx-text" id="vx-text">${VX.words.map((w,i)=>`<span data-i="${i}">${esc(w)}</span>`).join(" ")}</p>
+      <p class="vx-text" id="vx-text">${VX.words.map((w,i)=>`<span data-i="${i}"${VX.py[i] ? ' class="py"' : ""}>${esc(w)}</span>`).join(" ")}</p>
       ${micUI}
-      <div class="cb-btns"><button class="btn ${VX.mic && !c.r ? "alt" : ""}" id="vx-done">J'ai fini de lire</button></div>`;
+      ${VX.mic || VX.tStart ? `<div class="cb-btns"><button class="btn ${VX.mic && !c.r ? "alt" : ""}" id="vx-done">J'ai fini de lire</button></div>` : ""}`;
     paintOwls(); vxPaint(); return;
   }
   if(VX.view==="q"){
-    const Q = st.q[VX.qi], order = VX.order;
-    card.innerHTML = `<div class="lesson-head"><div class="owl-host" data-mood="float"></div><div class="bubble">Question ${VX.qi+1} sur ${st.q.length} : as-tu bien compris l'histoire ?</div></div>
+    const qn = VX.qs[VX.qi], Q = st.q[qn], order = VX.order, again = VX.tries[qn] > 0 && VX.ans==null;
+    card.innerHTML = `<div class="lesson-head"><div class="owl-host" data-mood="float"></div><div class="bubble">${again ? "<b>Deuxième chance :</b> relis le passage dans le texte, puis réponds." : `Question ${Math.min(VX.qi+1, st.q.length)} sur ${st.q.length} : as-tu bien compris ?`}</div></div>
       <h3 class="vx-title">${esc(Q[0])}</h3>
       <div class="vx-opts" id="vx-opts">${order.map(k=>`<button data-k="${k}" class="${VX.ans==null ? "" : k===Q[2] ? "ok" : k===VX.ans ? "ko" : ""}" ${VX.ans==null ? "" : "disabled"}>${esc(Q[1][k])}</button>`).join("")}</div>
-      ${VX.ans==null ? (TTS_OK ? `<div class="cb-btns"><button class="btn sm alt" id="vx-sayq">Écouter la question</button></div>` : "") : `<div class="cb-btns"><button class="btn big" id="vx-next">${VX.qi+1>=st.q.length ? "Terminer" : "Question suivante"}</button></div>`}`;
+      ${VX.ans!=null && VX.ans!==Q[2] ? `<p class="learn-ai" style="margin:0">Il fallait : <b>${esc(Q[1][Q[2]])}</b>.${VX.tries[qn]===1 ? " Cette question reviendra à la fin." : ""}</p>` : ""}
+      ${VX.ans==null ? (TTS_OK ? `<div class="cb-btns"><button class="btn sm alt" id="vx-sayq">Écouter la question</button></div>` : "") : `<div class="cb-btns"><button class="btn big" id="vx-next">${VX.qi+1>=VX.qs.length ? "Terminer" : "Question suivante"}</button></div>`}
+      <details class="vx-reread"><summary>Relire le texte</summary><p>${esc(st.txt)}</p></details>`;
     paintOwls(); return;
   }
   const R_ = VX.res;
-  card.innerHTML = `<div class="lesson-head"><div class="owl-host" data-mood="float"></div><div class="bubble"><b>${R_.soir ? "Chapitre terminé !" : "Belle lecture !"}</b> ${R_.lu>=0 ? `Tu as bien lu ${R_.lu} % des mots. ` : ""}Questions : ${R_.q} sur ${st.q.length}. ${R_.soir ? "Bonne nuit, et à demain soir pour la suite !" : "Lire à voix haute, c'est comme ça qu'on devient un super lecteur."}</div></div>
+  card.innerHTML = `<div class="lesson-head"><div class="owl-host" data-mood="float"></div><div class="bubble"><b>${R_.soir ? "Chapitre terminé !" : R_.rep ? "Belle relecture !" : "Belle lecture !"}</b> ${R_.speed ? R_.speed + " " : ""}${R_.lu>=80 ? `Tu as bien lu ${R_.lu} % des mots. ` : ""}${R_.rep ? (R_.next==="new" ? "Demain : une nouvelle histoire !" : "Demain, tu la reliras pour aller encore plus vite.") : `Questions : ${R_.q} sur ${st.q.length}.`} ${R_.soir ? "Bonne nuit, et à demain soir pour la suite !" : "Lire à voix haute, c'est comme ça qu'on devient un super lecteur."}</div></div>
     ${R_.msg ? `<p class="learn-ai" style="margin:0">${esc(R_.msg)}</p>` : ""}
     <div class="cb-btns"><button class="btn big" id="vx-end">${VX.run>=0 ? (R_.res && R_.res.all ? "Voir mon programme" : "Suite de mon programme") : VX.run===-2 ? "Bonne nuit !" : "Retour"}</button></div>`;
   paintOwls();
 }
 function vxFinish(){
   if(VX.st.soir){ soirFinish(); return; }
-  const st = VX.st, c = vxCount(), today = dayNum(), lu = VX.mic && VX.used ? c.pct : -1;
-  D.voix.hist = D.voix.hist.concat([{id: st.id, d: today, lu, q: VX.qok}]).slice(-30);
-  D.voix.i++; D.voix.last = today;
-  const skipped = VX.words.filter((w,i)=>VX.read[i]===2 || VX.help[i]).map(w=>w.replace(/[«»:;,.!?"]/g,"")).filter(Boolean).slice(0,15);
-  VX_LAST = {t: st.t, lu, skipped};
+  const st = VX.st, c = vxCount(), today = dayNum(), lu = VX.mic && VX.used ? c.pct : -1, wpm = vxWpm(), rp = VX.rep, w1 = D.voix.w1;
+  D.voix.hist = D.voix.hist.concat([Object.assign({id: st.id, d: today, lu, q: VX.qok}, wpm ? {wpm} : {}, rp ? {rep: rp} : {})]).slice(-30);
+  if(rp===0) D.voix.w1 = wpm;
+  // on relit le même texte (3 fois au plus) ; on passe au suivant quand la lecture est devenue fluide
+  if(rp+1>=3 || (rp>0 && wpm && w1 && wpm >= Math.max(1.25*w1, 100))){ D.voix.i++; D.voix.rep = 0; D.voix.w1 = 0; } else D.voix.rep = rp + 1;
+  D.voix.last = today;
+  const skipped = VX.words.filter((w,i)=>!VX.py[i] && (VX.read[i]===2 || VX.help[i])).map(w=>w.replace(/[«»:;,.!?"()]/g,"")).filter(Boolean).slice(0,15);
+  D.voix.hard = [...new Set(VX.words.filter((w,i)=>VX.help[i]).map(w=>w.replace(/[«»:;,.!?"()]/g,"")).filter(w=>/^[\p{L}' -]{2,30}$/u.test(w)))].slice(-10);
+  VX_LAST = {t: st.t, lu, skipped, wpm, rep: rp};
   let res = null;
-  if(VX.run>=0) res = coachDone({i:VX.run, id:"voix"}, VX.qok, st.q.length);
-  else statPush("lecture à voix haute", {domaine:"lecture", notion: st.t, score: Math.round(100*VX.qok/st.q.length), erreurs: skipped.length ? `mots difficiles : ${skipped.join(", ")}` : "", detail: lu>=0 ? `mots bien lus : ${lu} %` : "sans micro"});
-  VX.res = {lu, q: VX.qok, res, msg: res ? coachMsg(res) : ""};
+  if(VX.run>=0) res = rp ? coachDone({i:VX.run, id:"voix"}, 1, 1) : coachDone({i:VX.run, id:"voix"}, VX.qok, st.q.length);   // relecture : pas de questions, l'étape est faite
+  else statPush("lecture à voix haute", {domaine:"lecture", notion: st.t + (rp ? ` (relecture ${rp+1})` : ""), score: rp ? "" : Math.round(100*VX.qok/st.q.length), erreurs: skipped.length ? `mots difficiles : ${skipped.join(", ")}` : "", detail: (wpm ? `${wpm} mots/min · ` : "") + (lu>=0 ? `mots bien lus (estimation du micro) : ${lu} %` : "sans micro")});
+  const speed = wpm ? `Tu as lu à <b>${wpm} mots par minute</b>.` + (rp && w1 ? (wpm>w1 ? ` La 1re fois : ${w1}. <b>+${wpm-w1} !</b>` : ` La 1re fois : ${w1}. Lire juste, c'est le plus important.`) : "") : "";
+  VX.res = {lu, q: VX.qok, res, rep: rp, speed, next: D.voix.rep===0 ? "new" : "again", msg: res ? coachMsg(res) : ""};
   VX.view = "end"; persist(); renderTop(); vxRender();
   if(VX.qok>=2){ sfx("win"); fxPlay(D.equip.fx, null, null, true); }
 }
 $("vx-card").addEventListener("click", e=>{
   if(!VX) return;
   const sp = e.target.closest("#vx-text span");
-  if(sp){ const i = +sp.dataset.i, w = VX.words[i].replace(/[«»:;,.!?"]/g,""); if(w){ VX.help[i] = 1; speak(w); vxPaint(); } return; }
+  if(sp){ const i = +sp.dataset.i;
+    if(VX.py[i]){ const bk = VX.blk[i]; vxStop(); speak(plain(VX.words.filter((w,j)=>VX.blk[j]===bk).join(" "))); return; }
+    const w = VX.words[i].replace(/[«»:;,.!?"]/g,""); if(w){ VX.help[i] = 1; speak(w); vxPaint(); } return; }
   const b = e.target.closest("button"); if(!b) return;
   if(b.id==="vx-mic"){ sfx("tap"); if(VX.on){ vxStop(); } else vxStart(); return; }
-  if(b.id==="vx-done"){ sfx("tap"); vxStop(); vxCommit(); VX.view = "q"; VX.qi = 0; VX.ans = null; VX.order = [0,1,2].sort(()=>R()-.5); vxRender(); return; }
-  if(b.id==="vx-sayq"){ const Q = VX.st.q[VX.qi]; speak(`${Q[0]} ${VX.order.map(k=>Q[1][k]).join(" ; ")}`); return; }
-  if(b.dataset.k!=null && VX.view==="q" && VX.ans==null){ const k = +b.dataset.k, Q = VX.st.q[VX.qi]; VX.ans = k; if(k===Q[2]){ VX.qok++; sfx("good"); } else sfx("bad"); vxRender(); return; }
-  if(b.id==="vx-next"){ sfx("tap"); if(VX.qi+1>=VX.st.q.length){ vxFinish(); return; } VX.qi++; VX.ans = null; VX.order = [0,1,2].sort(()=>R()-.5); vxRender(); return; }
+  if(b.id==="vx-go"){ sfx("tap"); VX.tStart = Date.now(); vxRender(); return; }
+  if(b.id==="vx-listen"){ sfx("tap"); vxStop(); speak(plain(VX.st.txt)); return; }
+  if(b.dataset.w){ speak(b.dataset.w); return; }
+  if(b.id==="vx-done"){ sfx("tap"); vxStop(); vxCommit(); VX.tEnd = VX.tEnd || Date.now();
+    if(!VX.st.soir && VX.rep>0){ vxFinish(); return; }              // relecture : pas de questions, on regarde juste la vitesse
+    VX.view = "q"; VX.qs = VX.st.q.map((_,k)=>k); VX.qi = 0; VX.ans = null; VX.order = [0,1,2].sort(()=>R()-.5); vxRender(); return; }
+  if(b.id==="vx-sayq"){ const Q = VX.st.q[VX.qs[VX.qi]]; speak(`${Q[0]} ${VX.order.map(k=>Q[1][k]).join(" ; ")}`); return; }
+  if(b.dataset.k!=null && VX.view==="q" && VX.ans==null){ const qn = VX.qs[VX.qi], k = +b.dataset.k, Q = VX.st.q[qn]; VX.ans = k;
+    if(k===Q[2]){ if(!VX.tries[qn]) VX.qok++; sfx("good"); }
+    else { VX.tries[qn] = (VX.tries[qn]||0) + 1; if(VX.tries[qn]===1) VX.qs.push(qn); sfx("bad"); }   // 2e chance à la fin (seul le 1er essai compte)
+    vxRender(); return; }
+  if(b.id==="vx-next"){ sfx("tap"); if(VX.qi+1>=VX.qs.length){ vxFinish(); return; } VX.qi++; VX.ans = null; VX.order = [0,1,2].sort(()=>R()-.5); vxRender(); return; }
   if(b.id==="vx-end"){ sfx("tap"); const run = VX.run; VX = null; show(run>=0 ? "learn" : run===-2 ? "home" : "fr"); return; }
 });
 $("vx-back").addEventListener("click", ()=>{ sfx("tap"); vxStop(); const run = VX ? VX.run : -1; VX = null; show(run>=0 ? "learn" : run===-2 ? "home" : "fr"); });
@@ -6000,12 +6054,13 @@ function coachNextNew(excl=[], prefer){
   const first = prefer || (C.lt==="c" ? "f" : "c");
   return first==="c" ? (free(COACH_CALC) || free(COACH_FR) || null) : (free(COACH_FR) || free(COACH_CALC) || null);
 }
+const coachLate = today => Object.values(D.coach.n).filter(v=>v.due<=today).length;
 function coachBuild(today){
   const C = D.coach, recs = Object.entries(C.n);
   const due = recs.filter(([,v])=>v.due<=today).sort((a,b)=>(a[1].b===0?0:1)-(b[1].b===0?0:1) || a[1].due-b[1].due || a[1].b-b[1].b).slice(0, COACH_REV_MAX);
   const struggling = recs.filter(([,v])=>v.b===0).length;
   const revs = due.map(([id])=>({k:"rev", id, r:null})), steps = [];
-  const nw = struggling<2 ? coachNextNew() : null;
+  const nw = struggling<2 && due.length + recs.filter(([,v])=>v.due<=today).length - due.length <= COACH_REV_MAX+2 ? coachNextNew() : null;   // trop de retard : journée « on consolide »
   if(revs.length) steps.push(revs.shift());                 // une révision pour réveiller le cerveau
   if(nw) steps.push({k:"new", id:nw, r:null});              // puis la notion nouvelle, quand on est bien concentré
   steps.push(...revs);
@@ -6039,7 +6094,8 @@ function coachEnsure(){
 /* « Éclair » : 1 minute sur des calculs déjà sus, pour les rendre automatiques ; on cherche à égaler ou battre son record */
 const FLASH_GAP = 2;
 function flashRec(){ return D.coach.fl || {best:0, last:0, h:[]}; }
-function flashPool(loose){ return Object.entries(D.coach.n).filter(([id,v])=>id[0]==="c" && (loose || v.b>=2) && v.ok>=1 && COACH_IDS.has(id) && coachInfo(id).cat!=="prob").map(([id])=>id); }
+const FLASH_MAX = {add:2, sub:2, deco:4, comp:2, half:2, mult:9};     // Éclair = des FAITS déjà justes (pas des procédures à plusieurs étapes)
+function flashPool(loose){ return Object.entries(D.coach.n).filter(([id,v])=>{ if(id[0]!=="c" || !COACH_IDS.has(id) || !(loose || v.b>=2) || v.ok<1) return false; const I = coachInfo(id); return FLASH_MAX[I.cat]!=null && I.p <= FLASH_MAX[I.cat]; }).map(([id])=>id); }
 function flashNeeded(today){ const f = flashRec(); return flashPool().length>=3 && (!f.last || today - f.last >= FLASH_GAP); }
 function flashQueue(){
   const ids = flashPool().length ? flashPool() : flashPool(true), q = [];
@@ -6062,7 +6118,7 @@ function coachQueue(cat, p, n, easy){
   if(cat==="mult" && p>1 && !LADDER.mult[p-1].miss){ const prev = LADDER.mult[p-2].t; nt = LADDER.mult[p-1].t.filter(t=>!prev.includes(t)); }
   for(let g=0; q.length<n && g<200; g++){
     const pp = easy && p>1 && R()<(easy>=2 ? .5 : .35) ? p-1 : p;
-    const x = cat==="mult" ? genMultP(pp, pp===p && nt && R()<.7 ? nt : LADDER.mult[pp-1].t, false) : genCat(cat, 3, ALL_T, {p:pp});
+    const x = cat==="mult" ? genMultP(pp, pp===p && nt && R()<.7 ? nt : LADDER.mult[pp-1].t, true) : genCat(cat, 3, ALL_T, {p:pp});
     const key = x.op==="v" ? JSON.stringify([x.pre, x.t, x.r, x.hh, x.mm, x.list]) : x.t;   // questions avec image : le texte seul ne suffit pas
     if(seen.has(key) && g<150) continue;
     seen.add(key); q.push(x);
@@ -6588,7 +6644,7 @@ function blApply(){
   if(B.res["m:rep"]) prof.rep = B.res["m:rep"].ok;
   prof.gaps = gaps.slice(0,30);
   D.profil = prof;
-  C.seed = true; C.plan = {d:0, steps:[], nw:0};
+  C.seed = true; if(!(C.plan && C.plan.d===today && C.plan.steps.some(x=>x.r!=null))) C.plan = {d:0, steps:[], nw:0};   // programme commencé aujourd'hui : on le garde
   try{ statPush("grand bilan", {domaine: "bilan", notion: Object.entries(prof.calc).map(([c,L])=>`${CAT[c].nm} ${L}/${LADDER[c].length}`).join(", ").slice(0,300),
     detail: `français : ${Object.entries(prof.fr).map(([f,L])=>`${frName(f)} ${L}`).join(", ")} · mémoire : ${prof.span.d||"?"} chiffres, ${prof.span.w||"?"} mots · ${prof.min} min`.slice(0,500)}); }catch(e){}
 }
@@ -6902,7 +6958,11 @@ function coachStuck(id, m){
   if(pre && COACH_IDS.has(pre)){
     const o = C.n[pre];
     C.n[pre] = o ? Object.assign({}, o, {b: Math.min(o.b, 1), due: Math.min(o.due, today)}) : {b:0, due:today, n:0, ok:0, f:today, l:0, s:0, x:0, m:0};
-    if(!C.plan.steps.some(x=>x.id===pre) && C.plan.steps.length<8) C.plan.steps.push({k: o ? "rev" : "new", id:pre, r:null});   // jamais vue : avec sa leçon
+    if(!C.plan.steps.some(x=>x.id===pre) && C.plan.steps.length<8){
+      C.plan.steps.push({k: o ? "rev" : "new", id:pre, r:null});   // jamais vue : avec sa leçon
+      const j = C.plan.steps.map((x,i)=>[x,i]).reverse().find(([x])=>x.r==null && x.k==="rev" && x.id!==pre && x.id!==id);   // en échange, une révision de moins : le programme ne s'allonge pas
+      if(j) C.plan.steps.splice(j[1], 1);
+    }
   }
   C.stuck = [{id, d:today, m, pre: pre && COACH_IDS.has(pre) ? pre : null}, ...(C.stuck||[]).filter(x=>x.id!==id)].slice(0,10);
   return {m, pre: pre && COACH_IDS.has(pre) ? pre : null};
@@ -7066,8 +7126,23 @@ function renderStuckParents(){
     : `<p class="muted" style="margin:0">Rien ne coince pour l'instant. Quand une notion est ratée 2 fois de suite, Pythagore change de méthode et vous le note ici.</p>`;
 }
 
+const COACH_LONG = 25*60000;
+/* programme trop long aujourd'hui (≥ 25 min et au moins 3 étapes faites) : on garde le reste pour demain, et c'est fini */
+function coachTrim(){
+  const C = D.coach, P = C.plan, today = dayNum();
+  if(!P || P.d!==today || !P.t0 || Date.now() - P.t0 < COACH_LONG || C.last===today) return false;
+  if(P.steps.filter(x=>x.r!=null).length < 3) return false;
+  const drop = P.steps.filter(x=>x.r==null && ["rev","flash","voix","mem"].includes(x.k));
+  if(!drop.length || P.steps.some(x=>x.r==null && !["rev","flash","voix","mem"].includes(x.k))) return false;
+  P.steps = P.steps.filter(x=>!drop.includes(x)); P.short = true;
+  C.last = today; C.days++; D.plumes += COACH_PRIZE; P.prize = true; const rw = rewardStep(); P.rw = rw;
+  setTimeout(statBackup, 1500);
+  statPush("programme fini", {score: 0, detail: `raccourci après 25 min (${drop.length} étape${drop.length>1?"s":""} gardée${drop.length>1?"s":""} pour demain)${D.gardien ? ` · code du jour ${dayCode()}` : ""}`});
+  persist(); return true;
+}
 function coachRun(i, noLesson){
   const st = D.coach.plan.steps[i]; if(!st) return;
+  if(!D.coach.plan.t0 && !TRIAL){ D.coach.plan.t0 = Date.now(); persist(); }
   const vv = D.coach.n[st.id], met = vv && vv.m || 0;
   if((st.k==="new" || met>=1) && !noLesson){ openLesson(st.id, i, met>=1); return; }
   const c = {i, id:st.id};
@@ -7079,7 +7154,9 @@ function coachRun(i, noLesson){
   // quand ça coince : moins de questions, et des plus faciles mélangées (viser ~80 % de réussite)
   const I = coachInfo(st.id), n = st.k==="new" ? (I.dom==="c" ? (met ? 7 : 10) : (met ? 6 : FR_N)) : (met ? 4 : 5);
   if(I.dom==="f") frStart(I.fr, {coach:c, p:I.p, n, low: met ? (met>=2 ? .5 : .35) : 0});
-  else start({kind:"coach", coach:c, label:`${st.k==="new" ? "Nouveau" : "Révision"}${met ? " · autre méthode" : ""} · ${I.name}`, queue:coachQueue(I.cat, I.p, n, met), mode:"serie", level:3});
+  else { const G2 = st.k==="new" ? 2 : 0, qq = coachQueue(I.cat, I.p, n + G2, met);
+    for(let k=0;k<G2 && k<qq.length;k++) qq[k].guided = true;          // modèle → pratique guidée → pratique seule
+    start({kind:"coach", coach:c, label:`${st.k==="new" ? "Nouveau" : "Révision"}${met ? " · autre méthode" : ""} · ${I.name}`, queue:qq, mode:"serie", level:3}); }
 }
 /* résultat d'une étape : la notion change de boîte, l'étape est cochée, le programme fini rapporte des plumes (1 fois par jour) */
 function coachDone(c, sc, total){
@@ -7094,14 +7171,14 @@ function coachDone(c, sc, total){
     const isNew = step ? step.k==="new" : !C.n[c.id];
     const v = C.n[c.id] = C.n[c.id] || {b:0, due:0, n:0, ok:0, f:today, l:0, s:0};
     v.n++; v.l = today; v.s = pct;
-    if(isNew){ verdict = pct>=90 ? "deja" : pct>=70 ? "ok" : "rate"; v.b = verdict==="deja" ? 3 : verdict==="ok" ? 1 : 0; C.lt = c.id[0]; }
+    if(isNew){ verdict = pct>=90 ? "deja" : pct>=70 ? "ok" : "rate"; v.b = verdict==="deja" ? 2 : verdict==="ok" ? 1 : 0; C.lt = c.id[0]; }
     else { verdict = pct>=80 ? "bravo" : pct>=60 ? "moyen" : "rate"; v.b = verdict==="bravo" ? Math.min(5, v.b+1) : verdict==="moyen" ? Math.max(1, v.b-1) : 0; }
     if(verdict==="deja" || verdict==="ok" || verdict==="bravo") v.ok++;
     if(verdict==="rate"){ v.x = (v.x||0) + 1; if(v.x>=2){ v.x = 0; v.m = Math.min(2, (v.m||0) + 1); stuck = coachStuck(c.id, v.m); } }
     else if(verdict!=="moyen"){ v.x = 0; if(v.m && v.b>=3) v.m--; }
     days = COACH_DAYS[v.b]; v.due = today + days;
     // déjà su : on passe tout de suite à la suite (4 notions nouvelles au plus par jour)
-    if(verdict==="deja" && step && C.plan.nw < COACH_NEW_MAX && C.plan.steps.length<8){
+    if(verdict==="deja" && step && C.plan.nw < COACH_NEW_MAX && C.plan.steps.length<8 && coachLate(today) <= COACH_REV_MAX+2){
       const nx = coachNextNew(C.plan.steps.map(x=>x.id), c.id[0]);
       if(nx){ C.plan.steps.splice(c.i+1, 0, {k:"new", id:nx, r:null}); C.plan.nw++; extra = nx; }
     }
@@ -7111,7 +7188,7 @@ function coachDone(c, sc, total){
     const dom = c.id==="mem" ? "mémoire" : c.id==="ecole" ? "dictée" : c.id==="flash" ? "éclair" : c.id==="voix" ? "lecture" : c.id[0]==="c" ? "calcul" : "français";
     const nm = c.id==="mem" ? "Mon cerveau qui retient" : c.id==="ecole" ? "Mots de la semaine" : c.id==="flash" ? "Éclair (1 minute)" : c.id==="voix" ? `Lire à voix haute : ${VX_LAST ? VX_LAST.t : ""}` : coachInfo(c.id).name;
     if(c.id==="voix" && VX_LAST){ STAT_MISS = VX_LAST.skipped.length ? [`mots difficiles : ${VX_LAST.skipped.join(", ")}`] : []; }
-    statPush("étape", {domaine: dom, notion: nm, score: c.id==="flash" ? sc : pct, verdict: ({deja:"déjà su", ok:"appris", rate:"pas encore", bravo:"retenu", moyen:"presque", mem:"fait", ecole:"fait", flash: flash && sc>flash.prev ? "nouveau record" : "fait"})[verdict] || verdict,
+    statPush("étape", {domaine: dom, notion: nm, score: c.id==="flash" ? sc : c.id==="voix" && VX_LAST && VX_LAST.rep ? "" : pct, verdict: ({deja:"déjà su", ok:"appris", rate:"pas encore", bravo:"retenu", moyen:"presque", mem:"fait", ecole:"fait", voix:"fait", flash: flash && sc>flash.prev ? "nouveau record" : "fait"})[verdict] || verdict,
       erreurs: STAT_MISS.join(" ; ").slice(0,500), detail: c.id==="voix" && VX_LAST ? (VX_LAST.lu>=0 ? `mots bien lus : ${VX_LAST.lu} %` : "lu sans micro") : stuck ? `ça coince : méthode changée${stuck.pre ? `, on revoit « ${coachInfo(stuck.pre).name} »` : ""}` : ""});
   }catch(e){}
   STAT_MISS = [];
@@ -7120,7 +7197,7 @@ function coachDone(c, sc, total){
   let reward = null;
   const pd = C.plan.d || today;
   if(all && C.last!==pd){ C.last = pd; C.days++; D.plumes += COACH_PRIZE; prize = true; reward = rewardStep();
-    const rs = C.plan.steps.filter(x=>x.k!=="flash" && typeof x.r==="number").map(x=>x.r);
+    const rs = C.plan.steps.filter(x=>x.k!=="flash" && x.k!=="voix" && typeof x.r==="number").map(x=>x.r);
     setTimeout(statBackup, 1500);
     statPush("programme fini", {score: rs.length ? Math.round(rs.reduce((a,b)=>a+b,0)/rs.length) : 0, detail: `${C.plan.steps.length} étapes${D.gardien ? ` · code du jour ${dayCode()}` : ""}`}); }
   persist(); gardTitle();
@@ -7145,7 +7222,8 @@ function coachMsg(res){
 }
 const FLASH_IC = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4.5 13.5h6L9.5 22l9-12h-6z"/></svg>`;
 function coachStepTxt(st){
-  if(st.k==="voix"){ const sv = vxStory(); return {name:"Lire à voix haute", sub:`${esc(sv.t)} · 5 min`, dom:"f", ic:FR_ICON.lire}; }
+  if(st.k==="voix" && st.r!=null) return {name:"Lire à voix haute", sub:"fait aujourd'hui", dom:"f", ic:FR_ICON.lire};
+  if(st.k==="voix"){ const sv = vxStory(), rp = D.voix.rep; return {name: rp ? `Relire à voix haute (${rp+1}e fois)` : "Lire à voix haute", sub:`${esc(sv.t)} · ${rp ? "2 min · plus vite que la dernière fois ?" : "5 min"}`, dom:"f", ic:FR_ICON.lire}; }
   if(st.k==="flash"){ const b = flashRec().best; return {name:"Éclair", sub:`1 minute · des calculs que tu connais${b ? ` · record : ${b}` : ""}`, dom:"e", ic:FLASH_IC}; }
   if(st.k==="mem") return {name:"Mon cerveau qui retient", sub:`Apprendre à apprendre · ${MEM_STAGE[D.mem.st]} · 3 min`, dom:"m", ic:MEM_BRAIN};
   if(st.k==="ecole"){ const n = D.fr.school.words.length; return {name:"Mes mots de la semaine", sub:`Dictée de l'école · ${n} mot${n>1?"s":""}`, dom:"f", ic:FR_ICON.mots}; }
@@ -7183,6 +7261,17 @@ const TITLE0 = document.title;
 const stepsLeft = () => { const P = D.coach.plan; return P && P.d===dayNum() ? P.steps.filter(x=>x.r==null).length : 0; };
 const etapes = n => `${n} étape${n>1?"s":""}`;
 /* le titre de la fenêtre dit au gardien Windows combien d'étapes il reste (il l'affiche sur son écran) */
+let DAY_SEEN = 0;
+function dayTick(){
+  try{
+    const t = dayNum(); if(!DAY_SEEN){ DAY_SEEN = t; return; } if(t===DAY_SEEN || TRIAL) return;
+    DAY_SEEN = t; coachEnsure(); gardTitle();
+    if(current==="learn") renderLearn(); else if(current==="home") show("home");
+  }catch(e){}
+}
+setInterval(dayTick, 30000);
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) dayTick(); });
+window.addEventListener("focus", dayTick);
 function gardTitle(){
   try{ document.title = !D.gardien || TRIAL ? TITLE0 : codeOk() ? `${TITLE0} · code du jour obtenu` : stepsLeft() ? `${TITLE0} · encore ${etapes(stepsLeft())}` : TITLE0; }catch(e){}
 }
@@ -7209,17 +7298,17 @@ function openSoir(){
   openVoix(-2, {id:`soir${c.n}`, t:`Chapitre ${c.n} : ${c.t}`, tt:c.t, txt:c.txt, q:c.q, soir:c.n, prev: c.n>1 && FEUILLETON.ch[c.n-2] ? FEUILLETON.ch[c.n-2].resume : ""});
 }
 function soirFinish(){
-  const st = VX.st, c = vxCount(), today = dayNum(), lu = VX.mic && VX.used ? c.pct : -1, min = Math.max(1, Math.round((Date.now()-VX.t0)/60000)), S = D.soir;
+  const st = VX.st, c = vxCount(), today = dayNum(), lu = VX.mic && VX.used ? c.pct : -1, min = Math.max(1, Math.round((Date.now()-VX.t0)/60000)), S = D.soir, wpm = vxWpm();
   let prize = 0, reward = null;
   if(S.last!==today){ S.last = today; prize = SOIR_PRIZE; D.plumes += prize; D.diam += 1; reward = rewardStep(); }
   S.ch = Math.max(S.ch, st.soir);
-  S.hist = S.hist.concat([{n: st.soir, d: today, lu, q: VX.qok, min}]).slice(-40);
+  S.hist = S.hist.concat([Object.assign({n: st.soir, d: today, lu, q: VX.qok, min}, wpm ? {wpm} : {})]).slice(-40);
   const skipped = VX.words.filter((w,i)=>VX.read[i]===2 || VX.help[i]).map(w=>w.replace(/[«»:;,.!?"]/g,"")).filter(Boolean).slice(0,15);
   statPush("lecture du soir", {domaine:"lecture", notion:`${FEUILLETON.titre} · chapitre ${st.soir} : ${st.tt}`, score: Math.round(100*VX.qok/st.q.length), erreurs: skipped.length ? `mots difficiles : ${skipped.join(", ")}` : "",
-    detail: `${min} min${lu>=0 ? ` · mots bien lus : ${lu} %` : " · sans micro"}`});
+    detail: `${min} min${wpm ? ` · ${wpm} mots/min` : ""}${VX.duo ? " · en duo" : ""}${lu>=0 ? ` · mots bien lus (estimation du micro) : ${lu} %` : " · sans micro"}`});
   const next = FEUILLETON.ch[st.soir];
   VX.res = {lu, q: VX.qok, res: null, soir: true, min,
-    msg: `Tu as lu ${min} minute${min>1?"s":""}. ` + (prize ? `+${prize} plumes et +1 diamant (tu en as ${D.diam}${D.diam>=CASE_PRICE ? " : de quoi ouvrir une caisse dans la boutique !" : ""}). ` : "") + (reward==="won" ? `Et tu as GAGNÉ ta récompense : ${D.reward.label} ! ` : reward==="step" ? `Ta récompense avance : ${D.reward.n} / ${D.reward.goal}. ` : "")
+    msg: `Tu as lu ${min} minute${min>1?"s":""}${wpm ? `, à ${wpm} mots par minute` : ""}. ` + (prize ? `+${prize} plumes et +1 diamant (tu en as ${D.diam}${D.diam>=CASE_PRICE ? " : de quoi ouvrir une caisse dans la boutique !" : ""}). ` : "") + (reward==="won" ? `Et tu as GAGNÉ ta récompense : ${D.reward.label} ! ` : reward==="step" ? `Ta récompense avance : ${D.reward.n} / ${D.reward.goal}. ` : "")
       + (next ? "Que va-t-il se passer ? Tu le sauras demain soir…" : "Tu as fini tout le feuilleton : bravo, champion de la lecture !")};
   VX.view = "end"; persist(); renderTop(); vxRender();
   if(VX.qok>=2){ sfx("win"); fxPlay(D.equip.fx, null, null, true); }
@@ -7237,11 +7326,23 @@ function renderLearnCta(){
   gardTitle();
   $("hub-learn-dots").innerHTML = steps.map(x=>`<i class="${x.r!=null?"on":""}"></i>`).join("");
 }
+function learnWins(){
+  try{
+    const out = [];
+    const full = ALL_T.filter(t=>mastered(t)===9), wip = ALL_T.filter(t=>{ const m = mastered(t); return m>0 && m<9; }).sort((a,b)=>mastered(b)-mastered(a))[0];
+    if(full.length || wip) out.push(`Tables : ${full.length ? `<b>${full.length}</b> sue${full.length>1?"s":""} par cœur` : ""}${full.length && wip ? " · " : ""}${wip ? `table de ${wip} : <b>${mastered(wip)}</b> résultats sur 9` : ""}`);
+    const w = (D.voix.hist||[]).concat(D.soir && D.soir.hist || []).filter(h=>h && h.wpm>0).sort((a,b)=>(a.d||0)-(b.d||0)).map(h=>h.wpm);
+    if(w.length>=2) out.push(`Lecture : ${w[0]} → <b>${w[w.length-1]}</b> mots par minute`); else if(w.length) out.push(`Lecture : <b>${w[0]}</b> mots par minute`);
+    const fl = flashRec(); if(fl.best>0) out.push(`Éclair : record <b>${fl.best}</b> en 1 minute`);
+    return out.length ? `<div class="lwins"><b>Mes progrès</b>${out.map(x=>`<span>${x}</span>`).join("")}</div>` : "";
+  }catch(e){ return ""; }
+}
 function renderLearn(){
+  if(coachTrim()) toast(`Tu as bien travaillé aujourd'hui ! On garde la suite pour demain. +${COACH_PRIZE} plumes`);
   const P = coachEnsure(), C = D.coach, today = dayNum(), N = esc(D.name.trim());
   const steps = P.steps, cur = steps.findIndex(x=>x.r==null), done = cur<0, fresh = steps.every(x=>x.r==null);
   let msg;
-  if(done) msg = `Programme du jour terminé${N?`, ${N}`:""} ! Ton cerveau range tout ça pendant la nuit. À demain pour la suite !` + (codeOk() ? `<span class="daycode">Ton code du jour pour l'ordinateur : <b>${dayCode()}</b></span>` : "");
+  if(done) msg = (P.short ? `Tu as bien travaillé aujourd'hui${N?`, ${N}`:""} ! On garde la suite pour demain. ` : `Programme du jour terminé${N?`, ${N}`:""} ! `) + `Ton cerveau range tout ça pendant la nuit. À demain pour la suite !` + (codeOk() ? `<span class="daycode">Ton code du jour pour l'ordinateur : <b>${dayCode()}</b></span>` : "");
   else if(fresh){
     const n0 = steps.find(x=>x.k==="new"), revs = steps.filter(x=>x.k==="rev").length, ec = steps.some(x=>x.k==="ecole");
     msg = n0 ? `Aujourd'hui${N?`, ${N}`:""}, on apprend : <b>${esc(coachInfo(n0.id).name)}</b>.`
@@ -7255,13 +7356,15 @@ function renderLearn(){
   $("learn-msg").innerHTML = msg;
   $("learn-bilan").hidden = D.bilan.st==="done";
   aiDaily();
+  const pickable = !done && !(steps[0] && steps[0].k==="mem" && steps[0].r==null);   // « Mon cerveau » d'abord, ensuite on choisit
   $("learn-steps").innerHTML = steps.map((x,i)=>{ const t = coachStepTxt(x), ok = x.r!=null;
-    return `<li class="${ok?"done":i===cur?"now":""}" data-k="${x.k}"><span class="no">${ok?"✓":i+1}</span><span class="lic ${t.dom}"${t.cat?` style="--c:var(--c-${t.cat})"`:""} aria-hidden="true">${t.ic}</span><span class="ltx"><b>${esc(t.name)}</b><small>${t.sub}</small>${x.k==="new" || x.k==="rev" ? `<button class="mini les-btn" data-les="${x.id}">Revoir la leçon</button>` : ""}</span>${ok?(x.k==="flash" ? `<span class="lres">${x.sc ?? ""} en 1 min</span>` : `<span class="lres${x.r<(x.k==="rev"?60:70)?" ko":""}">${x.r} %</span>`):""}</li>`; }).join("");
+    return `<li class="${ok?"done":i===cur?"now":""}" data-k="${x.k}"><span class="no">${ok?"✓":i+1}</span><span class="lic ${t.dom}"${t.cat?` style="--c:var(--c-${t.cat})"`:""} aria-hidden="true">${t.ic}</span><span class="ltx"><b>${esc(t.name)}</b><small>${t.sub}</small>${x.k==="new" || x.k==="rev" ? `<button class="mini les-btn" data-les="${x.id}">Revoir la leçon</button>` : ""}${!ok && i!==cur && pickable && x.k!=="flash" ? `<button class="mini les-btn" data-step="${i}">Je fais celle-ci</button>` : ""}</span>${ok?(x.k==="flash" ? `<span class="lres">${x.sc ?? ""} en 1 min</span>` : `<span class="lres${x.r<(x.k==="rev"?60:70)?" ko":""}">${x.r} %</span>`):""}</li>`; }).join("");
   const more = done && P.nw < COACH_NEW_MAX && coachNextNew(steps.map(x=>x.id));
   $("learn-btns").innerHTML = done ? `${more?`<button class="btn big" id="learn-more">Encore une nouvelle notion</button>`:""}<button class="btn ${more?"alt":"big"}" id="learn-home">Retour à l'accueil</button>`
     : `<button class="btn big" id="learn-go">${fresh ? "C'est parti !" : `Continuer (étape ${cur+1})`}</button>`;
   const mast = L => L.filter(id=>C.n[id] && C.n[id].b>=3).length, seen = L => L.filter(id=>C.n[id]).length;
   $("learn-prog").innerHTML = `<h3>Mon programme</h3>` + [["Calcul", COACH_CALC],["Français", COACH_FR]].map(([nm,L])=>`<div class="lp-row"><span class="lp-nm">${nm}</span><span class="lp-bar" role="img" aria-label="${nm} : ${mast(L)} notions maîtrisées et ${seen(L)} vues sur ${L.length}"><i class="seen" style="width:${(100*seen(L)/L.length).toFixed(1)}%"></i><i class="mast" style="width:${(100*mast(L)/L.length).toFixed(1)}%"></i></span><span class="lp-n">${mast(L)} / ${L.length}</span></div>`).join("")
+    + learnWins()
     + `<p class="muted" style="margin:0">Vert foncé : notions maîtrisées (réussies plusieurs jours de suite). Vert clair : notions déjà vues.${C.days ? ` Programmes du jour terminés : <b>${C.days}</b>.` : ""}</p>`;
 }
 $("hub-learn").addEventListener("click", ()=>{ sfx("tap"); show("learn"); });
@@ -7269,7 +7372,10 @@ $("s-learn").addEventListener("click", e=>{
   const b = e.target.closest("button"); if(!b) return;
   if(b.id==="learn-bilan-go"){ sfx("tap"); BL = null; show("bilan"); return; }
   if(b.dataset.les){ sfx("tap"); openLesson(b.dataset.les, -1, ((D.coach.n[b.dataset.les]||{}).m||0)>=1); return; }
-  if(b.id==="learn-go"){ sfx("tap"); const i = D.coach.plan.steps.findIndex(x=>x.r==null); if(i>=0) coachRun(i); }
+  if(b.dataset.step){ sfx("tap"); const d0 = D.coach.plan.d; coachEnsure(); if(D.coach.plan.d!==d0){ renderLearn(); gardTitle(); return; }
+    const i = +b.dataset.step, st = D.coach.plan.steps[i]; if(st && st.r==null) coachRun(i); return; }
+  if(b.id==="learn-go"){ sfx("tap"); const d0 = D.coach.plan.d; coachEnsure(); if(D.coach.plan.d!==d0){ renderLearn(); gardTitle(); return; }
+    const i = D.coach.plan.steps.findIndex(x=>x.r==null); if(i>=0) coachRun(i); }
   else if(b.id==="learn-more"){ sfx("tap"); const P = D.coach.plan, nx = coachNextNew(P.steps.map(x=>x.id)); if(nx && P.steps.length<8){ P.steps.push({k:"new", id:nx, r:null}); P.nw++; persist(); coachRun(P.steps.length-1); } }
   else if(b.id==="learn-home" || b.id==="learn-back"){ sfx("tap"); show("home"); }
 });
@@ -7929,6 +8035,8 @@ function frEnd(){
   $("frq-track").innerHTML = F.items.map((_,k)=>`<i class="${F.res[k]||""}"></i>`).join("");
   let sesBtn = "";
   if(F.ses && SES && SES.pending==="fr"){ sesStepDone(); sesBtn = `<button class="btn big" id="frq-ses">${SES.i>=SES.steps.length ? "Terminer ma séance" : "Suite de ma séance"}</button>`; }
+  try{ if(F.coach){ const lab = x => String(x.type==="spell" ? `« ${x.w} »` : x.type==="conj" ? `${x.inf} → ${x.ans}` : x.type==="qcm" ? x.qt : x.type==="tap" ? `${x.ask||""} : ${x.src||""}` : x.type==="agree" ? "accord" : "").replace(/<[^>]*>/g,"").slice(0,80);
+    STAT_MISS = [...new Set(F.items.filter((x,k)=>!x.retry && !x.nocount && F.res[k]==="ko").map(lab).filter(Boolean))].slice(0,10); } }catch(e){}
   const coachRes = F.coach ? coachDone(F.coach, sc, total) : null;
   if(coachRes){ sesBtn = `<button class="btn big" id="frq-coach">${coachRes.all ? "Voir mon programme" : "Suite de mon programme"}</button>`; renderTop(); }
   $("frq-card").innerHTML = `<div class="frend" style="display:flex;flex-direction:column;align-items:center;gap:10px">
@@ -8884,6 +8992,7 @@ function casePick(type){
   const left = type==="crea" ? creasLeft() : skinsLeft(); if(!left.length) return null;
   const pityOk = type!=="crea" && left.some(k=>k.r>=3);
   let t = caseTier(pityOk && D.cases.pity>=9 ? (R()<.75 ? 3 : 4) : null);   // garantie : au moins Légendaire toutes les 10 caisses (s'il en reste)
+  if(pityOk && D.cases.pity>=9){ const hi = left.filter(k=>k.r>=3), pt = hi.filter(k=>k.r===t); return pick(pt.length ? pt : hi); }
   for(const d of [0,-1,1,-2,2,-3,3,-4,4]){ const pool = left.filter(k=>k.r===t+d); if(pool.length) return pick(pool); }
   return pick(left);
 }
@@ -8894,12 +9003,13 @@ function cfullRender(){
   const F = $("cfull"); if(!CASE){ F.hidden = true; F.innerHTML = ""; return; }
   const k = CASE.k, col = RAR[k.r].col, isC = CASE.type==="crea";
   F.hidden = false; F.style.setProperty("--rc", col);
-  F.classList.toggle("done", !!CASE.done); F.classList.toggle(`r${k.r}`, !!CASE.done);
+  F.className = "cfull" + (CASE.done ? ` done r${k.r}` : "");
   if(!CASE.done){
     F.innerHTML = `<div class="cf-title">${isC ? "Caisse Créatures" : "Caisse Skins"}</div>
       <div class="reel big" id="reel"><div class="reel-mark"></div><div class="strip" id="strip" style="transform:translateX(${-(CASE.pos||0)}px)">${CASE.tiles.map((t,i)=>rTile(t, false)).join("")}</div></div>`;
     return;
   }
+  setTimeout(()=>{ const x = $("cf-close"); if(x && !F.contains(document.activeElement)) x.focus({preventScroll:true}); }, 0);
   const equipped = isC ? D.crea.cur===k.id : (k.crea==="hibou" ? D.equip.color===k.id : D.crea.sk[k.crea]===k.design);
   const price = isC ? CREA_PRICE : CASE_PRICE, left = (isC ? creasLeft() : skinsLeft()).length;
   F.innerHTML = `<div class="cf-rays" aria-hidden="true"></div><div class="cf-flash" aria-hidden="true"></div>
@@ -8914,7 +9024,7 @@ $("cfull").addEventListener("click", e=>{
   const b = e.target.closest("button"); if(!b || b.disabled) return;
   if(b.id==="cf-close"){ sfx("tap"); CASE = null; cfullRender(); renderShop(); return; }
   if(b.dataset.case){ CASE = null; caseOpen(b.dataset.case); return; }
-  if(b.dataset.crea){ const c = CREA_BY[b.dataset.crea]; if(c){ D.crea.cur = c.id; persist(); applyLook(); sfx("tap"); cfullRender(); renderShop(); } return; }
+  if(b.dataset.crea){ const c = CREA_BY[b.dataset.crea]; if(c && D.crea.have.includes(c.id)){ D.crea.cur = c.id; persist(); applyLook(); sfx("tap"); cfullRender(); renderShop(); } return; }
   if(b.dataset.skin){ const k = skinInfo(b.dataset.skin); if(k && D.skins.includes(k.id)){ if(k.crea==="hibou") D.equip.color = k.id; else D.crea.sk[k.crea] = k.design; D.crea.cur = k.crea; persist(); applyLook(); sfx("tap"); cfullRender(); renderShop(); } }
 });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && CASE && CASE.done){ CASE = null; cfullRender(); renderShop(); } });
@@ -8927,7 +9037,7 @@ function caseCard(type){
   const pityOk = !isC && left.some(k=>k.r>=3);
   const equipped = k => isC ? D.crea.cur===k.id : (k.crea==="hibou" ? D.equip.color===k.id : D.crea.sk[k.crea]===k.design);
   return `<div class="card cases" id="case-${type}"><h3>${title}</h3><p class="muted" style="margin:0">${help}</p>
-    ${(isC ? CASE_SVG.replace('#4b3cc4','#c43c6b').replace('#22186e','#6e1838').replace('#5d4de0','#e05d8a') : CASE_SVG)}
+    ${(isC ? CASE_SVG.replace(/cbg/g,'cbgc').replace('#4b3cc4','#c43c6b').replace('#22186e','#6e1838').replace('#5d4de0','#e05d8a') : CASE_SVG)}
 
     ${left.length ? `<button class="btn big" data-case="${type}" id="case-open-${type}" ${can ? "" : "disabled"}>Ouvrir la caisse · ${DIAM}${price}</button>
       ${D.diam<price && !busy ? `<span class="muted">Il te manque ${price-D.diam} diamant${price-D.diam>1?"s":""}. Lis ton chapitre du soir pour en gagner !</span>` : ""}`
@@ -8965,7 +9075,7 @@ function caseOpen(type){
   persist(); renderTop();
   statPush(isC ? "caisse créatures" : "caisse skins", {notion: isC ? k.nm : `${(CREA_BY[k.crea]||{}).nm || "Hibou"} · ${k.nm}`, detail: RAR[k.r].nm});
   const N = 46, W = 40, tiles = [];
-  for(let i=0;i<N;i++) tiles.push(i===W ? k : (()=>{ const t = caseTier(); const pool = all.filter(x=>x.r===t); return pick(pool.length ? pool : all); })());
+  for(let i=0;i<N;i++) tiles.push(i===W ? k : (()=>{ const near = Math.abs(i-W)<=3, t = caseTier(); const pool = all.filter(x=>x.r===t && (!near || x.r<=k.r)); return pick(pool.length ? pool : all.filter(x=>!near || x.r<=k.r)); })());
   CASE = {type, busy:true, done:false, k, tiles};
   sfx("tap"); renderShop(); cfullRender();
   const strip = $("strip"), reel = $("reel"); if(!strip || !reel){ caseDone(); return; }
@@ -9317,6 +9427,7 @@ function trialEnd(){
   try{ if(typeof vxStop==="function") vxStop(); }catch(e){}
   if(S && S.tid){ try{ clearInterval(S.tid); }catch(e){} }
   try{ hush(); }catch(e){}
+  try{ if(typeof CASE!=="undefined" && CASE){ CASE = null; cfullRender(); } }catch(e){}
   D = migrate(JSON.parse(snap)); persist();
   $("trialbar").hidden = true; document.body.classList.remove("trial");
   renderTop(); gardTitle();
@@ -9345,6 +9456,8 @@ function renderParents(){
   $("p-owl").value = D.owl && D.owl!=="Pythagore" ? D.owl : "";
   $("p-gardien").setAttribute("aria-pressed", D.gardien);
   $("p-soir").setAttribute("aria-pressed", D.soir.on);
+  $("p-duo").setAttribute("aria-pressed", D.soir.duo!==false); $("p-duo-row").hidden = !D.soir.on;
+  renderWpm();
   $("p-soir-h").value = String(D.soir.h); $("p-soir-hf").hidden = !D.soir.on;
   renderRewardParents();
   $("p-sound").setAttribute("aria-pressed", D.sound);
@@ -9391,6 +9504,16 @@ $("p-rw-go").addEventListener("click", ()=>{
 });
 $("p-rw-stop").addEventListener("click", ()=>{ if(D.reward.done && D.reward.label) D.reward.got = D.reward.got.concat([{label:D.reward.label, d:dayStr()}]).slice(-20); D.reward.on = false; D.reward.done = false; D.reward.n = 0; persist(); sfx("tap"); renderRewardParents(); });
 $("p-soir").addEventListener("click", ()=>{ D.soir.on = !D.soir.on; persist(); sfx("tap"); renderParents(); toast(D.soir.on ? "Lecture du soir activée" : "Lecture du soir désactivée"); });
+$("p-duo").addEventListener("click", ()=>{ D.soir.duo = D.soir.duo===false; persist(); sfx("tap"); renderParents(); });
+function renderWpm(){
+  const el = $("p-wpm"); if(!el) return;
+  const rows = D.voix.hist.filter(h=>h.wpm).map(h=>({d:h.d, t: (VOIX.find(v=>v.id===h.id)||{}).t || h.id, w:h.wpm, r:h.rep||0}))
+    .concat(D.soir.hist.filter(h=>h.wpm).map(h=>({d:h.d, t:`Lecture du soir · chapitre ${h.n}`, w:h.wpm, r:0}))).sort((a,b)=>a.d-b.d).slice(-12);
+  if(!rows.length){ el.innerHTML = `<p class="muted" style="margin:0">Pas encore de mesure : elle se fait quand il lit à voix haute (avec le micro, ou avec « Je commence à lire » puis « J'ai fini »).</p>`; return; }
+  const mx = Math.max(120, ...rows.map(r=>r.w));
+  el.innerHTML = `<div class="wpm">${rows.map(r=>`<div class="wpm-row"><span>${esc(r.t)}${r.r ? ` · relecture ${r.r+1}` : ""}</span><i style="width:${Math.round(100*r.w/mx)}%"></i><b>${r.w}</b></div>`).join("")}</div>
+    <p class="muted" style="margin:0">Mots lus par minute (estimation). Repères de fin d'année : CE2 ≈ 90, CM1 ≈ 110, CM2 ≈ 120. Ce qui compte, c'est qu'il progresse. Si la vitesse reste très basse alors qu'il comprend bien les histoires qu'on lui lit, le déchiffrage est sans doute le frein principal : parlez-en à l'enseignant ; un bilan orthophonique peut aider.</p>`;
+}
 $("p-soir-h").addEventListener("change", e=>{ D.soir.h = +e.target.value; persist(); sfx("tap"); toast(D.soir.h ? `Lecture du soir à partir de ${D.soir.h} h` : "Lecture du soir : toute la journée"); });
 $("p-gardien").addEventListener("click", ()=>{ D.gardien = !D.gardien; if(D.gardien){ try{ localStorage.setItem(GARDIEN_KEY, IDX.cur); }catch(e){} } persist(); sfx("tap"); renderParents(); toast(D.gardien ? `Code du jour activé. Aujourd'hui : ${dayCode()}` : "Code du jour désactivé"); });
 $("p-owl").addEventListener("input", e=>{ D.owl = e.target.value.replace(/[<>]/g,"").slice(0,16) || "Pythagore"; D.owlSet = true; persist(); renderTop(); });
@@ -9498,7 +9621,7 @@ function raceTick(){
 function renderTimer(){
   const t=Math.max(0,S.time);
   $("hud-r").textContent=`${Math.floor(t/60)}:${String(t%60).padStart(2,"0")}`;
-  $("hud-r").classList.toggle("low",t<=10);
+  $("hud-r").classList.toggle("low", t<=10 && !S.flash);
   $("track").innerHTML=`<i class="fill" style="width:${100*t/CHRONO}%"></i>`;
 }
 function newQuestion(){
@@ -9517,7 +9640,7 @@ function newQuestion(){
 function next(){
   if(S.flash && S.i>=S.queue.length) S.queue.push(...flashQueue());
   S.cur = S.queue && S.queue[S.i] ? Object.assign({}, S.queue[S.i]) : newQuestion();
-  S.last=S.cur.t; S.typed=""; S.locked=false; S.waiting=false; S.cur.hint=false; S.cur.t0=performance.now();
+  S.last=S.cur.t; S.typed=""; S.locked=false; S.waiting=false; S.cur.hint=!!S.cur.guided; S.cur.t0=performance.now();
   const ce = curEv();
   S.cur.pumpkin = !!ce && S.kind!=="redo" && (R()<.15 || (S.mode==="serie" && !S.pkSeen && S.i>=S.total-2));
   if(S.cur.pumpkin) S.pkSeen = true;
@@ -9544,7 +9667,9 @@ function next(){
   $("hintbtn").disabled=false;
   const fb=$("feedback"); fb.className="bubble";
   const n=esc(D.name.trim());
-  fb.innerHTML = S.flash && S.answered===0 ? `<b>Éclair :</b> 1 minute, que des calculs que tu connais. ${S.flashBest ? `Ton record : <b>${S.flashBest}</b>. Égale-le ou bats-le !` : "Juste et vite !"}`
+  const prevG = S.i>0 && S.queue && S.queue[S.i-1] && S.queue[S.i-1].guided;
+  if(S.cur.guided){ fb.className = "bubble hint"; fb.innerHTML = `<b>On le fait ensemble${S.i===0 ? "" : " (encore un)"} :</b><div class="strat">${strategy(S.cur).h}</div>`; $("hintbtn").disabled = true; }
+  else fb.innerHTML = prevG ? `<b>À toi tout seul maintenant !</b> Tu as vu comment faire.` : S.flash && S.answered===0 ? `<b>Éclair :</b> 1 minute, que des calculs que tu connais. ${S.flashBest ? `Ton record : <b>${S.flashBest}</b>. Juste d'abord, vite ensuite !` : "Juste d'abord, vite ensuite !"}`
     : S.answered===0 ? `${n?`À toi, <b>${n}</b> ! `:""}Tape ta réponse puis Valider. Bloqué ? Touche Astuce.`
     : S.cur.easy ? `Un plus facile pour souffler : ${esc(CAT[S.cur.cat].nm.toLowerCase())}.`
     : S.cur.again ? `Le revoilà ! Tu l'as raté tout à l'heure. Tu te souviens de la bonne réponse ?`
@@ -9599,7 +9724,10 @@ function learn(q, ok){
   if(ok) missionsDoneInGame.push(...missionAdd(q.cat, 1));
   if(q.cat==="mult" && q.fx){
     const k=fkey(q.fx,q.fy), f=D.facts[k]=D.facts[k]||{b:0,n:0,ok:0};
-    f.n++; if(ok){ f.ok++; if(!q.hint) f.b=Math.min(5,f.b+1); } else f.b=Math.max(0,f.b-2);
+    f.n++;
+    if(ok){ f.ok++; const dt = Math.round(Math.min(60000, q.dt||0)); f.t = f.t ? Math.round(.7*f.t + .3*dt) : dt;
+      if(!q.hint && !q.guided && dt < 5000) f.b = Math.min(5, f.b+1); }   // juste mais lent : pas encore automatique
+    else f.b = Math.max(0, f.b-2);
   }
   const up = eloUpdate(q, ok);
   const i = D.pool.findIndex(p=>p.t===q.t);
@@ -9607,6 +9735,22 @@ function learn(q, ok){
   if(!ok && i<0){ const {cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}=q; D.pool.push({cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}); if(D.pool.length>40) D.pool.shift(); }
   persist();
   return up;
+}
+function errDiag(q, v){
+  if(v==null || isNaN(v) || q.cat==="dec" || q.op==="v" || q.op==="w" || typeof q.a!=="number" || typeof q.b!=="number") return "";
+  const r = q.r, a = q.a, b = q.b, ua = a%10, ub = b%10;
+  if(q.op==="+" && v===r-10 && ua+ub>=10) return "Tu as oublié la retenue : quand les unités dépassent 10, ça fait une dizaine de plus.";
+  if(q.op==="-" && b>=10 && ua<ub && v===(Math.floor(a/10)-Math.floor(b/10))*10 + (ub-ua)) return `Tu as fait ${ub} − ${ua} à l'envers. On enlève toujours le 2e nombre : il faut casser une dizaine.`;
+  if(q.op==="-" && v===r+10 && ua<ub) return "Il fallait casser une dizaine : il y en a une de moins.";
+  if(q.op==="-" && v===a+b) return "Tu as additionné : regarde bien le signe −.";
+  if(q.op==="+" && v===Math.abs(a-b) && a!==b) return "Tu as soustrait : regarde bien le signe +.";
+  if(q.op==="x" && v===a+b && a*b!==a+b) return "Tu as additionné : × veut dire « fois », des paquets pareils.";
+  if(q.op==="x" && [r-a, r+a, r-b, r+b].includes(v)) return "Tu es tombé juste à côté dans la table : une fois de trop ou pas assez. Repars d'un résultat que tu connais (× 5 ou × 10).";
+  if(q.op==="c" && v===b) return "Tu as recopié le nombre d'arrivée : on cherche ce qui MANQUE pour y arriver.";
+  if(q.op==="c" && v===a+b) return "On ne cherche pas le total : on cherche ce qui manque.";
+  if(r>=10 && String(v).length>1 && String(v).split("").reverse().join("")===String(r)) return "Les bons chiffres, mais à l'envers : les dizaines s'écrivent à gauche.";
+  if(r!==0 && (v===r*10 || v*10===r)) return "Attention au nombre de zéros.";
+  return "";
 }
 function submit(){
   if(!S) return;
@@ -9618,7 +9762,7 @@ function submit(){
   S.cs = S.cs || {}; S.cs[q.cat] = ok ? (S.cs[q.cat]||0)+1 : 0; q.cstreak = S.cs[q.cat];
   S.answered++; if(ok) petFeed();
   if(ok) S.wrongRun = 0;
-  if(q.easy){ S.easyN = (S.easyN||0) + 1; if(ok) S.easyOk = (S.easyOk||0) + 1; } const up = learn(q, ok); $("hintbtn").disabled=true;
+  if(q.easy || q.guided){ S.easyN = (S.easyN||0) + 1; if(ok) S.easyOk = (S.easyOk||0) + 1; } const up = learn(q, ok); $("hintbtn").disabled=true;
   if(ok){
     S.score++; S.streak++; S.bestStreak=Math.max(S.bestStreak,S.streak); S.res[S.i]="ok";
     S.xp += q.hint ? 5 : 10; S.pl += 1;
@@ -9638,9 +9782,10 @@ function submit(){
     const g=S; setTimeout(()=>{ if(S===g) advance(); }, (S.mode==="chrono"||S.mode==="course")?500:950);
   } else {
     S.streak=0; S.res[S.i]="ko";
-    S.mistakes.push(Object.assign({typed:val, typedTxt:S.typed}, q));
+    const dg = errDiag(q, val), near = typeof q.r==="number" && Math.abs(val - q.r) <= Math.max(1, Math.round(Math.abs(q.r)*.1));
+    S.mistakes.push(Object.assign({typed:val, typedTxt:S.typed, diag:dg}, q));
     const back = S.queue && S.mode==="serie" && !q.again && S.i+3 < S.queue.length;
-    if(back) S.queue[S.i+3] = Object.assign({}, S.queue[S.i], {again:true, fromPool:false});
+    if(back) S.queue[S.i+3] = Object.assign({}, S.queue[S.i], {again:true, fromPool:false, guided:false});
     // 2 erreurs de suite dans le programme : on glisse 3 calculs plus faciles (la brique qui manque), puis on y retourne
     S.wrongRun = (S.wrongRun||0) + 1;
     let eased = null;
@@ -9653,9 +9798,9 @@ function submit(){
     }
     slot.classList.add("ko"); sfx("bad"); owlMood("s-play","sad");
     fb.className="bubble bad";
-    fb.innerHTML=`Presque ! <span class="fix">${qFull(q)}</span><div class="strat">${strategy(q).f}</div>${back ? `<div class="strat again"><b>Retiens-le bien :</b> il va revenir dans un instant.</div>` : ""}${eased ? `<div class="strat again"><b>On souffle un peu :</b> 3 calculs plus faciles (${esc(eased.name)}), puis on y retourne.</div>` : ""}${S.mode==="chrono"||S.mode==="course" ? "" : `<button class="aibtn" id="ai-explain">Explique-moi autrement</button><div class="aibox" id="ai-box" aria-live="polite" hidden></div>`}`;
+    fb.innerHTML=`${near ? "Presque !" : "Pas tout à fait."} <span class="fix">${qFull(q)}</span>${dg ? `<div class="strat"><b>Ce qui s'est passé :</b> ${dg}</div>` : ""}<div class="strat">${strategy(q).f}</div>${back ? `<div class="strat again"><b>Retiens-le bien :</b> il va revenir dans un instant.</div>` : ""}${eased ? `<div class="strat again"><b>On souffle un peu :</b> 3 calculs plus faciles (${esc(eased.name)}), puis on y retourne.</div>` : ""}${S.mode==="chrono"||S.mode==="course" ? "" : `<button class="aibtn" id="ai-explain">Explique-moi autrement</button><div class="aibox" id="ai-box" aria-live="polite" hidden></div>`}`;
     S.aiGiven = S.typed;
-    if(D.tts.auto) speak(`Presque. ${sayAnswer(q)}`);
+    if(D.tts.auto) speak(`${near ? "Presque." : "Pas tout à fait."} ${dg ? plain(dg) + " " : ""}${sayAnswer(q)}`);
     if(S.mode==="survie") S.over=true;
     if(S.mode==="boss"){ S.lives--; if(S.lives<=0) S.over=true; const mo=$("boss-monster").firstElementChild; if(mo){ mo.classList.remove("attack"); void mo.getBoundingClientRect(); mo.classList.add("attack"); setTimeout(()=>mo.classList.remove("attack"), 520); } const sp = $("s-play"); sp.classList.remove("shake"); void sp.offsetWidth; sp.classList.add("shake"); }
     renderHud();
@@ -9713,7 +9858,7 @@ function finish(){
     msg = [`Essaie d'aller plus loin${N} !`,`Belle série${N} !`,`Impressionnant${N} !`,`Incroyable${N}, quelle concentration !`][stars];
   }
   let advWin=false, advReward=null, advBossFirst=false, advNewStars=0;
-  if(G.kind==="coach") STAT_MISS = (G.mistakes||[]).slice(0,12).map(m=>`${String(qFull(m)).replace(/<[^>]+>/g,"")} (a répondu ${m.typedTxt||m.typed})`);
+  if(G.kind==="coach") STAT_MISS = (G.mistakes||[]).slice(0,12).map(m=>`${String(qFull(m)).replace(/<[^>]+>/g,"")} (a répondu ${m.typedTxt||m.typed}${m.diag ? ` : ${m.diag.split(":")[0].replace(/\.$/,"").toLowerCase()}` : ""})`);
   const coachRes = G.kind==="coach" && G.coach ? coachDone(G.coach, G.score - (G.easyOk||0), G.total - (G.easyN||0)) : null;   // les calculs « pour souffler » ne comptent pas
   if(coachRes) msg = coachMsg(coachRes);
   let tipNew = null;
@@ -10028,5 +10173,4 @@ if(STATS_URL && D.started){ if(D.statDay!==dayStr()){ setTimeout(statBackup, 400
 show(!D.started ? "welcome" : IDX.list.length>1 ? "who" : "home");
 })();
 </script>
-
 </body></html>

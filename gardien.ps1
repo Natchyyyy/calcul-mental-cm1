@@ -19,7 +19,7 @@
 #  Compatible Windows PowerShell 5.1 (Windows 10 / 11).
 # ============================================================================
 param([switch]$Test, [switch]$Ouvrir)
-$GardienVersion = 4
+$GardienVersion = 5
 
 $ErrorActionPreference = 'Stop'
 $Self = $MyInvocation.MyCommand.Path
@@ -105,11 +105,17 @@ function Start-App {
 $script:EdgePids = @()
 $script:AppWin = [IntPtr]::Zero
 function Test-AppRunning {
-  $needle = '*' + $EdgeProfile + '*'
   $ids = @(Get-CimInstance -ClassName Win32_Process -Filter "Name='msedge.exe'" -ErrorAction SilentlyContinue |
-           Where-Object { $_.CommandLine -like $needle } | ForEach-Object { [int]$_.ProcessId })
+           Where-Object { $_.CommandLine -and $_.CommandLine.Contains($EdgeProfile) } | ForEach-Object { [int]$_.ProcessId })
   $script:EdgePids = $ids
   if ($ids.Count -eq 0) { return $false }
+  if ($script:Win32) {
+    try {
+      $h = [GardienW]::FindApp([uint32[]]$ids, 'Calcul mental')
+      if ($h -ne [IntPtr]::Zero) { $script:AppWin = $h; $script:LastTitle = [GardienW]::Title($h); return $true }
+      $script:AppWin = [IntPtr]::Zero; return $false
+    } catch { }
+  }
   $win = Get-Process -Id $ids -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne [IntPtr]::Zero } | Select-Object -First 1
   if ($win -and $script:AppWin -eq [IntPtr]::Zero) { $script:AppWin = $win.MainWindowHandle }
   if ($win -and $win.MainWindowTitle) { $script:LastTitle = [string]$win.MainWindowTitle }   # l'appli y écrit « encore N étapes »
@@ -203,6 +209,19 @@ public static class GardienW {
   public static uint IdleMs() { var li = new LASTINPUTINFO(); li.cbSize = (uint)Marshal.SizeOf(li); if (!GetLastInputInfo(ref li)) return 0; return (uint)Environment.TickCount - li.dwTime; }
   public static string Title(IntPtr h) { var sb = new StringBuilder(256); GetWindowText(h, sb, 256); return sb.ToString(); }
   public static uint Pid(IntPtr h) { uint p; GetWindowThreadProcessId(h, out p); return p; }
+  [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
+  public delegate bool EnumProc(IntPtr h, IntPtr l);
+  [DllImport("user32.dll")] public static extern bool EnumWindows(EnumProc f, IntPtr l);
+  public static IntPtr FindApp(uint[] pids, string prefix) {
+    IntPtr found = IntPtr.Zero;
+    EnumWindows(delegate(IntPtr h, IntPtr l) {
+      if (!IsWindowVisible(h)) return true;
+      if (Array.IndexOf(pids, Pid(h)) < 0) return true;
+      if (Title(h).StartsWith(prefix, StringComparison.OrdinalIgnoreCase)) { found = h; return false; }
+      return true;
+    }, IntPtr.Zero);
+    return found;
+  }
   public static void Front(IntPtr h) {
     if (IsIconic(h)) ShowWindow(h, 9);
     keybd_event(0x12, 0, 0, UIntPtr.Zero); SetForegroundWindow(h); keybd_event(0x12, 0, 2, UIntPtr.Zero);
@@ -218,6 +237,7 @@ $script:LastLaunch = [datetime]::MinValue
 $script:Grace = 30          # 1re ouverture (démarrage de Windows, parfois lent) ; ensuite 12 s
 $script:Unlocked = [bool]$StartFree
 $script:Start = $Start
+$script:LastTick = $null
 $script:ActiveSec = 0      # temps passé devant l'ordinateur (clavier ou souris utilisés dans la dernière minute)
 $Ctx = New-Object System.Windows.Forms.ApplicationContext
 # débloqué : on cache tout et on attend le lendemain (le gardien reste lancé)
@@ -265,7 +285,7 @@ function Start-NewDay {
   $script:LastTitle = ''
   Write-Log 'Nouveau jour : verrou remis.'
   Show-Covers
-  Start-App
+  if (-not (Test-AppRunning)) { Start-App } else { $script:LastLaunch = Get-Date }
 }
 
 $Bg = [System.Drawing.Color]::FromArgb(255, 252, 248, 240)
@@ -323,7 +343,7 @@ $text = New-Label "Termine ton programme « Apprendre » dans l'appli. À la fin
 $box = New-Object System.Windows.Forms.TextBox
 $box.Font = New-Object System.Drawing.Font('Segoe UI', 30, [System.Drawing.FontStyle]::Bold)
 $box.Width = 240
-$box.MaxLength = [Math]::Max(4, [Math]::Min(12, ([string]$ParentCode).Length))
+$box.MaxLength = [Math]::Max(4, [Math]::Min(40, ([string]$ParentCode).Length))
 $box.TextAlign = 'Center'
 $box.Anchor = 'None'
 $box.Margin = New-Object System.Windows.Forms.Padding(10, 14, 10, 6)
@@ -382,26 +402,37 @@ $form.Add_FormClosing({ param($s, $e) if ($e.CloseReason -eq 'WindowsShutDown' -
 
 # --- Autres écrans : recouverts tant que ce n'est pas débloqué ---
 $script:Covers = @()
-foreach ($scr in [System.Windows.Forms.Screen]::AllScreens) {
-  if ($scr.Primary) { continue }
-  $cv = New-Object System.Windows.Forms.Form
-  $cv.FormBorderStyle = 'None'
-  $cv.StartPosition = 'Manual'
-  $cv.Bounds = $scr.Bounds
-  $cv.TopMost = $true
-  $cv.ShowInTaskbar = $false
-  $cv.BackColor = [System.Drawing.Color]::FromArgb(255, 20, 30, 60)
-  $cl = New-Object System.Windows.Forms.Label
-  $cl.Text = "Fais ton programme du jour sur l'autre écran !"
-  $cl.ForeColor = [System.Drawing.Color]::White
-  $cl.Font = New-Object System.Drawing.Font('Segoe UI', 28, [System.Drawing.FontStyle]::Bold)
-  $cl.Dock = 'Fill'
-  $cl.TextAlign = 'MiddleCenter'
-  [void]$cv.Controls.Add($cl)
-  $cv.Add_FormClosing({ param($s, $e) if ($e.CloseReason -eq 'WindowsShutDown' -or $e.CloseReason -eq 'TaskManagerClosing') { return }; if (-not $script:Unlocked) { $e.Cancel = $true } })
-  $script:Covers += $cv
+$script:ScreensKey = ''
+function New-Covers {
+  foreach ($cv in $script:Covers) { try { $cv.Dispose() } catch { } }
+  $script:Covers = @()
+  foreach ($scr in [System.Windows.Forms.Screen]::AllScreens) {
+    if ($scr.Primary) { continue }
+    $cv = New-Object System.Windows.Forms.Form
+    $cv.FormBorderStyle = 'None'; $cv.StartPosition = 'Manual'; $cv.Bounds = $scr.Bounds
+    $cv.TopMost = $true; $cv.ShowInTaskbar = $false
+    $cv.BackColor = [System.Drawing.Color]::FromArgb(255, 20, 30, 60)
+    $cl = New-Object System.Windows.Forms.Label
+    $cl.Text = "Fais ton programme du jour sur l'autre écran !"
+    $cl.ForeColor = [System.Drawing.Color]::White
+    $cl.Font = New-Object System.Drawing.Font('Segoe UI', 28, [System.Drawing.FontStyle]::Bold)
+    $cl.Dock = 'Fill'; $cl.TextAlign = 'MiddleCenter'
+    [void]$cv.Controls.Add($cl)
+    $cv.Add_FormClosing({ param($s, $e) if ($e.CloseReason -eq 'WindowsShutDown' -or $e.CloseReason -eq 'TaskManagerClosing') { return }; if (-not $script:Unlocked) { $e.Cancel = $true } })
+    $script:Covers += $cv
+  }
 }
-function Show-Covers { foreach ($cv in $script:Covers) { if (-not $cv.Visible) { $cv.Show() }; $cv.Bounds = $cv.Bounds } }
+function Show-Covers {
+  $key = (@([System.Windows.Forms.Screen]::AllScreens | ForEach-Object { [string]$_.Bounds }) -join ';')
+  if ($key -ne $script:ScreensKey) {
+    if ($script:ScreensKey) { Write-Log 'Écrans changés : caches refaits.' }
+    $script:ScreensKey = $key
+    $old = $script:Covers; $script:Covers = @()
+    foreach ($cv in $old) { try { $cv.Hide(); $cv.Dispose() } catch { } }
+    New-Covers
+  }
+  foreach ($cv in $script:Covers) { if (-not $cv.Visible) { $cv.Show() }; $cv.Bounds = $cv.Bounds }
+}
 
 # --- Garder l'appli devant (toutes les 0,7 s, tant que l'appli est ouverte) ---
 $script:Running = $false
@@ -409,7 +440,16 @@ $fast = New-Object System.Windows.Forms.Timer
 $fast.Interval = 700
 $fast.Add_Tick({
   try {
-    if ($script:Unlocked -or -not $script:Win32 -or -not $script:Running -or $form.Visible) { return }
+    if ($script:Unlocked -or -not $script:Win32) { return }
+    if ($form.Visible) {
+      $fg = [GardienW]::GetForegroundWindow()
+      if ($fg -eq $form.Handle) { return }
+      foreach ($cv in $script:Covers) { if ($fg -eq $cv.Handle) { return } }
+      if ($form.WindowState -ne 'Maximized') { $form.WindowState = 'Maximized' }
+      [GardienW]::Front($form.Handle); $box.Focus() | Out-Null
+      return
+    }
+    if (-not $script:Running) { return }
     if (((Get-Date) - $script:LastLaunch).TotalSeconds -lt 8) { return }
     $fg = [GardienW]::GetForegroundWindow()
     if ($fg -eq [IntPtr]::Zero) { return }
@@ -438,6 +478,8 @@ $timer.Add_Tick({
       return
     }
     if ($d -ne $script:Today) { $script:Today = $d; $script:Start = $now }   # minuit pendant le verrou : nouveau code (le temps actif continue)
+    if ($script:LastTick -and ($now - $script:LastTick).TotalMinutes -gt 60 -and $now.Hour -ge 5) { $script:ActiveSec = 0; Write-Log 'Longue pause (veille) : temps actif remis à zéro.' }
+    $script:LastTick = $now
     $idle = 0; if ($script:Win32) { try { $idle = [GardienW]::IdleMs() } catch { $idle = 0 } }
     if ($idle -lt 60000) { $script:ActiveSec += 2 }
     if ($script:ActiveSec / 60 -ge $MinutesMax) {                                # plafond de temps ACTIF atteint : c'est bon pour aujourd'hui

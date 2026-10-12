@@ -8,20 +8,23 @@
 const COLS = ['Date', 'Heure', 'Enfant', 'Type', 'Domaine', 'Notion', 'Score', 'Verdict', 'Calculs ratés', 'Détail'];
 
 function doPost(e) {
+  let d;
+  try { d = JSON.parse(e.postData.contents); } catch (err) { return ContentService.createTextOutput('illisible'); }
+  if (!d || typeof d !== 'object') return ContentService.createTextOutput('illisible');
   const lock = LockService.getScriptLock();
-  lock.waitLock(10000);
+  const locked = lock.tryLock(15000);   // si le tableau est occupé, on range quand même la ligne (l'appli ne la renverra pas)
   try {
-    const d = JSON.parse(e.postData.contents);
     const ss = SpreadsheetApp.getActiveSpreadsheet();
-    if (d.type === 'sauvegarde') { garder_(ss, d); return ContentService.createTextOutput('ok'); }
-    const j = preparer_(ss);
+    if (d.type === 'sauvegarde') { if (locked) garder_(ss, d); return ContentService.createTextOutput('ok'); }
+    const j = locked ? preparer_(ss) : (ss.getSheetByName('Journal') || preparer_(ss));
     const v = k => texte_(d[k], 600);
     const score = (d.score === undefined || d.score === '' || isNaN(Number(d.score))) ? '' : Math.max(0, Math.min(100, Number(d.score)));
     j.appendRow([v('date'), v('heure'), v('enfant'), v('type'), v('domaine'), v('notion'), score, v('verdict'), v('erreurs'), v('detail')]);
-    resume_(ss);
+    // le résumé (qui relit tout le journal) est recalculé à la fin du programme, au déblocage, ou depuis le menu
+    if (locked && (d.type === 'programme fini' || d.type === 'déblocage' || j.getLastRow() % 10 === 0)) resume_(ss);
     return ContentService.createTextOutput('ok');
   } finally {
-    lock.releaseLock();
+    if (locked) lock.releaseLock();
   }
 }
 
@@ -43,7 +46,12 @@ function garder_(ss, d) {
   let s = ss.getSheetByName('Sauvegardes');
   if (!s) { s = ss.insertSheet('Sauvegardes'); s.appendRow(['Date', 'Heure', 'Enfant', 'Morceaux…']); s.hideSheet(); }
   const code = String(d.code || '');
-  if (!/^PYTH-/.test(code)) return;
+  if (!/^PYTH-[A-Za-z0-9+\/=]+$/.test(code)) return;
+  // on ne garde qu'une vraie sauvegarde de l'appli (du JSON avec sa progression)
+  try {
+    const o = JSON.parse(Utilities.newBlob(Utilities.base64Decode(code.slice(5))).getDataAsString('UTF-8'));
+    if (!o || typeof o !== 'object' || typeof o.coach !== 'object') return;
+  } catch (err) { return; }
   const parts = [];
   for (let i = 0; i < code.length; i += 45000) parts.push(code.slice(i, i + 45000));
   s.appendRow([texte_(d.date || '', 10), texte_(d.heure || '', 8), texte_(d.enfant || '', 40)].concat(parts.map(p => "'" + p)));
@@ -92,8 +100,9 @@ function montrerSauvegarde() {
 /** Lancer à la main (choisir « installer » puis ▶ Exécuter) : crée les onglets et recalcule le résumé. */
 function installer() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  preparer_(ss);
-  resume_(ss);
+  const lock = LockService.getScriptLock();
+  const locked = lock.tryLock(20000);
+  try { preparer_(ss); resume_(ss); } finally { if (locked) lock.releaseLock(); }
 }
 
 function jour_(x) {
