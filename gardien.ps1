@@ -13,7 +13,7 @@
 #  - au lancement : cherche une mise à jour sur GitHub (petit écran avec le hibou), puis ouvre l'appli ;
 #  - -Ouvrir : (icône du bureau) mise à jour puis ouverture de l'appli, sans verrou ;
 #  - envoie les déblocages au tableau de suivi des parents (si configuré) ;
-#  - v4 : après le déblocage, reste discrètement en arrière-plan et REBLOQUE le lendemain (à partir de 5 h),
+#  - v4 : après le déblocage, reste discrètement en arrière-plan et REBLOQUE le lendemain (v5 : à partir de 16 h, réglable : "heureVerrou"),
 #    même si la session n'a jamais été fermée (PC en veille ou allumé toute la nuit).
 #  En cas de problème, le gardien s'arrête (il ne bloque jamais l'enfant par erreur).
 #  Compatible Windows PowerShell 5.1 (Windows 10 / 11).
@@ -52,6 +52,12 @@ $Cfg = Get-Content -Path (Join-Path $Dir 'config.json') -Raw -Encoding UTF8 | Co
 $ParentCode = [string]$Cfg.codeParents
 $MinutesMax = [int]$Cfg.minutesMax
 if ($MinutesMax -lt 5) { $MinutesMax = 30 }
+# Le verrou ne s'applique qu'entre l'heure du verrou (16 h par défaut) et 5 h le lendemain matin : avant, l'ordinateur est libre.
+$LockHour = 16
+if ($Cfg.PSObject.Properties.Name -contains 'heureVerrou') { try { $LockHour = [int]$Cfg.heureVerrou } catch { $LockHour = 16 } }
+if ($LockHour -lt 5 -or $LockHour -gt 23) { $LockHour = 16 }
+function Get-LockDay([datetime]$t) { if ($t.Hour -lt 5) { return $t.Date.AddDays(-1).ToString('yyyy-MM-dd') } else { return $t.Date.ToString('yyyy-MM-dd') } }
+function Test-LockWindow([datetime]$t) { return ($t.Hour -ge $LockHour -or $t.Hour -lt 5) }
 $StateFile = Join-Path $Dir 'etat.json'
 $EdgeProfile = Join-Path $Dir 'edge-profil'
 $AppFile = Join-Path $Dir 'appli.html'
@@ -62,7 +68,8 @@ function Get-State {
   try { return Get-Content -Path $StateFile -Raw -Encoding UTF8 | ConvertFrom-Json } catch { return $null }
 }
 function Set-Unlocked([string]$how) {
-  $o = [pscustomobject]@{ jour = $script:Today; debloque = $true; comment = $how; heure = (Get-Date).ToString('HH:mm') }
+  $script:FreeDay = Get-LockDay (Get-Date)
+  $o = [pscustomobject]@{ jour = $script:FreeDay; debloque = $true; comment = $how; heure = (Get-Date).ToString('HH:mm') }
   try { $o | ConvertTo-Json | Set-Content -Path $StateFile -Encoding UTF8 } catch { Write-Log ("État non enregistré : " + $_.Exception.Message) }
   Write-Log "Débloqué ($how)"
   Send-Stat 'déblocage' $how
@@ -78,7 +85,9 @@ function Send-Stat([string]$type, [string]$detail) {
 }
 
 $st = Get-State
-$StartFree = (-not $Ouvrir -and $st -and $st.jour -eq $script:Today -and $st.debloque)
+$script:FreeDay = ''
+if ($st -and $st.debloque) { $script:FreeDay = [string]$st.jour }
+$StartFree = (-not $Ouvrir -and ((-not (Test-LockWindow (Get-Date))) -or $script:FreeDay -eq (Get-LockDay (Get-Date))))
 if (-not $Ouvrir) {   # un seul gardien à la fois
   $created = $false
   $script:Mutex = New-Object System.Threading.Mutex($true, 'Local\CalculMentalCM1Gardien', [ref]$created)
@@ -246,7 +255,7 @@ function Enter-Free {
   $script:Running = $false
   foreach ($cv in $script:Covers) { try { $cv.Hide() } catch { } }
   try { $form.Hide() } catch { }
-  Write-Log 'Mode libre jusqu''à demain.'
+  Write-Log ("Mode libre jusqu'au prochain verrou ($LockHour h).")
 }
 # arrêt complet (erreur, redémarrage) : ne bloque jamais l'enfant
 function Exit-Gardien {
@@ -273,7 +282,7 @@ function Start-NewDay {
   $script:Start = Get-Date
   $script:ActiveSec = 0
   $st2 = Get-State
-  if ($st2 -and $st2.jour -eq $script:Today -and $st2.debloque) { return }
+  if ($st2 -and $st2.jour -eq (Get-LockDay (Get-Date)) -and $st2.debloque) { $script:FreeDay = [string]$st2.jour; return }
   Update-App
   if ((Test-NewerGardien) -or $form.IsDisposed) {   # gardien plus récent téléchargé (ou fenêtre perdue) : on relance proprement
     Restart-Self; return
@@ -385,7 +394,7 @@ $form.Add_Shown({ Center-Panel; $box.Focus() })
 function Try-Unlock {
   $v = $box.Text.Trim()
   $veille = (Get-Date).AddMinutes(-30).ToString('yyyy-MM-dd')
-  if ($v -eq (Get-DayCode $script:Today) -or $v -eq (Get-DayCode $veille)) { Set-Unlocked 'code du jour' }
+  if ($v -eq (Get-DayCode $script:Today) -or $v -eq (Get-DayCode $veille) -or $v -eq (Get-DayCode (Get-LockDay (Get-Date)))) { Set-Unlocked 'code du jour' }
   elseif ($ParentCode -and $v -eq $ParentCode) { Set-Unlocked 'code parents' }
   else {
     $msg.Text = 'Ce n''est pas le bon code. Finis ton programme du jour : le code s''affiche à la fin.'
@@ -473,9 +482,12 @@ $timer.Add_Tick({
   try {
     $now = Get-Date
     $d = $now.ToString('yyyy-MM-dd')
-    if ($script:Unlocked) {   # libre : on attend le lendemain matin (5 h)
-      if ($d -ne $script:Today -and $now.Hour -ge 5) { Start-NewDay }
+    if ($script:Unlocked) {   # libre : le verrou revient à l'heure du verrou (16 h), si ce jour-là n'est pas encore débloqué
+      if ((Test-LockWindow $now) -and (Get-LockDay $now) -ne $script:FreeDay) { Start-NewDay }
       return
+    }
+    if (-not (Test-LockWindow $now)) {   # resté verrouillé toute la nuit : de 5 h à l'heure du verrou, c'est libre
+      Write-Log 'Hors des heures du verrou : libre jusqu''à l''heure du verrou.'; Enter-Free; return
     }
     if ($d -ne $script:Today) { $script:Today = $d; $script:Start = $now }   # minuit pendant le verrou : nouveau code (le temps actif continue)
     if ($script:LastTick -and ($now - $script:LastTick).TotalMinutes -gt 60 -and $now.Hour -ge 5) { $script:ActiveSec = 0; Write-Log 'Longue pause (veille) : temps actif remis à zéro.' }
@@ -494,6 +506,7 @@ $timer.Add_Tick({
     else { $form.TopMost = $true; $form.Activate() }
   } catch {
     Write-Log ("Erreur : " + $_.Exception.Message + " → libre pour aujourd'hui, le gardien revient demain.")
+    $script:FreeDay = Get-LockDay (Get-Date)   # libre jusqu'au prochain verrou (pas de relance en boucle)
     try { Enter-Free } catch { Exit-Gardien }
   }
 })
