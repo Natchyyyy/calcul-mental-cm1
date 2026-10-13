@@ -6453,14 +6453,14 @@ function coachBuild(today){
   if(revs.length) steps.push(revs.shift());                 // une révision pour réveiller le cerveau
   if(nw) steps.push({k:"new", id:nw, r:null});              // puis la notion nouvelle, quand on est bien concentré
   steps.push(...revs);
-  if(!D.court){   // notions solides en retard : une étape « Révisions express » (3 questions chacune) pour ne pas les oublier
-    const inDue = new Set(due.map(([id])=>id));
-    const late = recs.filter(([id,v])=>v.due<=today && v.b>=3 && id[0]==="c" && !v.m && !inDue.has(id)).sort((a,b)=>a[1].due-b[1].due).slice(0,4).map(([id])=>id);
-    if(late.length>=2) steps.push({k:"mix", id:"mix", ids:late, quick:true, r:null});
-  }
   if(D.fr.school.words.length && frSchoolLeft().length) steps.push({k:"ecole", id:"ecole", r:null});
   if(steps.length && steps.length<7 && vxNeeded(today)) steps.push({k:"voix", id:"voix", r:null});          // lire à voix haute, un jour sur deux
   if(steps.length && steps.length<7 && flashNeeded(today)) steps.push({k:"flash", id:"flash", r:null});   // en dernier : un défi rapide pour finir
+  if(!D.court && steps.length<7){   // notions solides en retard : une étape « Révisions express » (3 questions chacune) pour ne pas les oublier
+    const inDue = new Set(due.map(([id])=>id));
+    const late = recs.filter(([id,v])=>v.due<=today && v.b>=3 && id[0]==="c" && !v.m && !inDue.has(id)).sort((a,b)=>a[1].due-b[1].due).slice(0,3).map(([id])=>id);
+    if(late.length>=2){ const at = steps.findIndex(x=>x.k==="voix" || x.k==="flash"); steps.splice(at<0 ? steps.length : at, 0, {k:"mix", id:"mix", ids:late, quick:true, r:null}); }   // avant la lecture et l'Éclair (qui reste le dernier)
+  }
   if(memNeeded() && !D.court) steps.unshift({k:"mem", id:"mem", r:null});      // 3 minutes pour apprendre à retenir, en échauffement
   if(!steps.some(x=>x.k!=="mem")){ const any = coachNextNew(); if(any) steps.push({k:"new", id:any, r:null});
     else { const old = recs.sort((a,b)=>a[1].due-b[1].due)[0]; if(old) steps.push({k:"rev", id:old[0], r:null}); } }
@@ -7826,7 +7826,7 @@ function coachRun(i, noLesson){
     let last = null;
     while(piles.some(x=>x.length)){ const ok = piles.map((x,k)=>k).filter(k=>piles[k].length && st.ids[k]!==last), pool = ok.length ? ok : piles.map((x,k)=>k).filter(k=>piles[k].length);
       const mx = Math.max(...pool.map(k=>piles[k].length)), top = pool.filter(k=>piles[k].length===mx), k = top[Math.floor(R()*top.length)]; qq.push(piles[k].shift()); last = st.ids[k]; }
-    start({kind:"coach", coach:Object.assign({}, c, {mix:st.ids.slice()}), label: st.quick ? "Révisions express" : "Révisions mélangées", queue:qq, mode:"serie", level:3}); return; }
+    start({kind:"coach", coach:Object.assign({}, c, {mix:st.ids.slice(), quick:!!st.quick}), label: st.quick ? "Révisions express" : "Révisions mélangées", queue:qq, mode:"serie", level:3}); return; }
   // quand ça coince : moins de questions, et des plus faciles mélangées (viser ~80 % de réussite)
   const I = coachInfo(st.id), n = st.k==="new" ? (I.dom==="c" ? (met ? 7 : 10) : (met ? 6 : FR_N)) : (met ? 4 : 5);
   if(I.dom==="f") frStart(I.fr, {coach:c, p:I.p, n, low: met ? (met>=2 ? .5 : .35) : 0});
@@ -7849,9 +7849,11 @@ function coachDone(c, sc, total){
     const v = C.n[c.id] = C.n[c.id] || {b:0, due:0, n:0, ok:0, f:today, l:0, s:0}, seeded = !isNew && v.n===0 && v.b>=2;
     v.n++; v.l = today; v.s = pct;
     if(isNew){ verdict = pct>=90 ? "deja" : pct>=70 ? "ok" : "rate"; v.b = verdict==="deja" ? 2 : verdict==="ok" ? 1 : 0; C.lt = c.id[0]; }
+    else if(c.quick){ const full = total>0 && sc===total; verdict = full ? "bravo" : pct>=60 ? "moyen" : "rate";   // vérification express d'une notion solide
+      v.b = full ? Math.min(5, v.b+1) : pct>=60 ? Math.max(1, v.b) : Math.max(1, v.b-2); }
     else { verdict = pct>=80 ? "bravo" : pct>=60 ? "moyen" : "rate"; v.b = verdict==="bravo" ? Math.min(5, seeded ? Math.max(4, v.b+1) : v.b+1) : verdict==="moyen" ? Math.max(1, v.b-1) : 0; }   // déjà su (bilan) et revérifié : on espace tout de suite
     if(verdict==="deja" || verdict==="ok" || verdict==="bravo") v.ok++;
-    if(verdict==="rate"){ v.x = (v.x||0) + 1; if(v.x>=2){ v.x = 0;
+    if(verdict==="rate" && !c.quick){ v.x = (v.x||0) + 1; if(v.x>=2){ v.x = 0;
       if((v.m||0)>=2){ v.pk = today + 3; pause = true;      // toutes les méthodes essayées : on met de côté 3 jours (place à autre chose de réussi), puis on y revient
         const pre = coachPre(c.id), okPre = pre && COACH_IDS.has(pre) && !(C.n[pre] && C.n[pre].pk > today);
         if(okPre){ const o = C.n[pre]; C.n[pre] = o ? Object.assign({}, o, {b: Math.min(o.b, 1), due: Math.min(o.due, today+1)}) : {b:0, due:today+1, n:0, ok:0, f:today, l:0, s:0, x:0, m:0}; }   // pendant la pause : la brique d'en dessous, dès demain
@@ -7869,7 +7871,7 @@ function coachDone(c, sc, total){
   if(step){ step.r = c.id==="flash" ? 100 : pct; if(c.id==="flash") step.sc = sc; }
   try{
     const dom = c.id==="mem" ? "mémoire" : c.id==="ecole" ? "dictée" : c.id==="flash" ? "éclair" : c.id==="voix" ? "lecture" : c.id==="mix" || c.id[0]==="c" ? "calcul" : "français";
-    const nm = c.id==="mem" ? "Mon cerveau qui retient" : c.id==="ecole" ? "Mots de la semaine" : c.id==="flash" ? "Éclair (1 minute)" : c.id==="voix" ? `Lire à voix haute : ${VX_LAST ? VX_LAST.t : ""}` : c.id==="mix" ? "Révisions mélangées" : coachInfo(c.id).name;
+    const nm = c.id==="mem" ? "Mon cerveau qui retient" : c.id==="ecole" ? "Mots de la semaine" : c.id==="flash" ? "Éclair (1 minute)" : c.id==="voix" ? `Lire à voix haute : ${VX_LAST ? VX_LAST.t : ""}` : c.id==="mix" ? (c.quick ? "Révisions express" : "Révisions mélangées") : coachInfo(c.id).name;
     if(c.id==="voix" && VX_LAST){ STAT_MISS = VX_LAST.skipped.length ? [`mots difficiles : ${VX_LAST.skipped.join(", ")}`] : []; }
     statPush("étape", {domaine: dom, notion: nm, score: c.id==="flash" ? sc : c.id==="mix" || (c.id==="voix" && VX_LAST && VX_LAST.rep) ? "" : pct, verdict: ({deja:"déjà su", ok:"appris", rate:"pas encore", bravo:"retenu", moyen:"presque", mem:"fait", ecole:"fait", voix:"fait", mix:"fait", flash: flash && sc>flash.prev ? "nouveau record" : "fait"})[verdict] || verdict,
       erreurs: STAT_MISS.join(" ; ").slice(0,500), detail: c.id==="voix" && VX_LAST ? (VX_LAST.lu>=0 ? `mots bien lus : ${VX_LAST.lu} %` : "lu sans micro") : stuck ? `ça coince : méthode changée${stuck.pre ? `, on revoit « ${coachInfo(stuck.pre).name} »` : ""}` : ""});
@@ -7897,7 +7899,7 @@ function coachMsg(res){
     ecole:`Tes mots de la semaine avancent, continue !`,
     mem:`Ton cerveau s'est bien entraîné !`,
     voix:`Bravo pour ta lecture à voix haute !`,
-    mix: res.mix && res.mix.length ? `Révisions mélangées : tu as dû choisir la bonne méthode à chaque fois, c'est comme ça qu'on retient le mieux ! ` + res.mix.map(x=>`${coachInfo(x.id).name} : ${x.ok}/${x.n}${x.v==="bravo" ? " ✓" : x.v==="rate" ? " (on le revoit demain)" : ""}`).join(" · ") + "." : "Révisions faites !",
+    mix: res.mix && res.mix.length ? (res.quick ? `Vérification express : ces notions, tu les connais bien, on vérifie juste qu'elles sont toujours là ! ` : `Révisions mélangées : tu as dû choisir la bonne méthode à chaque fois, c'est comme ça qu'on retient le mieux ! `) + res.mix.map(x=>`${coachInfo(x.id).name} : ${x.ok}/${x.n}${x.v==="bravo" ? " ✓" : x.v==="rate" ? " (on le revoit demain)" : ""}`).join(" · ") + "." : "Révisions faites !",
     flash: !res.flash ? "" : !res.flash.sc ? `Pas de bonne réponse cette fois : prends ton temps, le plus important c'est d'avoir juste. On réessaie dans 2 jours !` : !res.flash.prev ? `Premier record : ${res.flash.sc} bonne${res.flash.sc>1?"s":""} réponse${res.flash.sc>1?"s":""} en 1 minute ! Dans 2 jours, essaie de l'égaler.`
       : res.flash.sc>res.flash.prev ? `Nouveau record : ${res.flash.sc} (avant : ${res.flash.prev}) ! Ces calculs deviennent automatiques dans ta tête.`
       : res.flash.sc===res.flash.prev ? `Record égalé : ${res.flash.sc} ! Bravo.`
@@ -8132,10 +8134,12 @@ function renderLearn(){
   let msg;
   if(done) msg = (P.short ? `Tu as bien travaillé aujourd'hui${N?`, ${N}`:""} ! On garde la suite pour demain. ` : `Programme du jour terminé${N?`, ${N}`:""} ! `) + `Ton cerveau range tout ça pendant la nuit. À demain pour la suite !` + (codeOk() ? `<span class="daycode">Ton code du jour pour l'ordinateur : <b>${dayCode()}</b></span>` : "");
   else if(fresh){
-    const n0 = steps.find(x=>x.k==="new"), revs = steps.filter(x=>x.k==="rev").length + steps.filter(x=>x.k==="mix").reduce((a,x)=>a+x.ids.length,0), ec = steps.some(x=>x.k==="ecole");
+    const n0 = steps.find(x=>x.k==="new"), revs = steps.filter(x=>x.k==="rev").length + steps.filter(x=>x.k==="mix" && !x.quick).reduce((a,x)=>a+x.ids.length,0), ec = steps.some(x=>x.k==="ecole"), xq = steps.some(x=>x.k==="mix" && x.quick);
     msg = n0 ? `Aujourd'hui${N?`, ${N}`:""}, on apprend : <b>${esc(coachInfo(n0.id).name)}</b>.`
-      : revs ? `Aujourd'hui${N?`, ${N}`:""}, pas de nouvelle notion : on consolide ce qui était difficile. C'est comme ça qu'on devient fort !` : `Aujourd'hui${N?`, ${N}`:""}, on travaille tes mots de la semaine.`;
+      : revs ? `Aujourd'hui${N?`, ${N}`:""}, pas de nouvelle notion : on consolide ce qui était difficile. C'est comme ça qu'on devient fort !`
+      : xq ? `Aujourd'hui${N?`, ${N}`:""}, juste une petite vérification express de ce que tu sais déjà bien.` : `Aujourd'hui${N?`, ${N}`:""}, on travaille tes mots de la semaine.`;
     if(revs && n0) msg += ` Et on révise ${revs} notion${revs>1?"s":""} pour ne pas ${revs>1?"les ":"l'"}oublier.`;
+    if(xq && (n0 || revs)) msg += " Et une petite vérification express de ce que tu sais déjà bien.";
     if(ec && (n0 || revs)) msg += " Sans oublier tes mots de la semaine.";
     if(steps[0] && steps[0].k==="mem") msg += " On commence par 3 minutes pour entraîner ta mémoire : c'est ton super-pouvoir pour tout le reste !";
   } else { const l = steps.filter(x=>x.r==null).length; msg = D.gardien && !codeOk() && !TRIAL ? `Bravo ! Encore ${etapes(l)} et l'ordinateur est à toi !` : `Bravo ! Encore ${etapes(l)} et c'est fini pour aujourd'hui.`; }
@@ -10585,7 +10589,7 @@ function errDiag(q, v){
    Au-dessus : une fois par séance, un « petit défi » du palier au-dessus (ne compte pas non plus). Séance courte (révision) : on ajoute au lieu de remplacer. */
 const ADAPT_LOW = .7, ADAPT_HIGH = .85;
 function adaptNext(q, ok){
-  if(!S || S.kind!=="coach" || !S.coach || !S.queue || S.mode!=="serie" || S.flash || q.guided) return;
+  if(!S || S.kind!=="coach" || !S.coach || !S.queue || S.mode!=="serie" || S.flash || S.coach.quick || q.guided) return;   // pas de réglage dans la vérification express (notions déjà solides)
   S.win = (S.win||[]).concat([ok]).slice(-6);
   const n = S.win.length, rate = S.win.filter(Boolean).length / n, nx = S.queue[S.i+1];
   if(nx && (nx.again || nx.guided || nx.easy || nx.defi)) return;
@@ -10719,12 +10723,13 @@ function finish(){
   if(G.kind==="coach") STAT_MISS = (G.mistakes||[]).slice(0,12).map(m=>`${String(qFull(m)).replace(/<[^>]+>/g,"")} (a répondu ${m.typedTxt||m.typed}${m.diag ? ` : ${m.diag.split(":")[0].replace(/\.$/,"").toLowerCase()}` : ""})`);
   let coachRes = null;
   if(G.kind==="coach" && G.coach && G.coach.mix){
-    const per = G.coach.mix.map(id=>{ const ks = G.queue.map((q,k)=>[q,k]).filter(([q])=>q.nid===id && !q.easy && !q.guided && !q.again && !q.defi); return {id, n: ks.length, ok: ks.filter(([,k])=>G.res[k]==="ok").length}; });
+    const per = G.coach.mix.map(id=>{ const all = G.queue.map((q,k)=>[q,k]).filter(([q])=>q.nid===id && !q.easy && !q.guided && !q.defi), first = all.filter(([q])=>!q.again);
+      const n = all.length, miss1 = first.filter(([,k])=>G.res[k]!=="ok").length; return {id, n, ok: Math.max(0, n - miss1)}; });   // erreurs au 1er essai seulement
     const miss = STAT_MISS.slice(), parts = [], ms = D.coach.plan.steps[G.coach.i];
-    per.forEach(x=>{ if(!x.n) return; STAT_MISS = miss.filter((m,k)=>((G.mistakes||[])[k]||{}).nid===x.id); const r = x.n>=3 && x.n-x.ok===1 ? coachDone({i:-1, id:x.id}, 4, 5) : coachDone({i:-1, id:x.id}, x.ok, x.n); parts.push({id:x.id, v:r.verdict, ok:x.ok, n:x.n}); });
+    per.forEach(x=>{ if(!x.n) return; STAT_MISS = miss.filter((m,k)=>((G.mistakes||[])[k]||{}).nid===x.id); const r = ms && ms.quick ? coachDone({i:-1, id:x.id, quick:true}, x.ok, x.n) : x.n>=3 && x.n-x.ok===1 ? coachDone({i:-1, id:x.id}, 4, 5) : coachDone({i:-1, id:x.id}, x.ok, x.n); parts.push({id:x.id, v:r.verdict, ok:x.ok, n:x.n}); });
     STAT_MISS = miss;
     const mi = ms ? D.coach.plan.steps.indexOf(ms) : -1; if(mi>=0) G.coach.i = mi;
-    coachRes = coachDone(G.coach, G.score - (G.easyOk||0), G.total - (G.easyN||0)); coachRes.mix = parts;
+    coachRes = coachDone(G.coach, G.score - (G.easyOk||0), G.total - (G.easyN||0)); coachRes.mix = parts; coachRes.quick = !!G.coach.quick;
   } else coachRes = G.kind==="coach" && G.coach ? coachDone(G.coach, G.score - (G.easyOk||0), G.total - (G.easyN||0)) : null;   // les calculs « pour souffler » ne comptent pas
   if(coachRes) msg = coachMsg(coachRes);
   let tipNew = null;
