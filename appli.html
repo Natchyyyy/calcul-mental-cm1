@@ -7604,10 +7604,10 @@ function coachStuck(id, m){
   if(pre && COACH_IDS.has(pre)){
     const o = C.n[pre];
     C.n[pre] = o ? Object.assign({}, o, {b: Math.min(o.b, 1), due: Math.min(o.due, today)}) : {b:0, due:today, n:0, ok:0, f:today, l:0, s:0, x:0, m:0};
-    if(!C.plan.steps.some(x=>x.id===pre || (x.ids||[]).includes(pre)) && C.plan.steps.length<8){
-      C.plan.steps.push({k: o ? "rev" : "new", id:pre, r:null});   // jamais vue : avec sa leçon
-      const j = C.plan.steps.map((x,i)=>[x,i]).reverse().find(([x])=>x.r==null && x.k==="rev" && x.id!==pre && x.id!==id);   // en échange, une révision de moins : le programme ne s'allonge pas
+    const j = C.plan.steps.map((x,i)=>[x,i]).reverse().find(([x])=>x.r==null && x.k==="rev" && x.id!==pre && x.id!==id);   // en échange, une révision de moins : le programme ne s'allonge pas
+    if(!C.plan.steps.some(x=>x.id===pre || (x.ids||[]).includes(pre)) && (j || C.plan.steps.length<(D.court ? 3 : 8))){   // programme court plein : le prérequis attend demain
       if(j) C.plan.steps.splice(j[1], 1);
+      C.plan.steps.push({k: o ? "rev" : "new", id:pre, r:null});   // jamais vue : avec sa leçon
     }
   }
   C.stuck = [{id, d:today, m, pre: pre && COACH_IDS.has(pre) ? pre : null}, ...(C.stuck||[]).filter(x=>x.id!==id)].slice(0,10);
