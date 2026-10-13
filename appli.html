@@ -6019,7 +6019,7 @@ function poseHtml(R, upto = Infinity, opt = {}){
   return `<div class="posed" style="--w:${W}" role="img" aria-label="Opération posée : ${R.a} ${R.kind==="×"?"fois":R.kind==="−"?"moins":"plus"} ${R.b}">${rows}</div>`;
 }
 function mkPose(kd){
-  const V = o => Object.assign({cat:"pose", op:"v", kd}, o);
+  const V = o => { const q = Object.assign({cat:"pose", op:"v", kd}, o); ["t","pre","sh","sf"].forEach(k => { if(typeof q[k]==="string") q[k] = q[k].replace(/\d{4,}/g, n => fmt(+n)); }); return q; };
   const rnd = (a,b) => rand(a,b);
   let kind, a, b;
   if(kd===1){ kind = "+"; for(let g=0; g<50; g++){ a = rnd(120, 876); const A = PD(a); b = Number(A.map(x=>rnd(0, 9-x)).join("")); if(b>=10 && String(b).length>=2) break; } }
@@ -6033,16 +6033,16 @@ function mkPose(kd){
   const opTxt = {"+":"+", "−":"−", "×":"×", "÷":"÷"}[kind];
   if(kind==="÷"){
     if(kd===8 && rand(0,1)===1) return V({r:R.r, R, a, b, pic:poseHtml(R, R.steps.length-1), pre:`Division posée de ${a} par ${b} : finis la dernière étape. Le quotient est ${R.q}.`, t:`Le reste est □`, sh:"Le reste, c'est ce qui reste tout en bas, à la fin. Il est toujours plus petit que le diviseur.", sf:`${a} = ${b} × ${R.q} + ${R.r} : le reste est ${R.r}.`, say:`Division posée de ${a} par ${b}. Le quotient est ${R.q}. Le reste est combien ?`});
-    return V({r:R.q, R, a, b, pic:poseHtml(R, 0), pre:`Pose la division de ${a} par ${b} (sur ton cahier si tu veux).`, t:`${a} ÷ ${b} : le quotient est □`, sh:`Commence à gauche : en ${R.steps[0].part}, combien de fois ${b} ?`, sf:R.steps.map(s=>s.say).join(" ") + (R.r ? ` Il reste ${R.r}.` : ""), say:`Pose la division de ${a} par ${b}. Quel est le quotient ?`});
+    return V({r:R.q, R, a, b, pic:poseHtml(R, 0), pre:`Pose la division de ${a} par ${b} (sur ton cahier si tu veux).`, t:`${a} ÷ ${b} : le quotient est □`, sh:`Commence à gauche : en ${R.steps[0].part}, combien de fois ${b} ?`, sf:R.steps.map(s=>s.say).join(" "), say:`Pose la division de ${a} par ${b}. Quel est le quotient ?`});
   }
-  return V({r:R.res, R, a, b, pic:poseHtml(R, 0), pre:`Pose l'opération et calcule, colonne par colonne, en commençant par la droite.`, t:`${a} ${opTxt} ${b} = □`, sh: kind==="×" && b>=10 ? `Deux lignes : d'abord ${a} × ${b%10}, puis ${a} × ${Math.floor(b/10)} dizaine${b>=20?"s":""} (n'oublie pas le 0), puis additionne.` : `Commence par la colonne des unités, à droite. ${kind==="+" ? "Si ça dépasse 9, pense à la retenue." : kind==="−" ? "Si le chiffre du haut est trop petit, ajoute 10 en haut et retiens 1 en bas, colonne suivante." : "N'oublie pas d'ajouter la retenue au résultat suivant."}`, sf:R.steps.map(s=>s.say).join(" "), say:`${a} ${kind==="+"?"plus":kind==="−"?"moins":"fois"} ${b}, posé en colonnes. Ça fait combien ?`});
+  return V({r:R.res, R, a, b, pic:poseHtml(R, 0), pre:`Pose l'opération et calcule, colonne par colonne, en commençant par la droite.`, t:`${a} ${opTxt} ${b} = □`, sh: kind==="×" && b>=10 ? `Deux lignes : d'abord ${a} × ${b%10}, puis ${a} × ${Math.floor(b/10)} dizaine${b>=20?"s":""} (n'oublie pas le 0), puis additionne.` : `Commence par la colonne des unités, à droite. ${kind==="+" ? "Si ça dépasse 9, pense à la retenue." : kind==="−" ? "Si le chiffre du haut est trop petit, ajoute 10 en haut et retiens 1 en bas, colonne suivante." : "N'oublie pas d'ajouter la retenue au résultat suivant."}`, sf:R.steps.map(s=>s.say).join(" "), say:`${a} ${kind==="+"?"plus":kind==="−"?"moins":"fois"} ${b}, en colonnes. Ça fait combien ?`});
 }
 function poseSteps(q){
   const R = q.R; if(!R) return null;
   const S = [{say: R.kind==="÷" ? `On pose la division : ${R.a} à gauche, ${R.b} à droite dans la potence. On commence par la gauche.` : `On pose l'opération : les unités sous les unités, les dizaines sous les dizaines. On commence par la droite.`, html: poseHtml(R, 0)}];
   const tail = !!(R.steps[R.steps.length-1]||{}).tail, last = R.steps.length - (tail && R.steps.length>1 ? 2 : 1), reste = R.kind==="÷" && q.t.includes("reste");
   R.steps.forEach((s,k)=>{ if(k < last) S.push({say:s.say, html:poseHtml(R, k+1)}); });   // la dernière étape, c'est lui qui la fait
-  S.push({say: reste ? `À toi : fais la dernière étape (${R.steps[last].part} ÷ ${R.b}). Ce qui reste tout en bas, c'est le reste.` : R.kind==="÷" ? `À toi : fais la dernière étape (${R.steps[last].part} ÷ ${R.b}), puis tape le quotient entier.` : R.kind==="×" && R.b>=10 ? "À toi : additionne les deux lignes et tape le résultat." : tail ? "À toi : fais la dernière colonne, sans oublier la retenue tout à gauche, puis tape le résultat entier." : "À toi : fais la dernière colonne, puis tape le résultat entier.", html: poseHtml(R, last)});
+  S.push({say: reste ? `J'abaisse le chiffre suivant : ça fait ${R.steps[last].part}. À toi : en ${R.steps[last].part}, combien de fois ${R.b} ? Ce qui reste tout en bas, c'est le reste.` : R.kind==="÷" ? `J'abaisse le chiffre suivant : ça fait ${R.steps[last].part}. À toi : en ${R.steps[last].part}, combien de fois ${R.b} ? Puis tape le quotient entier.` : R.kind==="×" && R.b>=10 ? "À toi : additionne les deux lignes et tape le résultat." : tail ? "À toi : fais la dernière colonne, sans oublier la retenue tout à gauche, puis tape le résultat entier." : "À toi : fais la dernière colonne, puis tape le résultat entier.", html: poseHtml(R, last)});
   S.push({ask:true, say: reste ? "Quel est le reste ?" : R.kind==="÷" ? "Quel est le quotient ?" : "Quel est le résultat ?"});
   return S;
 }
@@ -6073,7 +6073,7 @@ function mkMes(kd){
     const W = {km:"kilomètres", hm:"hectomètres", dam:"décamètres", m:"mètres", dm:"décimètres", cm:"centimètres", mm:"millimètres", kg:"kilos", g:"grammes", L:"litres", dL:"décilitres", cL:"centilitres", mL:"millilitres"};
     const U = "km|hm|dam|m|dm|cm|mm|kg|g|L|dL|cL|mL", one = w => w.replace(/s$/, "");
     q.say = `${q.pre||""} ${q.t}`.replace(new RegExp(`□\\s*(${U})(?![\\p{L}])`, "gu"), (x,u) => ` combien de ${W[u]}`).replace(/□/g, " combien ")
-      .replace(new RegExp(`(\\d[\\d\\s\u202f]*)\\s*(${U})(?![\\p{L}])`, "gu"), (x,n,u) => `${n.trim()} ${n.trim()==="1" ? one(W[u]) : W[u]}`).replace(/\s+/g, " ").trim();
+      .replace(new RegExp(`(\\d[\\d\\s\u202f]*)\\s*(${U})(?![\\p{L}])`, "gu"), (x,n,u) => `${n.trim()} ${n.trim()==="1" ? one(W[u]) : W[u]}`).replace(/\s+=\s+/g, ", ça fait ").replace(/\s+/g, " ").trim().replace(/([^.!?])$/, "$1 ?");
     return q; };
   if(kd===1){ const st = rand(0,1) ? 0 : rand(1,3), len = rand(3, 9);
     return V({r:len, pic:rulerSvg(st, len), pre: st ? `Attention : le crayon ne commence pas au 0 !` : "Le crayon commence au 0 de la règle.", t:"Le crayon mesure □ cm", sh: st ? `Le crayon va de ${st} à ${st+len} : compte les centimètres entre les deux (ou fais ${st+len} − ${st}).` : "Regarde le nombre au bout du crayon.", sf: st ? `De ${st} à ${st+len}, il y a ${len} cm : ${st+len} − ${st} = ${len}.` : `Le crayon va de 0 à ${len} : il mesure ${len} cm.`}); }
@@ -7215,7 +7215,8 @@ $("s-lesson").addEventListener("click", e=>{
   else if(b.id==="lesson-done" || b.id==="lesson-back"){ sfx("tap"); hush(); LES = null; show("learn"); }
   else if(b.id==="lesson-more"){ sfx("tap"); $("lesson-ex").innerHTML = LES.alt ? lessonExB(LES.id) : lessonEx(LES.id); }
   else if(b.id==="lesson-ai"){ sfx("tap"); aiExplain($("lesson-aibox"), b, aiLessonPrompt(LES.id), `<b>Autrement dit :</b> regarde bien le dessin, puis refais-le toi-même avec tes doigts ou avec de vrais objets (des pièces, des billes, des crayons). Ensuite, essaie avec un nombre plus petit, puis un peu plus grand.`); }
-  else if(b.id==="lesson-say"){ speak(plain(`${$("lesson-title").textContent}. ${$("lesson-rule").innerHTML}. Un exemple. ${$("lesson-ex").innerHTML}`)); }
+  else if(b.id==="lesson-say"){ const txt = el => { const c = el.cloneNode(true); c.querySelectorAll("svg,table,.posed,.tiles,.blocks").forEach(x=>x.remove()); return c.innerHTML; };   // la voix ne lit pas les dessins
+    speak(plain(`${$("lesson-title").textContent}. ${txt($("lesson-rule"))}. Un exemple. ${txt($("lesson-ex"))}`)); }
 });
 
 /* ---------- l'IA de Claude (capacité « sample »), toujours avec un repli sans IA ---------- */
@@ -10598,7 +10599,16 @@ function renderVoices(){
     : "Les voix de ce navigateur sont assez robotiques. Pour une voix bien plus naturelle sur PC, ouvrez l'appli avec Microsoft Edge : ses voix « naturelles » sont gratuites, et Pythagore les choisira tout seul.";
 }
 function hush(){ if(TTS_OK) try{ speechSynthesis.cancel(); }catch(e){} }
-const plain = html => String(html).replace(/<[^>]+>/g," ").replace(/\s+/g," ").replace(/×/g," fois ").replace(/−/g," moins ").replace(/÷/g," divisé par ").replace(/□/g," combien ").trim();
+/* unités dites en toutes lettres : « 3 cm » → « 3 centimètres », « 1 L » → « 1 litre », « en cm » → « en centimètres » */
+const UNIT_W = {km:"kilomètres", hm:"hectomètres", dam:"décamètres", m:"mètres", dm:"décimètres", cm:"centimètres", mm:"millimètres", kg:"kilos", g:"grammes", L:"litres", dL:"décilitres", cL:"centilitres", mL:"millilitres"};
+function unitWords(t){
+  const U = "km|hm|dam|m|dm|cm|mm|kg|g|L|dL|cL|mL", W = u => UNIT_W[u];
+  return String(t).replace(new RegExp(`(?:□|\\?)\\s*(${U})(?![\\p{L}'’])`, "gu"), (x,u) => ` combien de ${W(u)}`)
+    .replace(new RegExp(`(\\d)\\s*(${U})(?![\\p{L}'’])`, "gu"), (x,n,u) => `${n} ${W(u)}`)
+    .replace(/(?<![\d,])1 (kilomètre|hectomètre|décamètre|mètre|décimètre|centimètre|millimètre|kilo|gramme|litre|décilitre|centilitre|millilitre)s\b/g, "1 $1")
+    .replace(/(?<![\p{L}\d])(km|hm|dam|dm|cm|mm|kg|dL|cL|mL)(?![\p{L}'’])/gu, u => W(u));
+}
+const plain = html => unitWords(String(html).replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ").replace(/\s+/g," ")).replace(/×/g," fois ").replace(/−/g," moins ").replace(/÷/g," divisé par ").replace(/□/g," combien ").replace(/\s+/g," ").trim();
 function sayQ(q){
   if(!q) return "";
   if(q.op==="w") return q.t.split("□")[0].replace(/€/g," euros").trim();
