@@ -1413,6 +1413,8 @@ input[type="range"]{width:100%;accent-color:var(--primary)}
 .keypad.withcomma{grid-template-columns:repeat(6,1fr)}
 .keypad.withcomma .key{grid-column:span 2}
 .keypad.withcomma .key[data-k="0"],.keypad.withcomma .key.comma{grid-column:span 1}
+@media (max-height:820px) and (min-width:700px){ .key{min-height:44px !important;font-size:1.5rem !important;border-radius:14px !important} .keypad{gap:7px} .vpic svg.fracbar{width:min(250px,100%)} .vpic:has(svg.fracbar){gap:4px} }
+#s-lesson svg.blocks{max-height:130px;width:auto}
 .key{border:0;border-radius:18px;min-height:60px;background:var(--card);color:var(--ink);font-family:var(--f-display);font-weight:800;font-size:1.8rem;box-shadow:0 5px 0 var(--line);transition:transform .06s}
 .key:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
 .key.del{color:var(--ink-soft);font-size:1.4rem}
@@ -4111,10 +4113,10 @@ function migrate(d){
   const mm0 = isObj(d.mem) ? d.mem : {};
   out.mem = {lv: Math.round(num(mm0.lv,2,2,9)), st: Math.round(num(mm0.st,0,0,2)), n: int(mm0.n, 1e5), ok: int(mm0.ok, 1e6), run: Math.round(num(mm0.run,0,-9,9)), last: int(mm0.last, 1e6),
     hist: Array.isArray(mm0.hist) ? mm0.hist.filter(h=>Array.isArray(h)).slice(-10).map(h=>[Math.round(num(h[0],2,2,9)), h[1] ? 1 : 0]) : [], chunk: mm0.chunk===true};
-  if(isObj(co.n)) Object.entries(co.n).forEach(([k,v])=>{ if(COACH_IDS.has(k) && isObj(v)) out.coach.n[k] = {b: Math.round(num(v.b,0,0,5)), due: Math.round(num(v.due,0,0,1e6)), n: Math.round(num(v.n,0,0,1e6)), ok: Math.round(num(v.ok,0,0,1e6)), f: Math.round(num(v.f,0,0,1e6)), l: Math.round(num(v.l,0,0,1e6)), s: Math.round(num(v.s,0,0,100)), x: Math.round(num(v.x,0,0,9)), m: Math.round(num(v.m,0,0,2))}; });
+  if(isObj(co.n)) Object.entries(co.n).forEach(([k,v])=>{ if(COACH_IDS.has(k) && isObj(v)) out.coach.n[k] = {b: Math.round(num(v.b,0,0,5)), due: Math.round(num(v.due,0,0,1e6)), n: Math.round(num(v.n,0,0,1e6)), ok: Math.round(num(v.ok,0,0,1e6)), f: Math.round(num(v.f,0,0,1e6)), l: Math.round(num(v.l,0,0,1e6)), s: Math.round(num(v.s,0,0,100)), x: Math.round(num(v.x,0,0,9)), m: Math.round(num(v.m,0,0,2)), ...(num(v.pk,0,0,1e6) > 0 ? {pk: Math.round(num(v.pk,0,0,1e6))} : {})}; });
   out.coach.decoSeed = co.decoSeed===true;
   out.coach.numSeed = co.numSeed===true;
-  out.coach.stuck = Array.isArray(co.stuck) ? co.stuck.filter(x=>isObj(x) && COACH_IDS.has(x.id)).slice(0,10).map(x=>({id:x.id, d: Math.round(num(x.d,0,0,1e6)), m: Math.round(num(x.m,1,0,2)), pre: COACH_IDS.has(x.pre) ? x.pre : null})) : [];
+  out.coach.stuck = Array.isArray(co.stuck) ? co.stuck.filter(x=>isObj(x) && COACH_IDS.has(x.id)).slice(0,10).map(x=>({id:x.id, d: Math.round(num(x.d,0,0,1e6)), m: Math.round(num(x.m,1,0,2)), pre: COACH_IDS.has(x.pre) ? x.pre : null, ...(x.pause===true ? {pause:true} : {})})) : [];
   const cpl = isObj(co.plan) ? co.plan : {};
   if(Array.isArray(cpl.steps)) out.coach.plan = {d: Math.round(num(cpl.d,0,0,1e6)), nw: Math.round(num(cpl.nw,0,0,COACH_NEW_MAX)), ...(cpl.t0 ? {t0: Math.round(num(cpl.t0,0,0,1e14))} : {}), ...(cpl.short===true ? {short:true} : {}),
     steps: cpl.steps.filter(x=>isObj(x) && (((x.k==="new" || x.k==="rev") && COACH_IDS.has(x.id)) || x.k==="ecole" || x.k==="mem" || x.k==="flash" || x.k==="voix"
@@ -5646,7 +5648,7 @@ function mkFrac(kd){
   const v = rand(0,2);
   if(v===0){ const n = pick([2,3,4,5,10]); return V({r:n, pic:fracBar(n,n), t:`Une unité entière = □/${n}`, sh:"Une barre entière, c'est toutes les parts coloriées.", sf:`Toutes les parts : ${n}/${n} = 1 unité.`}); }
   if(v===1){ const n = pick([2,4,10]), u = rand(1,4), k = rand(1,n-1), tot = u*n+k; return V({r:u, pic:Array.from({length:u}, ()=>fracBar(n,n)).join("") + fracBar(n,k), t:`${tot}/${n} = □ unités et ${k}/${n}`, sh:`${n}/${n}, c'est 1 unité. Combien de fois ${n} dans ${tot} ?`, sf:`${tot}/${n} = ${u*n}/${n} + ${k}/${n} = ${NUMW(u,"unité")} et ${k}/${n}.`}); }
-  return V({r:10, pic:fracBar(10,10), t:"Dans une unité, il y a □ dixièmes", sh:"Coupe une barre en 10 parts égales.", sf:"1 unité = 10 dixièmes (10/10). C'est aussi pour ça que 0,1 = un dixième."});
+  return V({r:10, pic:fracBar(10,10), t:"Dans une unité, il y a □ dixièmes", sh:"Un dixième, c'est une des parts quand on coupe l'unité en parts égales. Compte les parts de la barre.", sf:"1 unité = 10 dixièmes (10/10). C'est aussi pour ça que 0,1 = un dixième."});
 }
 const mkComp = (a,tg) => ({cat:"comp", op:"c", a, b:tg, r:tg-a, t:`${fmt(a)} + □ = ${fmt(tg)}`});
 const mkDbl = n => ({cat:"half", op:"d", a:n, b:2, r:2*n, t:`Double de ${fmt(n)} = □`});
@@ -5742,7 +5744,7 @@ function strategy(q){
   }
   if(q.cat==="deco"){
     if(q.kd===1) return {h:`Imagine ${q.b} objets. Tu en mets ${q.a} d'un côté : combien en reste-t-il de l'autre côté ?`, f:`${q.b}, c'est ${q.a} et ${q.r}.`};
-    if(q.kd===2){ const n = q.b>10 ? q.b : 10+q.b, u = n-10; return {h:`${n}, c'est 1 dizaine (10) et ${u} unité${u>1?"s":""}.`, f:`${n} = 10 + ${u}.`}; }
+    if(q.kd===2){ const n = q.b>10 ? q.b : 10+q.b, u = n-10; return {h: q.r===10 ? `${n}, c'est 1 dizaine et ${u} unité${u>1?"s":""}. Et 1 dizaine, ça fait combien d'unités ?` : `${n}, c'est 1 dizaine (10) et encore quelques unités : compte à partir de 10 jusqu'à ${n}.`, f:`${n} = 10 + ${u}.`}; }
     if(q.kd===3) return {h:`Pour arriver à 10, ${q.a} a besoin de ${q.c}. Et ${q.b}, c'est ${q.c} + combien ?`, f:`${q.b}, c'est ${q.c} et ${q.r} : ${q.a} + ${q.c} = 10, puis 10 + ${q.r} = ${q.a+q.b}.`};
     return {h:`Pour descendre à 10, on enlève d'abord ${q.c}. Et ${q.b}, c'est ${q.c} + combien ?`, f:`${q.b}, c'est ${q.c} et ${q.r} : ${q.a} − ${q.c} = 10, puis 10 − ${q.r} = ${q.a-q.b}.`};
   }
@@ -6439,7 +6441,7 @@ function coachBuild(today){
   const C = D.coach, recs = Object.entries(C.n);
   const rk = v => v.b===0 ? 0 : v.b<=2 && v.n>0 ? 1 : 2;   // d'abord ce qui coince, puis ce qui est encore fragile ; le solide peut attendre un peu
   const due = recs.filter(([,v])=>v.due<=today).sort((a,b)=>rk(a[1])-rk(b[1]) || a[1].due-b[1].due || a[1].b-b[1].b).slice(0, D.court ? 2 : COACH_REV_MAX);
-  const struggling = recs.filter(([,v])=>v.b===0).length;
+  const struggling = recs.filter(([,v])=>v.b===0 && !(v.pk > today)).length;
   const revs = due.map(([id])=>({k:"rev", id, r:null})), steps = [];
   { const mixable = revs.filter(x=>x.id[0]==="c" && !((C.n[x.id]||{}).m) && (C.n[x.id]||{}).b>=1);
     if(mixable.length>=2){ const ids = mixable.slice(0,3).map(x=>x.id), at = revs.indexOf(mixable[0]), rest = revs.filter(x=>!ids.includes(x.id));
@@ -7784,7 +7786,7 @@ Propose une AUTRE façon de comprendre cette notion : une image de la vie de tou
 function renderStuckParents(){
   const C = D.coach, el = $("p-stuck"); if(!el) return;
   const list = (C.stuck||[]).filter(x=>COACH_IDS.has(x.id));
-  el.innerHTML = list.length ? `<ul class="stuck">${list.map(x=>`<li><b>Ça coince sur « ${esc(coachInfo(x.id).name)} »</b> (${new Date(x.d*864e5).toLocaleDateString("fr-FR")}) : j'ai changé de méthode (${MET_NAME[x.m]})${x.pre ? ` et je fais d'abord revoir « ${esc(coachInfo(x.pre).name)} »` : ""}.${C.n[x.id] && C.n[x.id].b>=2 ? " <span class=\"okk\">C'est reparti : réussie depuis.</span>" : ""}</li>`).join("")}</ul>`
+  el.innerHTML = list.length ? `<ul class="stuck">${list.map(x=>`<li><b>Ça coince sur « ${esc(coachInfo(x.id).name)} »</b> (${new Date(x.d*864e5).toLocaleDateString("fr-FR")}) : ${x.pause ? "toutes les méthodes ont été essayées : mise en pause 3 jours (pour qu'il réussisse autre chose en attendant), puis elle revient" : `j'ai changé de méthode (${MET_NAME[x.m]})`}${x.pre ? ` et je fais d'abord revoir « ${esc(coachInfo(x.pre).name)} »` : ""}.${C.n[x.id] && C.n[x.id].b>=2 ? " <span class=\"okk\">C'est reparti : réussie depuis.</span>" : ""}</li>`).join("")}</ul>`
     : `<p class="muted" style="margin:0">Rien ne coince pour l'instant. Quand une notion est ratée 2 fois de suite, Pythagore change de méthode et vous le note ici.</p>`;
 }
 
@@ -7829,6 +7831,7 @@ function coachRun(i, noLesson){
 function coachDone(c, sc, total){
   const C = D.coach, today = dayNum(), pct = total ? Math.round(100*sc/total) : 0;
   const step = C.plan.steps[c.i] && C.plan.steps[c.i].id===c.id ? C.plan.steps[c.i] : null;
+  let pause = false;
   let verdict = c.id==="mem" ? "mem" : c.id==="flash" ? "flash" : c.id==="voix" ? "voix" : c.id==="mix" ? "mix" : "ecole", days = 0, extra = null, stuck = null, flash = null;
   if(c.id==="flash"){
     const f = C.fl = flashRec(); flash = {sc, prev: f.best};
@@ -7841,9 +7844,13 @@ function coachDone(c, sc, total){
     if(isNew){ verdict = pct>=90 ? "deja" : pct>=70 ? "ok" : "rate"; v.b = verdict==="deja" ? 2 : verdict==="ok" ? 1 : 0; C.lt = c.id[0]; }
     else { verdict = pct>=80 ? "bravo" : pct>=60 ? "moyen" : "rate"; v.b = verdict==="bravo" ? Math.min(5, seeded ? Math.max(4, v.b+1) : v.b+1) : verdict==="moyen" ? Math.max(1, v.b-1) : 0; }   // déjà su (bilan) et revérifié : on espace tout de suite
     if(verdict==="deja" || verdict==="ok" || verdict==="bravo") v.ok++;
-    if(verdict==="rate"){ v.x = (v.x||0) + 1; if(v.x>=2){ v.x = 0; v.m = Math.min(2, (v.m||0) + 1); stuck = coachStuck(c.id, v.m); } }
+    if(verdict==="rate"){ v.x = (v.x||0) + 1; if(v.x>=2){ v.x = 0;
+      if((v.m||0)>=2){ v.pk = today + 3; pause = true;      // toutes les méthodes essayées : on met de côté 3 jours (place à autre chose de réussi), puis on y revient
+        C.stuck = [{id:c.id, d:today, m:2, pre:null, pause:true}, ...(C.stuck||[]).filter(x=>x.id!==c.id)].slice(0,10); }
+      else { v.m = Math.min(2, (v.m||0) + 1); stuck = coachStuck(c.id, v.m); } } }
     else if(verdict!=="moyen"){ v.x = 0; if(v.m && v.b>=3) v.m--; }
     days = COACH_DAYS[v.b]; v.due = today + days;
+    if(pause){ days = 3; v.due = v.pk; } else if(v.pk && verdict!=="rate") delete v.pk;
     // déjà su : on passe tout de suite à la suite (4 notions nouvelles au plus par jour)
     if(verdict==="deja" && step && C.plan.nw < COACH_NEW_MAX && C.plan.steps.length<(D.court ? 3 : 8) && coachLate(today) <= COACH_REV_MAX+2){
       const nx = coachNextNew(C.plan.steps.map(x=>x.id), c.id[0]);
@@ -7868,7 +7875,7 @@ function coachDone(c, sc, total){
     setTimeout(statBackup, 1500);
     statPush("programme fini", {score: rs.length ? Math.round(rs.reduce((a,b)=>a+b,0)/rs.length) : 0, detail: `${C.plan.steps.length} étapes${D.gardien ? ` · code du jour ${dayCode()}` : ""}`}); }
   persist(); gardTitle();
-  return {verdict, days, extra, prize, pct, all, stuck, flash, reward};
+  return {verdict, days, extra, prize, pct, all, stuck, flash, reward, pause};
 }
 function coachMsg(res){
   const when = res.days===1 ? "demain" : `dans ${res.days} jours`;
@@ -7886,6 +7893,7 @@ function coachMsg(res){
       : res.flash.sc>res.flash.prev ? `Nouveau record : ${res.flash.sc} (avant : ${res.flash.prev}) ! Ces calculs deviennent automatiques dans ta tête.`
       : res.flash.sc===res.flash.prev ? `Record égalé : ${res.flash.sc} ! Bravo.`
       : `${res.flash.sc} bonne${res.flash.sc>1?"s":""} réponse${res.flash.sc>1?"s":""}. Ton record est ${res.flash.prev} : le plus important, c'est d'avoir juste. Tu le battras une autre fois !`}[res.verdict];
+  if(res.pause) return `Celle-là est vraiment dure pour l'instant, et ce n'est pas grave ! On la met de côté 3 jours : ton cerveau continue de la travailler en secret. En attendant, on fait autre chose, et on y revient.`;
   return m + (res.stuck ? ` Ça coince un peu : la prochaine fois, je t'explique autrement, avec un dessin${res.stuck.pre ? `, et on revoit d'abord « ${coachInfo(res.stuck.pre).name} »` : ""}.` : "") + (res.extra ? ` J'ajoute la suite à ton programme : « ${coachInfo(res.extra).name} ».` : "") + (res.prize ? ` Programme du jour terminé : +${COACH_PRIZE} plumes !` : "") + (res.reward==="won" ? ` Et tu as GAGNÉ ta récompense : ${D.reward.label} !` : res.reward==="step" ? ` Ta récompense avance : ${D.reward.n} / ${D.reward.goal}.` : "") + (res.all && codeOk() ? ` Ton code du jour pour l'ordinateur : ${dayCode()}.` : !res.all && D.gardien && !TRIAL && stepsLeft() ? ` Plus que ${etapes(stepsLeft())} et l'ordinateur est à toi !` : "");
 }
 const FLASH_IC = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4.5 13.5h6L9.5 22l9-12h-6z"/></svg>`;
@@ -10455,6 +10463,9 @@ function next(){
   const c=CAT[S.cur.cat];
   $("tag").textContent=c.nm; $("tag").style.setProperty("--c",`var(--c-${c.id})`);
   $("hintbtn").disabled=false;
+  // question suivante : on remonte (après une correction plus longue), mais le pavé et « Valider » restent toujours visibles (petit écran)
+  requestAnimationFrame(()=>{ try{ const k = $("key-ok"); if(!k || current!=="play") return; const over = k.getBoundingClientRect().bottom + window.scrollY - window.innerHeight + 10;
+    const top = Math.max(0, over); if(Math.abs(window.scrollY - top) > 2) window.scrollTo({top, behavior:"smooth"}); }catch(e){} });
   $("stuckbtn").disabled=false; $("stuckbtn").hidden = !aidKind(S.cur) || S.mode==="chrono" || S.mode==="course";
   const fb=$("feedback"); fb.className="bubble";
   const n=esc(D.name.trim());
@@ -10501,6 +10512,8 @@ function type(k){
   else if(S.typed.length<7 && !(S.typed.includes(",") && S.typed.split(",")[1].length>=2)) S.typed=(S.typed==="0"?"":S.typed)+k;
   $("slot").textContent = S.typed ? fmt(S.typed) : "";
 }
+/* petit écran (portable 1366×768) : on fait glisser la page pour que le bouton important reste visible */
+function keepInView(el){ requestAnimationFrame(()=>{ try{ const b = el.getBoundingClientRect(); if(b.bottom > window.innerHeight - 8) el.scrollIntoView({block:"end", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }catch(e){} }); }
 /* l'aide en images qui convient à la question (ou rien) */
 const aidKind = q => !q ? null : probParse(q) ? "bar" : cubesOk(q) ? "cubes" : lineOk(q) ? "line" : null;
 $("stuckbtn").addEventListener("click", ()=>{
@@ -10610,7 +10623,7 @@ function submit(){
     if(S.mode==="boss"){ S.lives--; if(S.lives<=0) S.over=true; const mo=$("boss-monster").firstElementChild; if(mo){ mo.classList.remove("attack"); void mo.getBoundingClientRect(); mo.classList.add("attack"); setTimeout(()=>mo.classList.remove("attack"), 520); } const sp = $("s-play"); sp.classList.remove("shake"); void sp.offsetWidth; sp.classList.add("shake"); }
     renderHud();
     if(S.mode==="chrono"||S.mode==="course"){ const g=S; setTimeout(()=>{ if(S===g) advance(); }, S.mode==="course"?1400:1800); }
-    else { S.waiting=true; $("key-ok").textContent = S.over ? "Voir" : "Suivant"; }
+    else { S.waiting=true; $("key-ok").textContent = S.over ? "Voir" : "Suivant"; keepInView($("key-ok")); }
   }
 }
 function advance(){
@@ -10835,7 +10848,7 @@ function finish(){
   lastMistakes = ms.map(m=>{ const {typed,hint,fromPool,...rest}=m; return rest; });
   lastGame = {kind:G.kind, mode:G.mode, level:G.level, cats:G.cats, tables:G.tables, adv:G.adv, tip:G.tip};
   setTimeout(pauseCheck, 900);
-  if(coachRes) setTimeout(()=>$("coach-next").focus({preventScroll:true}), 0);
+  if(coachRes){ setTimeout(()=>$("coach-next").focus({preventScroll:true}), 0); const cn = $("coach-next"); setTimeout(()=>{ if(current==="result" && !cn.hidden) keepInView(cn); }, 2200); }
 
   owlMood("s-result", stars>=2 ? "happy" : stars===0 ? "sad" : null);
   if(gained) sfx("level"); else if(stars===3 || record || nb.length) sfx("win");
