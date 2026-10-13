@@ -80,6 +80,7 @@ function onOpen() {
   SpreadsheetApp.getUi().createMenu('Calcul mental')
     .addItem('Copier la dernière sauvegarde', 'montrerSauvegarde')
     .addItem('Recalculer le résumé', 'installer')
+    .addItem('Mettre à jour le tableau de bord', 'majTableau')
     .addToUi();
 }
 function montrerSauvegarde() {
@@ -169,4 +170,75 @@ function resume_(ss) {
   r.getRange(2, 15, 1, 2).setValues([['Semaine', 'Bilan']]).setFontWeight('bold');
   if (semaines.length) r.getRange(3, 15, semaines.length, 2).setValues(semaines).setWrap(true);
   if (!jours.length) r.getRange('A3').setValue('Pas encore de données');
+  try { tableau_(ss, rows); } catch (err) { /* le tableau de bord ne doit jamais empêcher le résumé */ }
+}
+
+/** Menu : recalcule seulement le tableau de bord. */
+function majTableau() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const j = ss.getSheetByName('Journal');
+  const rows = j && j.getLastRow() > 1 ? j.getRange(2, 1, j.getLastRow() - 1, COLS.length).getValues() : [];
+  tableau_(ss, rows);
+}
+
+/* ---------- Onglet « Tableau de bord » : l'essentiel en un coup d'œil (lisible sur téléphone) ---------- */
+function tableau_(ss, rows) {
+  let t = ss.getSheetByName('Tableau de bord');
+  if (!t) { t = ss.insertSheet('Tableau de bord', 0); }
+  t.getCharts().forEach(c => t.removeChart(c));
+  t.clear();
+  const jn = x => jour_(x[0]), today = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  const dayMs = 864e5, dOf = s => new Date(String(s).slice(0, 10) + 'T12:00:00').getTime();
+  const ago = s => Math.round((dOf(today) - dOf(s)) / dayMs);
+  const etapes = rows.filter(x => x[3] === 'étape' && x[4] !== 'éclair' && x[6] !== '' && !isNaN(Number(x[6])));
+  const finis = rows.filter(x => x[3] === 'programme fini');
+  // par jour (30 derniers jours)
+  const pj = {};
+  for (let k = 29; k >= 0; k--) { const d = Utilities.formatDate(new Date(dOf(today) - k * dayMs), Session.getScriptTimeZone(), 'yyyy-MM-dd'); pj[d] = {n: 0, s: 0, fini: false}; }
+  etapes.forEach(x => { const d = jn(x); if (pj[d]) { pj[d].n++; pj[d].s += Number(x[6]); } });
+  finis.forEach(x => { const d = jn(x); if (pj[d]) pj[d].fini = true; });
+  const jours = Object.keys(pj).sort();
+  const last7 = jours.slice(-7), prev7 = jours.slice(-14, -7);
+  const moy = L => { const n = L.reduce((a, d) => a + pj[d].n, 0), s = L.reduce((a, d) => a + pj[d].s, 0); return n ? Math.round(s / n) : ''; };
+  const fini7 = last7.filter(d => pj[d].fini).length;
+  // notions apprises (verdict appris / déjà su / retenu), et ce qui coince encore
+  const appris = {}, dernier = {};
+  etapes.filter(x => x[4] === 'calcul' || x[4] === 'français').forEach(x => {
+    const nm = String(x[5]).replace(/^'/, ''), v = String(x[7]).replace(/^'/, '');
+    dernier[nm] = {v: v, d: jn(x), s: Number(x[6])};
+    if (/appris|déjà su|retenu/.test(v)) appris[nm] = appris[nm] || jn(x);
+  });
+  const nApp = Object.keys(appris).length, nApp7 = Object.keys(appris).filter(n => ago(appris[n]) < 7).length;
+  const coince = Object.keys(dernier).filter(n => /pas encore/.test(dernier[n].v) && ago(dernier[n].d) < 15).slice(0, 5);
+  const reussies = Object.keys(dernier).filter(n => /retenu|appris|déjà su/.test(dernier[n].v)).sort((a, b) => dernier[b].d < dernier[a].d ? -1 : 1).slice(0, 5);
+  const derniere = rows.length ? jn(rows[rows.length - 1]) + ' ' + heure_(rows[rows.length - 1][1]) : '—';
+  // mise en page
+  t.setColumnWidths(1, 6, 120); t.setColumnWidth(1, 210);
+  t.getRange('A1').setValue('Calcul mental — tableau de bord').setFontSize(16).setFontWeight('bold');
+  t.getRange('A2').setValue("Dernière activité : " + derniere).setFontColor('#666666');
+  const tiles = [['Programmes finis (7 derniers jours)', fini7 + ' / 7'], ['Réussite moyenne (7 jours)', moy(last7) === '' ? '—' : moy(last7) + ' %'],
+                 ['Semaine d\'avant', moy(prev7) === '' ? '—' : moy(prev7) + ' %'], ['Notions apprises (en tout)', nApp], ['… dont cette semaine', nApp7]];
+  t.getRange(4, 1, tiles.length, 2).setValues(tiles.map(x => [x[0], "'" + x[1]]));
+  t.getRange(4, 1, tiles.length, 1).setFontWeight('bold');
+  t.getRange(4, 2, tiles.length, 1).setFontSize(14).setFontWeight('bold').setFontColor('#138548').setHorizontalAlignment('left');
+  t.getRange('A10').setValue('Ça coince (à surveiller)').setFontWeight('bold').setFontColor('#c4342b');
+  const cl = coince.length ? coince.map(n => ["'" + n]) : [["Rien de bloquant en ce moment"]];
+  t.getRange(11, 1, cl.length, 1).setValues(cl);
+  const r0 = 11 + Math.max(cl.length, 1) + 1;
+  t.getRange(r0, 1).setValue('Dernières réussites').setFontWeight('bold').setFontColor('#138548');
+  const rl = reussies.length ? reussies.map(n => ["'" + n]) : [["Pas encore de notion réussie"]];
+  t.getRange(r0 + 1, 1, rl.length, 1).setValues(rl);
+  // données des graphiques (à droite, en petit)
+  t.getRange(1, 8, 1, 3).setValues([['Jour', 'Étapes', 'Réussite %']]).setFontWeight('bold');
+  t.getRange(2, 8, jours.length, 3).setValues(jours.map(d => ["'" + d.slice(5).split('-').reverse().join('/'), pj[d].n, pj[d].n ? Math.round(pj[d].s / pj[d].n) : null]));
+  t.setColumnWidths(8, 3, 70);
+  const g1 = t.newChart().setChartType(Charts.ChartType.COLUMN).addRange(t.getRange(1, 8, jours.length + 1, 1)).addRange(t.getRange(1, 9, jours.length + 1, 1))
+    .setNumHeaders(1).setOption('title', 'Étapes faites par jour (30 jours)').setOption('legend', {position: 'none'}).setOption('colors', ['#0b6e99'])
+    .setPosition(r0 + rl.length + 3, 1, 0, 0).setOption('width', 560).setOption('height', 260).build();
+  const g2 = t.newChart().setChartType(Charts.ChartType.LINE).addRange(t.getRange(1, 8, jours.length + 1, 1)).addRange(t.getRange(1, 10, jours.length + 1, 1))
+    .setNumHeaders(1).setOption('title', 'Réussite par jour (%)').setOption('legend', {position: 'none'}).setOption('colors', ['#138548'])
+    .setOption('vAxis', {viewWindow: {min: 0, max: 100}}).setOption('interpolateNulls', true)
+    .setPosition(r0 + rl.length + 17, 1, 0, 0).setOption('width', 560).setOption('height', 260).build();
+  t.insertChart(g1); t.insertChart(g2);
+  t.setFrozenRows(0);
 }
