@@ -16,13 +16,14 @@
 #  - au lancement : cherche une mise à jour sur GitHub (petit écran avec le hibou), puis ouvre l'appli ;
 #  - -Ouvrir : (icône du bureau) mise à jour puis ouverture de l'appli, sans verrou ;
 #  - envoie les déblocages au tableau de suivi des parents (si configuré) ;
-#  - v4 : après le déblocage, reste discrètement en arrière-plan et REBLOQUE le lendemain (v5 : à partir de 16 h, réglable : "heureVerrou"),
+#  - v4 : après le déblocage, reste discrètement en arrière-plan et REBLOQUE le lendemain (v5 : à partir de 16 h, réglable : "heureVerrou" ;
+#    v10 : "heureVerrou": 0 = verrou toute la journée, dès minuit ; réglable aussi à distance par version.json, qui l'emporte sur config.json),
 #    même si la session n'a jamais été fermée (PC en veille ou allumé toute la nuit).
 #  En cas de problème, le gardien s'arrête (il ne bloque jamais l'enfant par erreur).
 #  Compatible Windows PowerShell 5.1 (Windows 10 / 11).
 # ============================================================================
 param([switch]$Test, [switch]$Ouvrir)
-$GardienVersion = 9
+$GardienVersion = 10
 
 $ErrorActionPreference = 'Stop'
 $Self = $MyInvocation.MyCommand.Path
@@ -59,11 +60,15 @@ $ParentCode = [string]$Cfg.codeParents
 $MinutesMax = [int]$Cfg.minutesMax
 if ($MinutesMax -lt 5) { $MinutesMax = 30 }
 # Le verrou ne s'applique qu'entre l'heure du verrou (16 h par défaut) et 5 h le lendemain matin : avant, l'ordinateur est libre.
+function Get-LockHour($v) { try { $h = [int]$v; if ($h -eq 0 -or ($h -ge 5 -and $h -le 23)) { return $h } } catch { }; return $null }   # 0 = dès minuit
 $LockHour = 16
-if ($Cfg.PSObject.Properties.Name -contains 'heureVerrou') { try { $LockHour = [int]$Cfg.heureVerrou } catch { $LockHour = 16 } }
-if ($LockHour -lt 5 -or $LockHour -gt 23) { $LockHour = 16 }
-function Get-LockDay([datetime]$t) { if ($t.Hour -lt 5) { return $t.Date.AddDays(-1).ToString('yyyy-MM-dd') } else { return $t.Date.ToString('yyyy-MM-dd') } }
-function Test-LockWindow([datetime]$t) { return ($t.Hour -ge $LockHour -or $t.Hour -lt 5) }
+if ($Cfg.PSObject.Properties.Name -contains 'heureVerrou') { $h = Get-LockHour $Cfg.heureVerrou; if ($null -ne $h) { $LockHour = $h } }
+try {   # réglage à distance (version.json, gardé dans version-locale.json) : il l'emporte sur config.json
+  $lv0 = Get-Content -Path (Join-Path $Dir 'version-locale.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+  if ($lv0.PSObject.Properties.Name -contains 'heureVerrou') { $h = Get-LockHour $lv0.heureVerrou; if ($null -ne $h) { $LockHour = $h } }
+} catch { }
+function Get-LockDay([datetime]$t) { if ($LockHour -eq 0) { return $t.Date.ToString('yyyy-MM-dd') }; if ($t.Hour -lt 5) { return $t.Date.AddDays(-1).ToString('yyyy-MM-dd') } else { return $t.Date.ToString('yyyy-MM-dd') } }
+function Test-LockWindow([datetime]$t) { if ($LockHour -eq 0) { return $true }; return ($t.Hour -ge $LockHour -or $t.Hour -lt 5) }
 $StateFile = Join-Path $Dir 'etat.json'
 $EdgeProfile = Join-Path $Dir 'edge-profil'
 $AppFile = Join-Path $Dir 'appli.html'
@@ -145,6 +150,9 @@ Add-Type -AssemblyName System.Drawing
 $Start = Get-Date
 $LocalVer = Join-Path $Dir 'version-locale.json'
 function Get-LocalVer { try { return Get-Content -Path $LocalVer -Raw -Encoding UTF8 | ConvertFrom-Json } catch { return [pscustomobject]@{ appli = ''; stats = '' } } }
+$script:RemoteLock = $null
+$script:Soir = ''   # heure de la lecture du soir réglée à distance (version.json « lectureSoir », ex. 20.75 = 20 h 45), passée à l'appli
+try { $lv1 = Get-LocalVer; if ($lv1.PSObject.Properties.Name -contains 'lectureSoir') { $script:Soir = [string]$lv1.lectureSoir } } catch { }
 function Update-App([switch]$Quiet) {
   $repo = [string]$Cfg.depot
   if (-not $repo) { $repo = 'https://raw.githubusercontent.com/Natchyyyy/calcul-mental-cm1/main' }
@@ -170,6 +178,11 @@ function Update-App([switch]$Quiet) {
     $stamp = [DateTime]::UtcNow.Ticks
     $rv = (Invoke-WebRequest -Uri "$repo/version.json?t=$stamp" -UseBasicParsing -TimeoutSec 6).Content | ConvertFrom-Json
     if ([string]$rv.stats) { $script:StatsUrl = [string]$rv.stats }
+    if ($rv.PSObject.Properties.Name -contains 'heureVerrou') {
+      $h = Get-LockHour $rv.heureVerrou
+      if ($null -ne $h) { $script:RemoteLock = $h; if ($h -ne $script:LockHour) { $script:LockHour = $h; Write-Log ("Heure du verrou réglée à distance : " + $(if ($h -eq 0) { 'dès minuit' } else { "$h h" })) } }
+    } elseif ($lv.PSObject.Properties.Name -contains 'heureVerrou') { $script:RemoteLock = $null }
+    if ($rv.PSObject.Properties.Name -contains 'lectureSoir' -and [string]$rv.lectureSoir -match '^\d{1,2}(\.\d{1,2})?$') { $script:Soir = [string]$rv.lectureSoir } else { $script:Soir = '' }
     $newApp = $false
     if ([string]$rv.appli -and [string]$rv.appli -ne [string]$lv.appli) {
       if ($splash) { $lab.Text = 'Mise à jour de l''appli…'; [System.Windows.Forms.Application]::DoEvents() }
@@ -192,7 +205,10 @@ function Update-App([switch]$Quiet) {
       Remove-Item -Force $gt -ErrorAction SilentlyContinue
     }
     $appVer = if ($newApp) { [string]$rv.appli } else { [string]$lv.appli }
-    [pscustomobject]@{ appli = $appVer; stats = $script:StatsUrl } | ConvertTo-Json | Set-Content -Path $LocalVer -Encoding UTF8
+    $lvo = [ordered]@{ appli = $appVer; stats = $script:StatsUrl }
+    if ($null -ne $script:RemoteLock) { $lvo.heureVerrou = $script:RemoteLock }
+    if ($script:Soir) { $lvo.lectureSoir = $script:Soir }
+    [pscustomobject]$lvo | ConvertTo-Json | Set-Content -Path $LocalVer -Encoding UTF8
     if ($newApp -and $splash) { $lab.Text = 'C''est à jour !'; [System.Windows.Forms.Application]::DoEvents(); Start-Sleep -Milliseconds 900 }
   } catch { Write-Log ("Pas de mise à jour (hors ligne ?) : " + $_.Exception.Message) }
   if ($splash) { try { $splash.Close(); $splash.Dispose() } catch { } }
@@ -200,6 +216,7 @@ function Update-App([switch]$Quiet) {
 function Build-Url {
   $script:Url = ([System.Uri]$AppFile).AbsoluteUri + '#gardien'
   if ($script:StatsUrl) { $script:Url += '&stats=' + [System.Uri]::EscapeDataString($script:StatsUrl) }
+  if ($script:Soir) { $script:Url += '&soir=' + $script:Soir }
 }
 if ($StartFree) { Update-App -Quiet } else { Update-App }
 if ($script:WasKilled) { Write-Log 'Gardien relancé (fermé pendant le programme ?).'; Send-Stat 'gardien relancé' 'fermé (ou PC redémarré) pendant le programme ?' }
@@ -323,7 +340,7 @@ function Enter-Free {
   try { Remove-Item -Force -ErrorAction SilentlyContinue $HeartFile } catch { }
   foreach ($cv in $script:Covers) { try { $cv.Hide() } catch { } }
   try { $form.Hide() } catch { }
-  Write-Log ("Mode libre jusqu'au prochain verrou ($LockHour h).")
+  Write-Log ("Mode libre jusqu'au prochain verrou (" + $(if ($LockHour -eq 0) { 'minuit' } else { "$LockHour h" }) + ").")
 }
 # arrêt complet (erreur, redémarrage) : ne bloque jamais l'enfant
 function Exit-Gardien {

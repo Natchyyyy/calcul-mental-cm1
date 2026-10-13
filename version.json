@@ -1,5 +1,7 @@
 {
-  "appli": "2026-10-14.0010",
-  "gardien": 9,
-  "stats": "https://script.google.com/macros/s/AKfycbyo8sr1D9yx_O-tZmefIVF9rvf3GwZMlxpTOuGm6S2MfcPgsmRhmx6TW1UNN2RUEsTg/exec"
+  "appli": "2026-10-15.0130",
+  "gardien": 10,
+  "stats": "https://script.google.com/macros/s/AKfycbyo8sr1D9yx_O-tZmefIVF9rvf3GwZMlxpTOuGm6S2MfcPgsmRhmx6TW1UNN2RUEsTg/exec",
+  "heureVerrou": 0,
+  "lectureSoir": 20.75
 }
