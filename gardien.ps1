@@ -8,7 +8,10 @@
 #  - si l'enfant ferme l'appli avant d'avoir fini son programme du jour,
 #    affiche un écran qui demande le CODE DU JOUR (donné par l'appli à la fin
 #    du programme), ou le code des parents ;
-#  - au bout de « minutesMax » minutes, l'ordinateur se débloque de toute façon ;
+#  - au bout de « minutesMax » minutes ACTIVES PASSÉES DANS LE PROGRAMME DU JOUR, l'ordinateur se débloque de toute façon
+#    (v9 : l'entraînement libre et les jeux ne comptent pas ; filet de sécurité : 3 × minutesMax de temps actif en tout) ;
+#  - v9 : fermer l'écran du code ou les caches par le Gestionnaire des tâches ne débloque plus (le gardien se relance) ;
+#    la surveillance de chaque minute ne fait plus clignoter de fenêtre noire (console cachée) ;
 #  - une fois débloqué, ne fait plus rien jusqu'au lendemain.
 #  - au lancement : cherche une mise à jour sur GitHub (petit écran avec le hibou), puis ouvre l'appli ;
 #  - -Ouvrir : (icône du bureau) mise à jour puis ouverture de l'appli, sans verrou ;
@@ -19,7 +22,7 @@
 #  Compatible Windows PowerShell 5.1 (Windows 10 / 11).
 # ============================================================================
 param([switch]$Test, [switch]$Ouvrir)
-$GardienVersion = 8
+$GardienVersion = 9
 
 $ErrorActionPreference = 'Stop'
 $Self = $MyInvocation.MyCommand.Path
@@ -82,7 +85,8 @@ function Send-Stat([string]$type, [string]$detail) {
   if (-not $script:StatsUrl) { return }
   try {
     $min = [int]($script:ActiveSec / 60)
-    $body = @{ date = $script:Today; heure = (Get-Date).ToString('HH:mm'); enfant = ''; type = $type; domaine = 'ordinateur'; notion = ''; detail = "$detail (après $min min actives)" } | ConvertTo-Json -Compress
+    $all = [int]($script:AllSec / 60)
+    $body = @{ date = $script:Today; heure = (Get-Date).ToString('HH:mm'); enfant = ''; type = $type; domaine = 'ordinateur'; notion = ''; detail = "$detail (après $min min dans le programme, $all min actives en tout)" } | ConvertTo-Json -Compress
     Invoke-WebRequest -Uri $script:StatsUrl -Method Post -Body ([System.Text.Encoding]::UTF8.GetBytes($body)) -ContentType 'text/plain; charset=utf-8' -UseBasicParsing -TimeoutSec 6 | Out-Null
   } catch { Write-Log ("Envoi au suivi impossible : " + $_.Exception.Message) }
 }
@@ -199,13 +203,42 @@ function Build-Url {
 }
 if ($StartFree) { Update-App -Quiet } else { Update-App }
 if ($script:WasKilled) { Write-Log 'Gardien relancé (fermé pendant le programme ?).'; Send-Stat 'gardien relancé' 'fermé (ou PC redémarré) pendant le programme ?' }
+# Lancement sans fenêtre : « conhost.exe --headless » (Windows 10 2004 et plus récents). On l'essaie d'abord pour de vrai :
+# s'il ne marche pas sur ce PC, on garde l'ancienne façon (une petite fenêtre qui clignote vaut mieux qu'un gardien qui ne démarre pas).
+function Get-HeadlessAction([string]$exe, [string]$exeArgs) {
+  try {
+    if ([Environment]::OSVersion.Version.Build -lt 19041) { return $null }
+    $ch = Join-Path $env:WINDIR 'System32\conhost.exe'
+    if (-not (Test-Path $ch)) { return $null }
+    $okFile = Join-Path $Dir 'conhost-ok.txt'; $noFile = Join-Path $Dir 'conhost-non.txt'
+    if (Test-Path $noFile) { return $null }   # déjà essayé : ne marche pas sur ce PC
+    if (-not (Test-Path $okFile)) {
+      $probe = Join-Path $Dir 'conhost-test.txt'
+      Remove-Item -Force -ErrorAction SilentlyContinue $probe
+      Start-Process -FilePath $ch -ArgumentList @('--headless', "`"$exe`"", '-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', "Set-Content -Path '$probe' -Value ok") -WindowStyle Hidden | Out-Null
+      for ($k = 0; $k -lt 40 -and -not (Test-Path $probe); $k++) { Start-Sleep -Milliseconds 250 }
+      if (-not (Test-Path $probe)) { Set-Content -Path $noFile -Value 'non' -Encoding UTF8; Write-Log 'Console cachée indisponible sur ce PC : surveillance inchangée.'; return $null }
+      Remove-Item -Force -ErrorAction SilentlyContinue $probe
+      Set-Content -Path $okFile -Value 'ok' -Encoding UTF8
+    }
+    return (New-ScheduledTaskAction -Execute $ch -Argument "--headless `"$exe`" $exeArgs" -WorkingDirectory $Dir)
+  } catch { return $null }
+}
 # surveillance : une tâche planifiée relance le gardien chaque minute s'il a été fermé (créée une seule fois)
 if (-not $Ouvrir) {
   try {
     $wTask = 'Calcul mental CM1 (surveillance)'
-    if (-not (Get-ScheduledTask -TaskName $wTask -ErrorAction SilentlyContinue)) {
-      $wPs = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
-      $wAct = New-ScheduledTaskAction -Execute $wPs -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File `"$Self`"" -WorkingDirectory $Dir
+    $wPs = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    $wArgs = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -STA -File `"$Self`""
+    $wAct = New-ScheduledTaskAction -Execute $wPs -Argument $wArgs -WorkingDirectory $Dir
+    $wHead = Get-HeadlessAction $wPs $wArgs   # sans fenêtre noire qui clignote chaque minute (si Windows le permet)
+    if ($wHead) { $wAct = $wHead }
+    $wOld = Get-ScheduledTask -TaskName $wTask -ErrorAction SilentlyContinue
+    if ($wOld -and $wHead -and -not (@($wOld.Actions)[0].Execute -like '*conhost.exe')) {
+      try { Set-ScheduledTask -TaskName $wTask -Action $wHead | Out-Null; Write-Log 'Surveillance : console cachée (plus de fenêtre noire chaque minute).' }
+      catch { Write-Log ('Surveillance non modifiée : ' + $_.Exception.Message) }
+    }
+    if (-not $wOld) {
       $wSet = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew -ExecutionTimeLimit (New-TimeSpan -Hours 0)
       $wRep = (New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 1)).Repetition
       try {   # à l'ouverture de session + chaque minute
@@ -279,7 +312,9 @@ $script:Unlocked = [bool]$StartFree
 $script:Start = $Start
 $script:LastTick = $null
 $script:HeartN = 0
-$script:ActiveSec = 0      # temps passé devant l'ordinateur (clavier ou souris utilisés dans la dernière minute)
+$script:ActiveSec = 0      # temps passé dans le PROGRAMME DU JOUR (clavier ou souris utilisés dans la dernière minute)
+$script:AllSec = 0         # temps actif en tout (filet de sécurité : 3 × minutesMax)
+$script:SawProg = $false   # l'appli dit-elle « programme en cours » ? (sinon, ancienne appli : tout le temps compte)
 $Ctx = New-Object System.Windows.Forms.ApplicationContext
 # débloqué : on cache tout et on attend le lendemain (le gardien reste lancé)
 function Enter-Free {
@@ -321,6 +356,7 @@ function Start-NewDayCore {
   $script:Today = (Get-Date).ToString('yyyy-MM-dd')
   $script:Start = Get-Date
   $script:ActiveSec = 0
+  $script:AllSec = 0
   $st2 = Get-State
   if ($st2 -and $st2.jour -eq (Get-LockDay (Get-Date)) -and $st2.debloque) { $script:FreeDay = [string]$st2.jour; return }
   Update-App
@@ -447,7 +483,7 @@ function Try-Unlock {
 $btnOk.Add_Click({ Try-Unlock })
 $box.Add_KeyDown({ param($s, $e) if ($e.KeyCode -eq 'Enter') { $e.SuppressKeyPress = $true; Try-Unlock } })
 $btnBack.Add_Click({ $form.Hide(); $msg.Text = ''; $box.Text = ''; $script:Grace = 12; Start-App })
-$form.Add_FormClosing({ param($s, $e) if ($e.CloseReason -eq 'WindowsShutDown' -or $e.CloseReason -eq 'TaskManagerClosing') { return }; if (-not $script:Unlocked) { $e.Cancel = $true } })
+$form.Add_FormClosing({ param($s, $e) if ($e.CloseReason -eq 'WindowsShutDown') { return }; if (-not $script:Unlocked) { $e.Cancel = $true; if ($e.CloseReason -eq 'TaskManagerClosing') { Write-Log 'Fermeture de l''écran du code par le Gestionnaire des tâches : refusée.' } } })
 
 # --- Autres écrans : recouverts tant que ce n'est pas débloqué ---
 $script:Covers = @()
@@ -467,12 +503,13 @@ function New-Covers {
     $cl.Font = New-Object System.Drawing.Font('Segoe UI', 28, [System.Drawing.FontStyle]::Bold)
     $cl.Dock = 'Fill'; $cl.TextAlign = 'MiddleCenter'
     [void]$cv.Controls.Add($cl)
-    $cv.Add_FormClosing({ param($s, $e) if ($e.CloseReason -eq 'WindowsShutDown' -or $e.CloseReason -eq 'TaskManagerClosing') { return }; if (-not $script:Unlocked) { $e.Cancel = $true } })
+    $cv.Add_FormClosing({ param($s, $e) if ($e.CloseReason -eq 'WindowsShutDown') { return }; if (-not $script:Unlocked) { $e.Cancel = $true } })
     $script:Covers += $cv
   }
 }
 function Show-Covers {
   $key = (@([System.Windows.Forms.Screen]::AllScreens | ForEach-Object { [string]$_.Bounds }) -join ';')
+  if (@($script:Covers | Where-Object { $_.IsDisposed }).Count -gt 0) { $script:ScreensKey = ''; Write-Log 'Cache d''un écran fermé de force : refait.' }
   if ($key -ne $script:ScreensKey) {
     if ($script:ScreensKey) { Write-Log 'Écrans changés : caches refaits.' }
     $script:ScreensKey = $key
@@ -530,16 +567,25 @@ $timer.Add_Tick({
       Write-Log 'Hors des heures du verrou : libre jusqu''à l''heure du verrou.'; Enter-Free; return
     }
     if ($d -ne $script:Today) { $script:Today = $d; $script:Start = $now }   # minuit pendant le verrou : nouveau code (le temps actif continue)
-    if ($script:LastTick -and ($now - $script:LastTick).TotalMinutes -gt 60 -and $now.Hour -ge 5) { $script:ActiveSec = 0; Write-Log 'Longue pause (veille) : temps actif remis à zéro.' }
+    if ($script:LastTick -and ($now - $script:LastTick).TotalMinutes -gt 60 -and $now.Hour -ge 5) { $script:ActiveSec = 0; $script:AllSec = 0; Write-Log 'Longue pause (veille) : temps actif remis à zéro.' }
+    if ($form.IsDisposed) { Write-Log 'Écran du code fermé de force : le gardien se relance.'; Send-Stat 'gardien relancé' 'écran du code fermé de force'; Restart-Self; return }
     $script:LastTick = $now
     $script:HeartN = ($script:HeartN + 1) % 15; if ($script:HeartN -eq 0) { Write-Heart }
     $idle = 0; if ($script:Win32) { try { $idle = [GardienW]::IdleMs() } catch { $idle = 0 } }
-    if ($idle -lt 60000) { $script:ActiveSec += 2 }
-    if ($script:ActiveSec / 60 -ge $MinutesMax) {                                # plafond de temps ACTIF atteint : c'est bon pour aujourd'hui
-      Set-Unlocked "plafond de $MinutesMax minutes"; Enter-Free; return
-    }
     $running = Test-AppRunning
     $script:Running = $running
+    $inProg = $running -and $script:LastTitle -match 'programme en cours'
+    if ($running -and $script:LastTitle -match 'programme en cours|hors programme') { $script:SawProg = $true }   # appli récente : elle dit où en est l'enfant
+    if ($idle -lt 60000) {
+      $script:AllSec += 2
+      if ($inProg -or -not $script:SawProg) { $script:ActiveSec += 2 }   # seul le temps passé dans le programme du jour compte
+    }
+    if ($script:ActiveSec / 60 -ge $MinutesMax) {                                # plafond de temps ACTIF dans le programme : c'est bon pour aujourd'hui
+      Set-Unlocked "plafond de $MinutesMax minutes dans le programme"; Enter-Free; return
+    }
+    if ($script:AllSec / 60 -ge 3 * $MinutesMax) {                                # filet de sécurité (programme impossible à finir ?)
+      Set-Unlocked ("plafond de sécurité : " + (3 * $MinutesMax) + " minutes actives sans finir le programme"); Enter-Free; return
+    }
     if ($running -and $script:LastTitle -notmatch 'Edge' -and $script:LastTitle -match 'code du jour obtenu (\d{4})' -and ($Matches[1] -eq (Get-DayCode $script:Today) -or $Matches[1] -eq (Get-DayCode (Get-LockDay $now)))) {   # programme fini (le matin, le week-end…) : pas besoin de taper le code
       Set-Unlocked 'programme du jour fini (vu dans l''appli)'; Enter-Free; return
     }
