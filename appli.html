@@ -1413,7 +1413,7 @@ input[type="range"]{width:100%;accent-color:var(--primary)}
 .keypad.withcomma{grid-template-columns:repeat(6,1fr)}
 .keypad.withcomma .key{grid-column:span 2}
 .keypad.withcomma .key[data-k="0"],.keypad.withcomma .key.comma{grid-column:span 1}
-@media (max-height:820px) and (min-width:700px){ .key{min-height:44px !important;font-size:1.5rem !important;border-radius:14px !important} .keypad{gap:7px} .vpic svg.fracbar{width:min(250px,100%)} .vpic:has(svg.fracbar){gap:4px} }
+@media (max-height:820px) and (min-width:700px){ .key{min-height:44px !important;font-size:1.5rem !important;border-radius:14px !important} .keypad{gap:7px} .vpic svg.fracbar{width:min(250px,100%)} .vpic:has(svg.fracbar){gap:4px} .vpic svg.clock{width:128px !important} .vpic svg.money{max-height:128px;width:auto} .vpic svg.blocks{max-height:120px;width:auto} .question .vpre{margin:2px 0 !important;font-size:.98rem} }
 #s-lesson svg.blocks{max-height:130px;width:auto}
 .key{border:0;border-radius:18px;min-height:60px;background:var(--card);color:var(--ink);font-family:var(--f-display);font-weight:800;font-size:1.8rem;box-shadow:0 5px 0 var(--line);transition:transform .06s}
 .key:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
@@ -4123,7 +4123,7 @@ function migrate(d){
         || (x.k==="mix" && Array.isArray(x.ids) && [...new Set(x.ids.filter(id=>typeof id==="string" && id[0]==="c" && COACH_IDS.has(id)))].length>=2))).slice(0,8)
       .map(x=>Object.assign({k:x.k, id: x.k==="ecole" || x.k==="mem" || x.k==="flash" || x.k==="voix" || x.k==="mix" ? x.k : x.id, r: typeof x.r==="number" && isFinite(x.r) ? Math.round(Math.min(100, Math.max(0, x.r))) : null},
         x.k==="flash" && typeof x.sc==="number" ? {sc: Math.round(num(x.sc,0,0,999))} : {},
-        x.k==="mix" ? {ids: [...new Set(x.ids.filter(id=>typeof id==="string" && id[0]==="c" && COACH_IDS.has(id)))].slice(0,4)} : {}))};
+        x.k==="mix" ? {ids: [...new Set(x.ids.filter(id=>typeof id==="string" && id[0]==="c" && COACH_IDS.has(id)))].slice(0,4), ...(x.quick===true ? {quick:true} : {})} : {}))};
   if(out.coach.plan && !out.coach.plan.steps.length) out.coach.plan.d = 0;
   if(isObj(co.fl)) out.coach.fl = {best: Math.round(num(co.fl.best,0,0,999)), last: Math.round(num(co.fl.last,0,0,1e6)),
     h: Array.isArray(co.fl.h) ? co.fl.h.filter(x=>Array.isArray(x) && x.length===2).slice(-30).map(x=>[Math.round(num(x[0],0,0,1e6)), Math.round(num(x[1],0,0,999))]) : []};
@@ -4146,7 +4146,7 @@ function migrate(d){
   const gg = isObj(d.gift) ? d.gift : {};
   out.gift = {n: Math.round(num(gg.n,0,0,99999)), last: typeof gg.last==="string" ? gg.last : null};
   out.played = Array.isArray(d.played) ? d.played.filter(x=>typeof x==="string" && /^\d{4}-\d{2}-\d{2}$/.test(x)).slice(-60) : [];
-  if(isObj(d.days) && typeof d.days.last==="string" && !out.played.includes(d.days.last)) out.played.push(d.days.last);
+  if(isObj(d.days) && typeof d.days.last==="string" && /^\d{4}-\d{2}-\d{2}$/.test(d.days.last) && !out.played.includes(d.days.last)) out.played.push(d.days.last);
   const tt = isObj(d.tts) ? d.tts : {};
   out.tts = {auto: tt.auto===true, rate: [0.8,1,1.2].includes(tt.rate) ? tt.rate : 1, voice: typeof tt.voice==="string" ? tt.voice.slice(0,120) : ""};
   out.events = {};
@@ -4320,6 +4320,7 @@ function statBackup(){
       body: JSON.stringify({type:"sauvegarde", date: dayStr(now), heure: `${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`, enfant: D.name.trim(), code})}).catch(()=>{});
   }catch(e){}
 }
+window.addEventListener("online", ()=>{ try{ statFlush(); }catch(e){} });   // internet revenu : la file d'attente part tout de suite
 async function statFlush(){
   if(statBusy || !STATS_URL || !(D.statQ||[]).length) return;
   statBusy = true;
@@ -5744,7 +5745,7 @@ function strategy(q){
   }
   if(q.cat==="deco"){
     if(q.kd===1) return {h:`Imagine ${q.b} objets. Tu en mets ${q.a} d'un côté : combien en reste-t-il de l'autre côté ?`, f:`${q.b}, c'est ${q.a} et ${q.r}.`};
-    if(q.kd===2){ const n = q.b>10 ? q.b : 10+q.b, u = n-10; return {h: q.r===10 ? `${n}, c'est 1 dizaine et ${u} unité${u>1?"s":""}. Et 1 dizaine, ça fait combien d'unités ?` : `${n}, c'est 1 dizaine (10) et encore quelques unités : compte à partir de 10 jusqu'à ${n}.`, f:`${n} = 10 + ${u}.`}; }
+    if(q.kd===2){ const n = q.b>10 ? q.b : 10+q.b, u = n-10; return {h: q.r===10 ? `${n}, c'est 1 dizaine et ${u} unité${u>1?"s":""}. Et 1 dizaine, ça fait combien d'unités ?` : q.r===n ? `1 dizaine (10) et encore ${u} unité${u>1?"s":""} : compte à partir de 10, ${u} de plus.` : `${n}, c'est 1 dizaine (10) et encore quelques unités : compte à partir de 10 jusqu'à ${n}.`, f:`${n} = 10 + ${u}.`}; }
     if(q.kd===3) return {h:`Pour arriver à 10, ${q.a} a besoin de ${q.c}. Et ${q.b}, c'est ${q.c} + combien ?`, f:`${q.b}, c'est ${q.c} et ${q.r} : ${q.a} + ${q.c} = 10, puis 10 + ${q.r} = ${q.a+q.b}.`};
     return {h:`Pour descendre à 10, on enlève d'abord ${q.c}. Et ${q.b}, c'est ${q.c} + combien ?`, f:`${q.b}, c'est ${q.c} et ${q.r} : ${q.a} − ${q.c} = 10, puis 10 − ${q.r} = ${q.a-q.b}.`};
   }
@@ -6439,9 +6440,9 @@ function coachNextNew(excl=[], prefer){
 const coachLate = today => Object.values(D.coach.n).filter(v=>v.due<=today).length;
 function coachBuild(today){
   const C = D.coach, recs = Object.entries(C.n);
-  const rk = v => v.b===0 ? 0 : v.b<=2 && v.n>0 ? 1 : 2;   // d'abord ce qui coince, puis ce qui est encore fragile ; le solide peut attendre un peu
+  const rk = v => v.b===0 ? 0 : (v.b<=2 && v.n>0) || today - v.due >= 14 ? 1 : 2;   // d'abord ce qui coince, puis ce qui est encore fragile ; le solide peut attendre un peu
   const due = recs.filter(([,v])=>v.due<=today).sort((a,b)=>rk(a[1])-rk(b[1]) || a[1].due-b[1].due || a[1].b-b[1].b).slice(0, D.court ? 2 : COACH_REV_MAX);
-  const struggling = recs.filter(([,v])=>v.b===0 && !(v.pk > today)).length;
+  const struggling = recs.filter(([,v])=>v.b===0 && v.n>0 && !(v.pk > today)).length;   // « ça coince » = travaillée et ratée (pas une brique juste réservée)
   const revs = due.map(([id])=>({k:"rev", id, r:null})), steps = [];
   { const mixable = revs.filter(x=>x.id[0]==="c" && !((C.n[x.id]||{}).m) && (C.n[x.id]||{}).b>=1);
     if(mixable.length>=2){ const ids = mixable.slice(0,3).map(x=>x.id), at = revs.indexOf(mixable[0]), rest = revs.filter(x=>!ids.includes(x.id));
@@ -6452,6 +6453,11 @@ function coachBuild(today){
   if(revs.length) steps.push(revs.shift());                 // une révision pour réveiller le cerveau
   if(nw) steps.push({k:"new", id:nw, r:null});              // puis la notion nouvelle, quand on est bien concentré
   steps.push(...revs);
+  if(!D.court){   // notions solides en retard : une étape « Révisions express » (3 questions chacune) pour ne pas les oublier
+    const inDue = new Set(due.map(([id])=>id));
+    const late = recs.filter(([id,v])=>v.due<=today && v.b>=3 && id[0]==="c" && !v.m && !inDue.has(id)).sort((a,b)=>a[1].due-b[1].due).slice(0,4).map(([id])=>id);
+    if(late.length>=2) steps.push({k:"mix", id:"mix", ids:late, quick:true, r:null});
+  }
   if(D.fr.school.words.length && frSchoolLeft().length) steps.push({k:"ecole", id:"ecole", r:null});
   if(steps.length && steps.length<7 && vxNeeded(today)) steps.push({k:"voix", id:"voix", r:null});          // lire à voix haute, un jour sur deux
   if(steps.length && steps.length<7 && flashNeeded(today)) steps.push({k:"flash", id:"flash", r:null});   // en dernier : un défi rapide pour finir
@@ -6508,7 +6514,7 @@ function flashQueue(){
 function coachEase(id){
   let pre = coachPre(id);
   for(let k=0; k<4 && pre && (PREREQ[pre]||[]).some(x=>!coachKnown(x)); k++) pre = (PREREQ[pre]||[]).find(x=>!coachKnown(x));   // la brique la plus basse qui manque
-  return pre && pre[0]==="c" && COACH_IDS.has(pre) ? coachInfo(pre) : null;
+  return pre && pre[0]==="c" && COACH_IDS.has(pre) && !(D.coach.n[pre] && D.coach.n[pre].pk > dayNum()) ? coachInfo(pre) : null;
 }
 function coachQueue(cat, p, n, easy){
   const q = [], seen = new Set();
@@ -7603,7 +7609,7 @@ function coachPre(id){
 /* 2 échecs de suite : on change de méthode, on note pour les parents, on revoit d'abord la notion d'avant */
 function coachStuck(id, m){
   const C = D.coach, today = dayNum(), pre = coachPre(id);
-  if(pre && COACH_IDS.has(pre)){
+  if(pre && COACH_IDS.has(pre) && !(C.n[pre] && C.n[pre].pk > today)){
     const o = C.n[pre];
     C.n[pre] = o ? Object.assign({}, o, {b: Math.min(o.b, 1), due: Math.min(o.due, today)}) : {b:0, due:today, n:0, ok:0, f:today, l:0, s:0, x:0, m:0};
     const j = C.plan.steps.map((x,i)=>[x,i]).reverse().find(([x])=>x.r==null && x.k==="rev" && x.id!==pre && x.id!==id);   // en échange, une révision de moins : le programme ne s'allonge pas
@@ -7808,18 +7814,19 @@ function coachRun(i, noLesson){
   const st = D.coach.plan.steps[i]; if(!st) return;
   if(!D.coach.plan.t0 && !TRIAL){ D.coach.plan.t0 = Date.now(); persist(); }
   const vv = D.coach.n[st.id], met = vv && vv.m || 0;
-  if((st.k==="new" || met>=1) && !noLesson){ openLesson(st.id, i, met>=1); return; }
+  const never = vv && vv.n===0 && vv.b===0;   // prérequis jamais vu (réservé quand ça coince) : avec sa leçon
+  if((st.k==="new" || met>=1 || never) && !noLesson){ openLesson(st.id, i, met>=1); return; }
   const c = {i, id:st.id};
   if(st.k==="ecole"){ frStart("ecole", {coach:c}); return; }
   if(st.k==="mem"){ openMem(i); return; }
   if(st.k==="voix"){ openVoix(i); return; }
   if(st.k==="flash" && !flashPool(true).length){ D.coach.plan.steps.splice(i,1); persist(); renderLearn(); return; }
   if(st.k==="flash"){ start({kind:"coach", coach:c, flash:true, label:"Éclair · 1 minute", queue:flashQueue(), level:3}); return; }
-  if(st.k==="mix"){ const per = 4, piles = st.ids.map(id=>{ const I = coachInfo(id); return coachQueue(I.cat, I.p, per, 0).map(q=>Object.assign(q, {nid:id})); }), qq = [];
+  if(st.k==="mix"){ const per = st.quick ? 3 : 4, piles = st.ids.map(id=>{ const I = coachInfo(id); return coachQueue(I.cat, I.p, per, 0).map(q=>Object.assign(q, {nid:id})); }), qq = [];
     let last = null;
     while(piles.some(x=>x.length)){ const ok = piles.map((x,k)=>k).filter(k=>piles[k].length && st.ids[k]!==last), pool = ok.length ? ok : piles.map((x,k)=>k).filter(k=>piles[k].length);
       const mx = Math.max(...pool.map(k=>piles[k].length)), top = pool.filter(k=>piles[k].length===mx), k = top[Math.floor(R()*top.length)]; qq.push(piles[k].shift()); last = st.ids[k]; }
-    start({kind:"coach", coach:Object.assign({}, c, {mix:st.ids.slice()}), label:"Révisions mélangées", queue:qq, mode:"serie", level:3}); return; }
+    start({kind:"coach", coach:Object.assign({}, c, {mix:st.ids.slice()}), label: st.quick ? "Révisions express" : "Révisions mélangées", queue:qq, mode:"serie", level:3}); return; }
   // quand ça coince : moins de questions, et des plus faciles mélangées (viser ~80 % de réussite)
   const I = coachInfo(st.id), n = st.k==="new" ? (I.dom==="c" ? (met ? 7 : 10) : (met ? 6 : FR_N)) : (met ? 4 : 5);
   if(I.dom==="f") frStart(I.fr, {coach:c, p:I.p, n, low: met ? (met>=2 ? .5 : .35) : 0});
@@ -7839,14 +7846,16 @@ function coachDone(c, sc, total){
   }
   if(c.id!=="ecole" && c.id!=="mem" && c.id!=="flash" && c.id!=="voix" && c.id!=="mix"){
     const isNew = step ? step.k==="new" : !C.n[c.id];
-    const v = C.n[c.id] = C.n[c.id] || {b:0, due:0, n:0, ok:0, f:today, l:0, s:0}, seeded = !isNew && v.n===0;
+    const v = C.n[c.id] = C.n[c.id] || {b:0, due:0, n:0, ok:0, f:today, l:0, s:0}, seeded = !isNew && v.n===0 && v.b>=2;
     v.n++; v.l = today; v.s = pct;
     if(isNew){ verdict = pct>=90 ? "deja" : pct>=70 ? "ok" : "rate"; v.b = verdict==="deja" ? 2 : verdict==="ok" ? 1 : 0; C.lt = c.id[0]; }
     else { verdict = pct>=80 ? "bravo" : pct>=60 ? "moyen" : "rate"; v.b = verdict==="bravo" ? Math.min(5, seeded ? Math.max(4, v.b+1) : v.b+1) : verdict==="moyen" ? Math.max(1, v.b-1) : 0; }   // déjà su (bilan) et revérifié : on espace tout de suite
     if(verdict==="deja" || verdict==="ok" || verdict==="bravo") v.ok++;
     if(verdict==="rate"){ v.x = (v.x||0) + 1; if(v.x>=2){ v.x = 0;
       if((v.m||0)>=2){ v.pk = today + 3; pause = true;      // toutes les méthodes essayées : on met de côté 3 jours (place à autre chose de réussi), puis on y revient
-        C.stuck = [{id:c.id, d:today, m:2, pre:null, pause:true}, ...(C.stuck||[]).filter(x=>x.id!==c.id)].slice(0,10); }
+        const pre = coachPre(c.id), okPre = pre && COACH_IDS.has(pre) && !(C.n[pre] && C.n[pre].pk > today);
+        if(okPre){ const o = C.n[pre]; C.n[pre] = o ? Object.assign({}, o, {b: Math.min(o.b, 1), due: Math.min(o.due, today+1)}) : {b:0, due:today+1, n:0, ok:0, f:today, l:0, s:0, x:0, m:0}; }   // pendant la pause : la brique d'en dessous, dès demain
+        C.stuck = [{id:c.id, d:today, m:2, pre: okPre ? pre : null, pause:true}, ...(C.stuck||[]).filter(x=>x.id!==c.id)].slice(0,10); }
       else { v.m = Math.min(2, (v.m||0) + 1); stuck = coachStuck(c.id, v.m); } } }
     else if(verdict!=="moyen"){ v.x = 0; if(v.m && v.b>=3) v.m--; }
     days = COACH_DAYS[v.b]; v.due = today + days;
@@ -7893,15 +7902,15 @@ function coachMsg(res){
       : res.flash.sc>res.flash.prev ? `Nouveau record : ${res.flash.sc} (avant : ${res.flash.prev}) ! Ces calculs deviennent automatiques dans ta tête.`
       : res.flash.sc===res.flash.prev ? `Record égalé : ${res.flash.sc} ! Bravo.`
       : `${res.flash.sc} bonne${res.flash.sc>1?"s":""} réponse${res.flash.sc>1?"s":""}. Ton record est ${res.flash.prev} : le plus important, c'est d'avoir juste. Tu le battras une autre fois !`}[res.verdict];
-  if(res.pause) return `Celle-là est vraiment dure pour l'instant, et ce n'est pas grave ! On la met de côté 3 jours : ton cerveau continue de la travailler en secret. En attendant, on fait autre chose, et on y revient.`;
-  return m + (res.stuck ? ` Ça coince un peu : la prochaine fois, je t'explique autrement, avec un dessin${res.stuck.pre ? `, et on revoit d'abord « ${coachInfo(res.stuck.pre).name} »` : ""}.` : "") + (res.extra ? ` J'ajoute la suite à ton programme : « ${coachInfo(res.extra).name} ».` : "") + (res.prize ? ` Programme du jour terminé : +${COACH_PRIZE} plumes !` : "") + (res.reward==="won" ? ` Et tu as GAGNÉ ta récompense : ${D.reward.label} !` : res.reward==="step" ? ` Ta récompense avance : ${D.reward.n} / ${D.reward.goal}.` : "") + (res.all && codeOk() ? ` Ton code du jour pour l'ordinateur : ${dayCode()}.` : !res.all && D.gardien && !TRIAL && stepsLeft() ? ` Plus que ${etapes(stepsLeft())} et l'ordinateur est à toi !` : "");
+  const m2 = res.pause ? `Celle-là est vraiment dure pour l'instant, et ce n'est pas grave ! On la met de côté 3 jours : ton cerveau continue de la travailler en secret. En attendant, on fait autre chose, et on y revient.` : m;
+  return m2 + (res.stuck && !res.pause ? ` Ça coince un peu : la prochaine fois, je t'explique autrement, avec un dessin${res.stuck.pre ? `, et on revoit d'abord « ${coachInfo(res.stuck.pre).name} »` : ""}.` : "") + (res.extra ? ` J'ajoute la suite à ton programme : « ${coachInfo(res.extra).name} ».` : "") + (res.prize ? ` Programme du jour terminé : +${COACH_PRIZE} plumes !` : "") + (res.reward==="won" ? ` Et tu as GAGNÉ ta récompense : ${D.reward.label} !` : res.reward==="step" ? ` Ta récompense avance : ${D.reward.n} / ${D.reward.goal}.` : "") + (res.all && codeOk() ? ` Ton code du jour pour l'ordinateur : ${dayCode()}.` : !res.all && D.gardien && !TRIAL && stepsLeft() ? ` Plus que ${etapes(stepsLeft())} et l'ordinateur est à toi !` : "");
 }
 const FLASH_IC = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 2 4.5 13.5h6L9.5 22l9-12h-6z"/></svg>`;
 function coachStepTxt(st){
   if(st.k==="voix" && st.r!=null) return {name:"Lire à voix haute", sub:"fait aujourd'hui", dom:"f", ic:FR_ICON.lire};
   if(st.k==="voix"){ const sv = vxStory(), rp = D.voix.rep; return {name: rp ? `Relire à voix haute (${rp+1}e fois)` : "Lire à voix haute", sub:`${esc(sv.t)} · ${rp ? "2 min · plus vite que la dernière fois ?" : "5 min"}`, dom:"f", ic:FR_ICON.lire}; }
   if(st.k==="flash"){ const b = flashRec().best; return {name:"Éclair", sub:`1 minute · des calculs que tu connais${b ? ` · record : ${b}` : ""}`, dom:"e", ic:FLASH_IC}; }
-  if(st.k==="mix") return {name:"Révisions mélangées", sub:`${st.ids.length} notions mélangées : ${st.ids.map(id=>esc(coachInfo(id).name)).join(" · ")}`, dom:"c", ic:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h4l10 10h4M3 17h4L17 7h4"/><path d="M18 4l3 3-3 3M18 14l3 3-3 3"/></svg>`};
+  if(st.k==="mix") return {name: st.quick ? "Révisions express" : "Révisions mélangées", sub:`${st.ids.length} notions ${st.quick ? "bien sues, juste pour vérifier" : "mélangées"} : ${st.ids.map(id=>esc(coachInfo(id).name)).join(" · ")}`, dom:"c", ic:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7h4l10 10h4M3 17h4L17 7h4"/><path d="M18 4l3 3-3 3M18 14l3 3-3 3"/></svg>`};
   if(st.k==="mem") return {name:"Mon cerveau qui retient", sub:`Apprendre à apprendre · ${MEM_STAGE[D.mem.st]} · 3 min`, dom:"m", ic:MEM_BRAIN};
   if(st.k==="ecole"){ const n = D.fr.school.words.length; return {name:"Mes mots de la semaine", sub:`Dictée de l'école · ${n} mot${n>1?"s":""}`, dom:"f", ic:FR_ICON.mots}; }
   const I = coachInfo(st.id), v = D.coach.n[st.id];
@@ -10464,8 +10473,8 @@ function next(){
   $("tag").textContent=c.nm; $("tag").style.setProperty("--c",`var(--c-${c.id})`);
   $("hintbtn").disabled=false;
   // question suivante : on remonte (après une correction plus longue), mais le pavé et « Valider » restent toujours visibles (petit écran)
-  requestAnimationFrame(()=>{ try{ const k = $("key-ok"); if(!k || current!=="play") return; const over = k.getBoundingClientRect().bottom + window.scrollY - window.innerHeight + 10;
-    const top = Math.max(0, over); if(Math.abs(window.scrollY - top) > 2) window.scrollTo({top, behavior:"smooth"}); }catch(e){} });
+  requestAnimationFrame(()=>{ try{ const k = $("key-ok"); if(!k || current!=="play") return; const over = k.getBoundingClientRect().bottom + window.scrollY - window.innerHeight + 10, qtop = $("tag").getBoundingClientRect().top + window.scrollY - 12;
+    const top = Math.max(0, Math.min(over, qtop));   /* le pavé visible, mais jamais au prix du haut de la question */ if(Math.abs(window.scrollY - top) > 2) window.scrollTo({top, behavior:"smooth"}); }catch(e){} });
   $("stuckbtn").disabled=false; $("stuckbtn").hidden = !aidKind(S.cur) || S.mode==="chrono" || S.mode==="course";
   const fb=$("feedback"); fb.className="bubble";
   const n=esc(D.name.trim());
@@ -10473,6 +10482,7 @@ function next(){
   if(S.cur.guided){ fb.className = "bubble hint"; fb.innerHTML = `<b>On le fait ensemble${S.i===0 ? "" : " (encore un)"} :</b><div class="strat">${strategy(S.cur).h}</div>`; $("hintbtn").disabled = true; }
   else fb.innerHTML = prevG ? `<b>À toi tout seul maintenant !</b> Tu as vu comment faire.` : S.flash && S.answered===0 ? `<b>Éclair :</b> 1 minute, que des calculs que tu connais. ${S.flashBest ? `Ton record : <b>${S.flashBest}</b>. Juste d'abord, vite ensuite !` : "Juste d'abord, vite ensuite !"}`
     : S.answered===0 ? `${n?`À toi, <b>${n}</b> ! `:""}Tape ta réponse puis Valider. Bloqué ? Touche Astuce.`
+    : S.cur.defi ? `<b>Petit défi :</b> un calcul du niveau au-dessus, parce que tu es en forme ! Si tu te trompes, ça ne compte pas.`
     : S.cur.easy ? `Un plus facile pour souffler : ${esc(CAT[S.cur.cat].nm.toLowerCase())}.`
     : S.cur.again ? `Le revoilà ! Tu l'as raté tout à l'heure. Tu te souviens de la bonne réponse ?`
     : S.cur.fromPool ? `Celui-là, tu l'avais raté. Tu t'en souviens ?` : pick(["Et celui-là ?","À toi !","On continue !","Allez !","Je t'écoute !"]);
@@ -10513,7 +10523,10 @@ function type(k){
   $("slot").textContent = S.typed ? fmt(S.typed) : "";
 }
 /* petit écran (portable 1366×768) : on fait glisser la page pour que le bouton important reste visible */
-function keepInView(el){ requestAnimationFrame(()=>{ try{ const b = el.getBoundingClientRect(); if(b.bottom > window.innerHeight - 8) el.scrollIntoView({block:"end", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }catch(e){} }); }
+function keepInView(el, cap){ requestAnimationFrame(()=>{ try{ const b = el.getBoundingClientRect(); if(b.bottom <= window.innerHeight - 8) return;
+  let top = window.scrollY + b.bottom - window.innerHeight + 12;
+  if(cap){ const c = cap.getBoundingClientRect(); top = Math.min(top, window.scrollY + c.top - 8); }      // jamais plus haut que le début de la correction
+  if(top > window.scrollY + 1) window.scrollTo({top, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth"}); }catch(e){} }); }
 /* l'aide en images qui convient à la question (ou rien) */
 const aidKind = q => !q ? null : probParse(q) ? "bar" : cubesOk(q) ? "cubes" : lineOk(q) ? "line" : null;
 $("stuckbtn").addEventListener("click", ()=>{
@@ -10567,6 +10580,30 @@ function errDiag(q, v){
   if(r!==0 && (v===r*10 || v*10===r)) return "Attention au nombre de zéros.";
   return "";
 }
+/* Réglage en direct (programme du jour) : viser 70 à 85 % de réussite sur ses 6 dernières réponses.
+   En dessous : la question suivante devient plus facile (palier d'en dessous, ou la brique qui manque) ; elle ne compte pas pour la notion.
+   Au-dessus : une fois par séance, un « petit défi » du palier au-dessus (ne compte pas non plus). Séance courte (révision) : on ajoute au lieu de remplacer. */
+const ADAPT_LOW = .7, ADAPT_HIGH = .85;
+function adaptNext(q, ok){
+  if(!S || S.kind!=="coach" || !S.coach || !S.queue || S.mode!=="serie" || S.flash || q.guided) return;
+  S.win = (S.win||[]).concat([ok]).slice(-6);
+  const n = S.win.length, rate = S.win.filter(Boolean).length / n, nx = S.queue[S.i+1];
+  if(nx && (nx.again || nx.guided || nx.easy || nx.defi)) return;
+  const id = S.coach.mix ? (nx ? nx.nid : q.nid) : S.coach.id; if(!id || id[0]!=="c" || !COACH_IDS.has(id)) return;
+  const I = coachInfo(id), keep = S.coach.mix ? {nid: id} : {};
+  const normal = S.queue.slice(S.i+1).filter(x=>!x.easy && !x.again && !x.guided && !x.defi && (!S.coach.mix || x.nid===id)).length;
+  const put = (x, replace, defi) => { if(replace) S.queue[S.i+1] = x; else { S.queue.splice(S.i+1, 0, x); S.total++; if(!defi) S.adIns = (S.adIns||0) + 1; } };
+  if(n>=4 && rate < ADAPT_LOW){
+    const replace = !!nx && normal>=4 && (S.adEasy||0) < Math.floor(S.queue.length/2);
+    if(!replace && (S.adIns||0) >= 2) return;           // séance courte : 2 questions faciles ajoutées au plus
+    let e = I.p>1 ? coachQueue(I.cat, I.p-1, 1, 0)[0] : null;
+    if(!e){ const E = coachEase(id); if(E) e = coachQueue(E.cat, E.p, 1, 0)[0]; }
+    if(e){ put(Object.assign(e, {easy:true, adapt:true}, keep), replace); S.adEasy = (S.adEasy||0) + 1; }
+  } else if(n>=4 && rate >= ADAPT_HIGH && !S.adDefi && !S.adEasy && !S.eased && nx && normal>=1 && I.p < LADDER[I.cat].length){
+    const h = coachQueue(I.cat, I.p+1, 1, 0)[0];
+    if(h){ put(Object.assign(h, {defi:true}, keep), false, true); S.adDefi = true; }
+  }
+}
 function submit(){
   if(!S) return;
   if(S.waiting){ advance(); return; }
@@ -10577,7 +10614,8 @@ function submit(){
   S.cs = S.cs || {}; S.cs[q.cat] = ok ? (S.cs[q.cat]||0)+1 : 0; q.cstreak = S.cs[q.cat];
   S.answered++; if(ok) petFeed();
   if(ok) S.wrongRun = 0;
-  if(q.easy || q.guided){ S.easyN = (S.easyN||0) + 1; if(ok) S.easyOk = (S.easyOk||0) + 1; } const up = learn(q, ok); $("hintbtn").disabled=true; $("stuckbtn").disabled=true;
+  if(q.easy || q.guided || q.defi){ S.easyN = (S.easyN||0) + 1; if(ok) S.easyOk = (S.easyOk||0) + 1; } const up = learn(q, ok); $("hintbtn").disabled=true; $("stuckbtn").disabled=true;
+  adaptNext(q, ok);
   if(ok){
     S.score++; S.streak++; S.bestStreak=Math.max(S.bestStreak,S.streak); S.res[S.i]="ok";
     S.xp += q.hint ? 5 : 10; S.pl += 1;
@@ -10601,29 +10639,30 @@ function submit(){
     S.streak=0; S.res[S.i]="ko";
     const dg = errDiag(q, val), near = typeof q.r==="number" && Math.abs(val - q.r) <= Math.max(1, Math.round(Math.abs(q.r)*.1));
     S.mistakes.push(Object.assign({typed:val, typedTxt:S.typed, diag:dg}, q));
-    const backAt = !(S.queue && S.mode==="serie" && !q.again) ? -1 : S.coach && S.coach.mix ? S.queue.findIndex((x,k)=>k>=S.i+2 && x.nid===q.nid && !x.again && !x.easy) : (S.i+3 < S.queue.length ? S.i+3 : -1);
+    const backAt = !(S.queue && S.mode==="serie" && !q.again && !q.defi) ? -1 : S.coach && S.coach.mix ? S.queue.findIndex((x,k)=>k>=S.i+2 && x.nid===q.nid && !x.again && !x.easy) : (S.i+3 < S.queue.length ? S.i+3 : -1);
     const back = backAt>=0;
     if(back) S.queue[backAt] = Object.assign({}, S.queue[S.i], {again:true, fromPool:false, guided:false});
     // 2 erreurs de suite dans le programme : on glisse 3 calculs plus faciles (la brique qui manque), puis on y retourne
-    S.wrongRun = (S.wrongRun||0) + 1;
+    if(!q.defi) S.wrongRun = (S.wrongRun||0) + 1;
     let eased = null;
     if(S.kind==="coach" && S.coach && S.queue && S.mode==="serie" && !S.eased && S.wrongRun>=2 && !q.easy){
       const E = coachEase(S.coach.mix ? q.nid : S.coach.id);
-      if(E){ const slots = []; for(let k=S.i+1; k<S.queue.length && slots.length<3; k++) if(!S.queue[k].again && !(S.coach.mix && S.queue[k].nid!==q.nid)) slots.push(k);
+      const nrm = S.queue.slice(S.i+1).filter(x=>!x.easy && !x.again && !x.guided && !x.defi && (!S.coach.mix || x.nid===q.nid)).length, room = Math.min(3, Math.max(0, nrm - 3));   // garder 3 vraies questions pour mesurer la notion
+      if(E && room){ const slots = []; for(let k=S.i+1; k<S.queue.length && slots.length<room; k++) if(!S.queue[k].again && !S.queue[k].easy && !(S.coach.mix && S.queue[k].nid!==q.nid)) slots.push(k);
         const easy = coachQueue(E.cat, E.p, slots.length, 0);
         slots.forEach((k,j)=>{ S.queue[k] = Object.assign(easy[j], {easy:true}); });
-        if(slots.length){ S.eased = true; eased = E; } }
+        if(slots.length){ S.eased = true; eased = Object.assign({}, E, {k: slots.length}); } }
     }
     slot.classList.add("ko"); sfx("bad"); owlMood("s-play","sad");
     fb.className="bubble bad";
-    fb.innerHTML=`${near ? "Presque !" : "Pas tout à fait."} <span class="fix">${qFull(q)}</span>${dg ? `<div class="strat"><b>Ce qui s'est passé :</b> ${dg}</div>` : ""}<div class="strat">${strategy(q).f}</div>${cubesOk(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="cubes-open">${q.op==="x" ? "Voir en rectangle" : q.cat==="div" ? "Voir en paquets" : "Voir avec les cubes"}</button>` : ""}${lineOk(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="line-open">Voir sur la ligne</button>` : ""}${probParse(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="bar-open">Voir le schéma</button>` : ""}${back ? `<div class="strat again"><b>Retiens-le bien :</b> il va revenir dans un instant.</div>` : ""}${eased ? `<div class="strat again"><b>On souffle un peu :</b> 3 calculs plus faciles (${esc(eased.name)}), puis on y retourne.</div>` : ""}${S.mode==="chrono"||S.mode==="course" ? "" : `<button class="aibtn" id="ai-explain">Explique-moi autrement</button><div class="aibox" id="ai-box" aria-live="polite" hidden></div>`}`;
+    fb.innerHTML=`${near ? "Presque !" : "Pas tout à fait."} <span class="fix">${qFull(q)}</span>${dg ? `<div class="strat"><b>Ce qui s'est passé :</b> ${dg}</div>` : ""}<div class="strat">${strategy(q).f}</div>${cubesOk(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="cubes-open">${q.op==="x" ? "Voir en rectangle" : q.cat==="div" ? "Voir en paquets" : "Voir avec les cubes"}</button>` : ""}${lineOk(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="line-open">Voir sur la ligne</button>` : ""}${probParse(q) && S.mode!=="chrono" && S.mode!=="course" ? `<button class="btn sm" id="bar-open">Voir le schéma</button>` : ""}${back ? `<div class="strat again"><b>Retiens-le bien :</b> il va revenir dans un instant.</div>` : ""}${eased ? `<div class="strat again"><b>On souffle un peu :</b> ${eased.k>1 ? `${eased.k} calculs plus faciles` : "un calcul plus facile"} (${esc(eased.name)}), puis on y retourne.</div>` : ""}${S.mode==="chrono"||S.mode==="course" ? "" : `<button class="aibtn" id="ai-explain">Explique-moi autrement</button><div class="aibox" id="ai-box" aria-live="polite" hidden></div>`}`;
     S.aiGiven = S.typed;
     if(D.tts.auto) speak(`${near ? "Presque." : "Pas tout à fait."} ${dg ? plain(dg) + " " : ""}${sayAnswer(q)}`);
     if(S.mode==="survie") S.over=true;
     if(S.mode==="boss"){ S.lives--; if(S.lives<=0) S.over=true; const mo=$("boss-monster").firstElementChild; if(mo){ mo.classList.remove("attack"); void mo.getBoundingClientRect(); mo.classList.add("attack"); setTimeout(()=>mo.classList.remove("attack"), 520); } const sp = $("s-play"); sp.classList.remove("shake"); void sp.offsetWidth; sp.classList.add("shake"); }
     renderHud();
     if(S.mode==="chrono"||S.mode==="course"){ const g=S; setTimeout(()=>{ if(S===g) advance(); }, S.mode==="course"?1400:1800); }
-    else { S.waiting=true; $("key-ok").textContent = S.over ? "Voir" : "Suivant"; keepInView($("key-ok")); }
+    else { S.waiting=true; $("key-ok").textContent = S.over ? "Voir" : "Suivant"; keepInView($("key-ok"), $("feedback")); }
   }
 }
 function advance(){
@@ -10653,9 +10692,10 @@ function finish(){
 
   let stars, big, msg;
   if(G.mode==="serie"){
-    const ratio=G.total ? G.score/G.total : 0;
-    stars = ratio===1?3 : ratio>=.8?2 : ratio>=.5?1 : 0;
-    big = `${G.score} / ${G.total}`;
+    const dm = G.queue ? G.queue.filter((x,k)=>x && x.defi && G.res[k] && G.res[k]!=="ok").length : 0, tot = G.total - dm;   // un « petit défi » raté ne compte pas
+    const ratio=tot ? G.score/tot : 0;
+    stars = ratio>=1?3 : ratio>=.8?2 : ratio>=.5?1 : 0;
+    big = `${G.score} / ${tot}`;
     msg = G.kind==="redo"
       ? (ratio===1 ? `Toutes tes erreurs sont corrigées${N} !` : `Encore un essai et ce sera parfait${N}.`)
       : [`Continue de t'entraîner${N}, tu vas y arriver !`,`Pas mal${N}, encore un petit effort !`,`Très bon travail${N} !`,`Zéro faute, bravo${N} !`][stars];
@@ -10679,9 +10719,9 @@ function finish(){
   if(G.kind==="coach") STAT_MISS = (G.mistakes||[]).slice(0,12).map(m=>`${String(qFull(m)).replace(/<[^>]+>/g,"")} (a répondu ${m.typedTxt||m.typed}${m.diag ? ` : ${m.diag.split(":")[0].replace(/\.$/,"").toLowerCase()}` : ""})`);
   let coachRes = null;
   if(G.kind==="coach" && G.coach && G.coach.mix){
-    const per = G.coach.mix.map(id=>{ const ks = G.queue.map((q,k)=>[q,k]).filter(([q])=>q.nid===id && !q.easy && !q.guided && !q.again); return {id, n: ks.length, ok: ks.filter(([,k])=>G.res[k]==="ok").length}; });
+    const per = G.coach.mix.map(id=>{ const ks = G.queue.map((q,k)=>[q,k]).filter(([q])=>q.nid===id && !q.easy && !q.guided && !q.again && !q.defi); return {id, n: ks.length, ok: ks.filter(([,k])=>G.res[k]==="ok").length}; });
     const miss = STAT_MISS.slice(), parts = [], ms = D.coach.plan.steps[G.coach.i];
-    per.forEach(x=>{ if(!x.n) return; STAT_MISS = miss.filter((m,k)=>((G.mistakes||[])[k]||{}).nid===x.id); const r = x.n>=4 && x.n-x.ok===1 ? coachDone({i:-1, id:x.id}, 4, 5) : coachDone({i:-1, id:x.id}, x.ok, x.n); parts.push({id:x.id, v:r.verdict, ok:x.ok, n:x.n}); });
+    per.forEach(x=>{ if(!x.n) return; STAT_MISS = miss.filter((m,k)=>((G.mistakes||[])[k]||{}).nid===x.id); const r = x.n>=3 && x.n-x.ok===1 ? coachDone({i:-1, id:x.id}, 4, 5) : coachDone({i:-1, id:x.id}, x.ok, x.n); parts.push({id:x.id, v:r.verdict, ok:x.ok, n:x.n}); });
     STAT_MISS = miss;
     const mi = ms ? D.coach.plan.steps.indexOf(ms) : -1; if(mi>=0) G.coach.i = mi;
     coachRes = coachDone(G.coach, G.score - (G.easyOk||0), G.total - (G.easyN||0)); coachRes.mix = parts;
