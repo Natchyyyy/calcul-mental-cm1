@@ -800,6 +800,14 @@ body.fxwide .app{max-width:1180px}
 .fx-lvl svg{width:86px;height:86px}
 .fx-lvl b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-size:1.9rem;font-weight:900}
 .fx-lvl small{position:absolute;left:0;right:0;bottom:-16px;text-align:center;font-size:.7rem;letter-spacing:.1em;color:var(--fx-m);text-transform:uppercase}
+.fx-elo{display:flex;align-items:baseline;gap:7px;margin:2px 0 9px}
+.fx-elo b{font-family:var(--f-display);font-size:1.5rem;font-weight:900;color:var(--fx-o)}
+.fx-elo span{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fx-m);font-weight:800}
+.fx-form{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.fx-form .pill{width:17px;height:24px;border-radius:4px;position:relative;flex:0 0 auto}
+.fx-form .pill.prog::after{content:"";position:absolute;left:50%;bottom:3px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:rgba(255,255,255,.9)}
+.fx-form .pill.today{outline:2px solid #fff;outline-offset:1px}
+.fx-form .ft{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fx-m);font-weight:800;margin-right:4px}
 .fx-msg{display:flex;align-items:center;gap:10px;background:var(--fx-p2);border-left:4px solid var(--fx-g);border-radius:10px;padding:10px 14px;font-weight:700}
 .fx-msg.flat{border-left-color:var(--fx-b)}
 .fx-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
@@ -2506,7 +2514,7 @@ const COLORS = {
 };
 
 /* Skins (caisses) : 30 apparences du hibou, chacune avec sa rareté. r : 0 commun · 1 rare · 2 épique · 3 légendaire · 4 mythique */
-const RAR = [{nm:"Commun", col:"#8a9bb4", p:49.5},{nm:"Rare", col:"#3b82f6", p:28},{nm:"Épique", col:"#a855f7", p:14},{nm:"Légendaire", col:"#f59e0b", p:6},{nm:"Mythique", col:"#ef4444", p:2},{nm:"Ultime", col:"#ff2ec4", p:.5}];
+const RAR = [{nm:"Commun", col:"#8a9bb4", p:50},{nm:"Rare", col:"#3b82f6", p:28},{nm:"Épique", col:"#a855f7", p:14},{nm:"Légendaire", col:"#f59e0b", p:6},{nm:"Mythique", col:"#ef4444", p:2},{nm:"Ultime", col:"#ff2ec4", p:.5}];
 const SKINS = [
   {id:"sk_ardoise", nm:"Ardoise", r:0, c:{b:"#5f6b7d", belly:"#dfe5ee"}},
   {id:"sk_sable", nm:"Sable", r:0, c:{b:"#c8a165", belly:"#fbf0d9"}},
@@ -3394,7 +3402,7 @@ function creatureSVG(cr, eq, pal, cls){
   </svg>`;
 }
 /* skins des créatures : on reprend les motifs des skins du hibou ; une créature commune n'a ni légendaire ni mythique */
-const CSK_N = [{0:6,1:4,2:2},{0:6,1:5,2:3,3:1},{0:6,1:5,2:4,3:2},{0:6,1:6,2:4,3:2,4:1},{0:6,1:6,2:4,3:2,4:2},{0:6,1:6,2:4,3:3,4:3}];
+const CSK_N = [{0:6,1:4,2:2},{0:6,1:5,2:3,3:1},{0:6,1:5,2:4,3:2},{0:6,1:6,2:4,3:2,4:1},{0:6,1:6,2:4,3:2,4:2},{0:6,1:5,2:4,3:3,4:2}];
 const CSK = Object.create(null);
 CREA.forEach((cr,ci)=>{ if(cr.id==="hibou") return; const out = [];
   Object.entries(CSK_N[cr.r]).forEach(([t,n])=>{ const pool = SKINS.filter(k=>k.r===+t); for(let i=0;i<n;i++) out.push(pool[(i + ci*3) % pool.length].id); });
@@ -8442,7 +8450,7 @@ function statsData(){
   return {hT, hY, rT: fxRate(hT), rY: fxRate(hY), w1, w0, stDone, stAll, progDone: dd.includes(t), best, cur, learned, days60: days60.length, ms60,
     cats, wpmBest: Math.max(0, ...wpm), lus: (D.voix.hist||[]).length + (D.soir.hist||[]).length, tables: ALL_T.filter(x=>mastered(x)===9).length,
     flash: flashRec().best||0, frGames: D.fr.games||0, tot: D.totals, progs: C.days||0, recent, days,
-    ranks: statsRanks(t), months: statsMonths(), recs: statsRecs(t, dd), fr: statsFr(), cal: statsCal(t, dd)};
+    ranks: statsRanks(t), months: statsMonths(), recs: statsRecs(t, dd), fr: statsFr(), cal: statsCal(t, dd), form: statsForm(t, dd), elo: statsElo(t, dd)};
 }
 /* rang par matière (façon FACEIT) : paliers appris / paliers de la matière, et ceux gagnés cette semaine */
 function statsRanks(t){
@@ -8473,6 +8481,19 @@ function statsFr(){
   const by = FR_PARCOURS.map(P=>{ const st = D.fr.stats[P.id] || {n:0, ok:0}; return {id:P.id, nm:P.nm, n:st.n||0, p: st.n ? Math.round(100*st.ok/st.n) : null}; }).filter(x=>x.n>=5);
   const wpm = (D.voix.hist||[]).concat(D.soir.hist||[]).filter(h=>h && h.wpm>0).sort((a,b)=>(a.d||0)-(b.d||0)).map(h=>h.wpm).slice(-12);
   return {by, wpm};
+}
+/* forme récente : les 12 dernières journées jouées, du plus ancien au plus récent (barres façon FACEIT) */
+function statsForm(t, dd){
+  const out = [];
+  for(let k=0; k<120 && out.length<12; k++){ const h = D.hist[dnStr(t-k)]; if(h && (h.n || h.fg)){ out.unshift({d:t-k, p: h.n ? Math.round(100*h.ok/h.n) : null, prog: dd.includes(t-k)}); } }
+  return out;
+}
+/* un « score » façon FACEIT (indicatif, jamais affiché comme une note qui baisse brutalement) : notions sues, régularité, réussite */
+function statsElo(t, dd){
+  const learned = Object.values(D.coach.n||{}).filter(v=>v.n>0 && v.b>=2).length;
+  let n = 0, ok = 0; for(let k=0;k<14;k++){ const h = D.hist[dnStr(t-k)]; if(h){ n += h.n||0; ok += h.ok||0; } }
+  const rate = n ? ok/n : .6, days = (dd||[]).filter(d=>d>t-14).length;
+  return 500 + learned*18 + Math.round(rate*260) + days*14 + (D.fr.games||0)*2 + (flashRec().best||0)*3;
 }
 /* calendrier des 8 dernières semaines (lundi → dimanche) */
 function statsCal(t, dd){
@@ -8517,8 +8538,9 @@ function fxCount(root){
 function renderStats(){
   const box = $("stats-body"); if(!box) return;
   const S = statsData(), M = statsMsg(S), lp = lvlProgress(D.xp), lc = fxLvlColor(lp.l), N = esc(D.name.trim() || "Joueur");
-  const ring = (() => { const r = 36, c = 2*Math.PI*r, f = Math.max(0, Math.min(1, lp.pct/100));
-    return `<svg viewBox="0 0 86 86" aria-hidden="true"><circle cx="43" cy="43" r="${r}" fill="#0d0e10" stroke="#30343c" stroke-width="6"/><circle cx="43" cy="43" r="${r}" fill="none" stroke="${lc}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(c*f).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 43 43)"/></svg>`; })();
+  const ring = (() => { const f = Math.max(0, Math.min(1, lp.pct/100)), pts = n => { let d=""; for(let i=0;i<6;i++){ const a=(-90+i*60)*Math.PI/180; d += (i?"L":"M") + (43+n*Math.cos(a)).toFixed(1) + "," + (43+n*Math.sin(a)).toFixed(1); } return d+"Z"; };
+    const per = 6*38, dash = (per*f).toFixed(1);
+    return `<svg viewBox="0 0 86 86" aria-hidden="true"><path d="${pts(40)}" fill="#0d0e10" stroke="#30343c" stroke-width="5" stroke-linejoin="round"/><path d="${pts(40)}" fill="none" stroke="${lc}" stroke-width="5" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="${dash} 999" pathLength="${per}"/></svg>`; })();
   const tile = (k, v, unit, d) => `<div class="fx-tile"><span class="k">${k}</span><span class="v">${typeof v==="number" ? `<span data-cnt="${v}">${fmt(v)}</span>` : v}${unit ? `<small>${unit}</small>` : ""}</span>${d===undefined ? "" : d || `<span class="fx-d flat" style="visibility:hidden">·</span>`}</div>`;
   const minT = Math.round((S.hT.ms||0)/60000), minY = Math.round((S.hY.ms||0)/60000);
   const today = [
@@ -8545,7 +8567,9 @@ function renderStats(){
     return `<div class="fx-tile fx-rec${nw ? " new" : ""}"><span class="k">${lab}${nw ? `<span class="fx-badge">NOUVEAU</span>` : ""}</span><span class="v">${r ? `<span data-cnt="${r.v}">${fmt(r.v)}</span>` : "–"}${r && u ? `<small>${u}</small>` : ""}</span><span class="fx-d ${nw ? "up" : "flat"}" style="color:${nw ? "" : "var(--fx-m)"}">${r ? (nw ? "▲ aujourd'hui !" : progAgo(r.d)) : "à battre"}</span></div>`; }).join("")}</div></div>` : "";
   box.innerHTML = `<div class="fx-top"><div class="fx-av">${owlSVG(D.equip)}</div>
       <div><p class="fx-name">${N}</p><p class="fx-sub">Niveau ${lp.l} · ${esc(titleOf(lp.l))} · ${S.cur>=2 ? `🔥 ${S.cur} jours de suite` : `${S.days60} jour${S.days60>1?"s":""} joué${S.days60>1?"s":""} sur 60`}</p>
-        <div class="fx-xp"><span>${fmt(D.xp)} XP</span><span class="fx-xpbar"><i style="width:${Math.round(lp.pct)}%"></i></span><span>encore ${fmt(Math.max(0, lp.need - lp.cur))} XP pour le niveau ${lp.l+1}</span></div></div>
+        <div class="fx-elo"><b data-cnt="${S.elo}">${fmt(S.elo)}</b><span>Score</span></div>
+        <div class="fx-form"><span class="ft">Forme</span>${S.form.length ? S.form.map(f=>`<span class="pill${f.prog?" prog":""}${f.d===dayNum()?" today":""}" style="background:${fxTier(f.p)}" title="${dnStr(f.d)} : ${f.p==null?"joué":f.p+" %"}"></span>`).join("") : `<span style="color:var(--fx-m);font-size:.85rem">tes prochaines parties apparaîtront ici</span>`}</div>
+        <div class="fx-xp" style="margin-top:9px"><span>niv. ${lp.l}</span><span class="fx-xpbar"><i style="width:${Math.round(lp.pct)}%"></i></span><span>encore ${fmt(Math.max(0, lp.need - lp.cur))} XP → niv. ${lp.l+1}</span></div></div>
       <div class="fx-lvl" title="Niveau ${lp.l}">${ring}<b style="color:${lc}">${lp.l}</b><small>niveau</small></div></div>
     <div class="fx-msg ${M.up ? "" : "flat"}">${M.up ? `<span style="color:var(--fx-g);font-size:1.2rem">▲</span>` : `<span style="color:#8fa3ff;font-size:1.1rem">●</span>`}<span>${M.t}</span></div>
     <div class="fx-p"><h3 class="fx-h">Aujourd'hui</h3><div class="fx-tiles">${today}</div>${wk}</div>
@@ -10997,7 +11021,7 @@ const KNIFE_BY = Object.fromEntries(KNIFES.map(k=>[k.id,k]));
 const knivesLeft = () => KNIFES.filter(k=>!D.knife.have.includes(k.id));
 /* la lame équipée, tenue à droite du personnage */
 function knifeOn(eq){ let id = null; try{ id = eq && eq.knife!==undefined ? eq.knife : (D && D.knife ? D.knife.cur : null); }catch(e){ return ""; } const k = id && KNIFE_BY[id]; if(!k) return "";
-  return `<g class="owl-knife" transform="translate(80 50) scale(.72)">${knifeSVG(k.m, k.f, "o"+(++owlUid))}</g>`; }
+  return `<g class="owl-knife" transform="translate(88 42) scale(.66)">${knifeSVG(k.m, k.f, "o"+(++owlUid))}</g>`; }
 const CASE_SVG = `<svg class="case-box" viewBox="0 0 160 120" aria-hidden="true"><defs><linearGradient id="cbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b3cc4"/><stop offset="1" stop-color="#22186e"/></linearGradient></defs>
   <rect x="14" y="40" width="132" height="70" rx="10" fill="url(#cbg)"/><rect x="10" y="26" width="140" height="26" rx="8" fill="#5d4de0"/>
   <rect x="14" y="40" width="132" height="6" fill="#1a1257" opacity=".5"/><rect x="64" y="20" width="32" height="36" rx="6" fill="#ffd23a"/><rect x="72" y="30" width="16" height="16" rx="3" fill="#b8860b"/>
@@ -11006,16 +11030,17 @@ const CASE_SVG = `<svg class="case-box" viewBox="0 0 160 120" aria-hidden="true"
 let CASE = null;
 const skinsLeft = () => skinsFor(creaCur()).filter(k=>!D.skins.includes(k.id));
 const creasLeft = () => CREA.filter(c=>c.id!=="hibou" && !D.crea.have.includes(c.id));
-function caseTier(force){
+function caseTier(force, maxT){
   if(force!=null) return force;
-  let x = R()*100;
-  for(let t=0;t<RAR.length;t++){ if(x < RAR[t].p) return t; x -= RAR[t].p; }
+  const hi = maxT==null ? 4 : maxT; let total = 0; for(let t=0;t<=hi;t++) total += RAR[t].p;
+  let x = R()*total;
+  for(let t=0;t<=hi;t++){ if(x < RAR[t].p) return t; x -= RAR[t].p; }
   return 0;
 }
 function casePick(type){
   const left = caseLeft(type); if(!left.length) return null;
-  const pityOk = type!=="crea" && left.some(k=>k.r>=3), pity = type==="knife" ? D.knife.pity : D.cases.pity;
-  let t = caseTier(pityOk && pity>=9 ? (R()<.75 ? 3 : 4) : null);   // garantie : au moins Légendaire toutes les 10 caisses (s'il en reste)
+  const pityOk = type!=="crea" && left.some(k=>k.r>=3), pity = type==="knife" ? D.knife.pity : D.cases.pity, maxT = type==="crea" ? 5 : 4;
+  let t = caseTier(pityOk && pity>=9 ? (R()<.75 ? 3 : 4) : null, maxT);   // garantie : au moins Légendaire toutes les 10 caisses (s'il en reste)
   if(pityOk && pity>=9){ const hi = left.filter(k=>k.r>=3), pt = hi.filter(k=>k.r===t); return pick(pt.length ? pt : hi); }
   for(const d of [0,-1,1,-2,2,-3,3,-4,4]){ const pool = left.filter(k=>k.r===t+d); if(pool.length) return pick(pool); }
   return pick(left);
@@ -11118,7 +11143,7 @@ function caseOpen(type){
   persist(); renderTop();
   statPush(isK ? "caisse lames" : isC ? "caisse créatures" : "caisse skins", {notion: isC || isK ? k.nm : `${(CREA_BY[k.crea]||{}).nm || "Hibou"} · ${k.nm}`, detail: RAR[k.r].nm});
   const N = 64, W = CASE_W, tiles = [];
-  for(let i=0;i<N;i++) tiles.push(i===W ? k : (()=>{ const near = Math.abs(i-W)<=3, t = caseTier(); const pool = all.filter(x=>x.r===t && (!near || x.r<=k.r)); return pick(pool.length ? pool : all.filter(x=>!near || x.r<=k.r)); })());
+  for(let i=0;i<N;i++) tiles.push(i===W ? k : (()=>{ const near = Math.abs(i-W)<=3, t = caseTier(null, type==="crea" ? 5 : 4); const pool = all.filter(x=>x.r===t && (!near || x.r<=k.r)); return pick(pool.length ? pool : all.filter(x=>!near || x.r<=k.r)); })());
   CASE = {type, busy:true, done:false, k, tiles};
   sfx("tap"); renderShop(); cfullRender();
   const strip = $("strip"), reel = $("reel"); if(!strip || !reel){ caseDone(); return; }
