@@ -238,7 +238,7 @@ svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
 
 /* ---------- Onglets ---------- */
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:0 12px calc(10px + env(safe-area-inset-bottom,0px))}
-.tabbar-in{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:var(--card);border-radius:22px;box-shadow:0 -2px 0 var(--line),var(--shadow);padding:6px}
+.tabbar-in{max-width:600px;margin:0 auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));background:var(--card);border-radius:22px;box-shadow:0 -2px 0 var(--line),var(--shadow);padding:6px}
 .tab{background:none;border:0;border-radius:16px;padding:6px 2px;display:flex;flex-direction:column;align-items:center;gap:1px;font-family:var(--f-display);font-weight:700;font-size:.8rem;color:var(--ink-soft);min-width:0}
 .tab svg{width:24px;height:24px}
 .tab[aria-current="page"]{color:var(--primary-ink);background:color-mix(in srgb,var(--primary) 12%,transparent)}
@@ -775,6 +775,62 @@ svg.rectm{width:min(320px,100%);height:auto} .rm-r{fill:color-mix(in srgb,var(--
 .prog-head{display:flex;flex-direction:row !important;align-items:center;gap:14px}
 .prog-head .bubble{flex:1;min-width:0}
 .prog-head .owl-host{width:84px;height:84px;flex:none}
+/* ===== Mes stats (style « FACEIT ») : panneaux sombres, accent orange, flèches vertes ; jamais de chiffre négatif ===== */
+#s-stats{--fx-bg:#141518;--fx-p:#1d1f24;--fx-p2:#25282f;--fx-line:#30343c;--fx-t:#f4f5f7;--fx-m:#9aa0ab;--fx-o:#ff5500;--fx-g:#2fd36b;--fx-y:#ffc400;--fx-b:#5d7cff}
+body.fxwide .app{max-width:1180px}
+.fx{background:var(--fx-bg);color:var(--fx-t);border-radius:22px;padding:18px;display:grid;gap:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.fx-p{background:var(--fx-p);border:1px solid var(--fx-line);border-radius:14px;padding:16px}
+.fx-h{font-family:var(--f-display);font-size:.8rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--fx-m);margin:0 0 12px;display:flex;align-items:center;gap:8px}
+.fx-h::before{content:"";width:4px;height:14px;border-radius:2px;background:var(--fx-o)}
+.fx-top{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;background:linear-gradient(115deg,#2a1a12 0%,var(--fx-p) 45%,var(--fx-p) 100%);border:1px solid var(--fx-line);border-radius:16px;padding:16px 20px;position:relative;overflow:hidden}
+.fx-top::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,85,0,.22),transparent 70%)}
+.fx-av{width:76px;height:76px;border-radius:16px;background:var(--fx-p2);border:2px solid var(--fx-line);display:grid;place-items:center;overflow:hidden}
+.fx-av svg{width:68px;height:68px}
+.fx-name{font-family:var(--f-display);font-size:1.6rem;font-weight:900;margin:0;line-height:1.1}
+.fx-sub{color:var(--fx-m);font-size:.95rem;margin:4px 0 8px}
+.fx-xp{display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--fx-m)}
+.fx-xpbar{flex:1;max-width:320px;height:8px;border-radius:99px;background:#0d0e10;overflow:hidden}
+.fx-xpbar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ff7a2f,var(--fx-o))}
+.fx-lvl{position:relative;width:86px;height:86px;z-index:1}
+.fx-lvl svg{width:86px;height:86px}
+.fx-lvl b{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-size:1.9rem;font-weight:900}
+.fx-lvl small{position:absolute;left:0;right:0;bottom:-16px;text-align:center;font-size:.7rem;letter-spacing:.1em;color:var(--fx-m);text-transform:uppercase}
+.fx-msg{display:flex;align-items:center;gap:10px;background:var(--fx-p2);border-left:4px solid var(--fx-g);border-radius:10px;padding:10px 14px;font-weight:700}
+.fx-msg.flat{border-left-color:var(--fx-b)}
+.fx-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.fx-tile{background:var(--fx-p2);border:1px solid var(--fx-line);border-radius:12px;padding:12px 14px;display:grid;gap:4px;min-width:0}
+.fx-tile .k{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fx-m);font-weight:800}
+.fx-tile .v{font-family:var(--f-display);font-size:1.75rem;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
+.fx-tile .v small{font-size:.55em;color:var(--fx-m);font-weight:700;margin-left:2px}
+.fx-d{display:inline-flex;align-items:center;gap:5px;font-size:.82rem;font-weight:800;white-space:nowrap}
+.fx-d.up{color:var(--fx-g)}
+.fx-d.flat{color:#8fa3ff}
+.fx-d small{color:var(--fx-m);font-weight:600}
+.fx-two{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px}
+.fx-chart svg{width:100%;height:auto;display:block}
+.fx-chart .gl{stroke:#2c3038;stroke-width:1}
+.fx-chart .ax{fill:var(--fx-m);font-size:11px}
+.fx-chart .ln{fill:none;stroke:var(--fx-o);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.fx-chart .pt{fill:var(--fx-bg);stroke:var(--fx-o);stroke-width:2.5}
+.fx-chart .lab{fill:var(--fx-t);font-size:12px;font-weight:800}
+.fx-cats{display:grid;gap:9px}
+.fx-cat{display:grid;grid-template-columns:minmax(0,1fr) 46px;gap:4px 10px;align-items:center}
+.fx-cat span{font-size:.92rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fx-cat b{font-variant-numeric:tabular-nums;text-align:right}
+.fx-cat i{grid-column:1/-1;height:6px;border-radius:99px;background:#0d0e10;overflow:hidden;display:block}
+.fx-cat i em{display:block;height:100%;border-radius:99px}
+.fx-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.fx-rows{display:grid;gap:6px}
+.fx-row{display:grid;grid-template-columns:6px 1.3fr 1.1fr repeat(3,minmax(0,.8fr));gap:12px;align-items:center;background:var(--fx-p2);border-radius:10px;padding:9px 14px 9px 0;font-variant-numeric:tabular-nums}
+.fx-row > i{align-self:stretch;border-radius:0 4px 4px 0}
+.fx-row .t{font-weight:800}
+.fx-row .tag{font-size:.75rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:6px;justify-self:start}
+.fx-row .tag.ok{background:rgba(47,211,107,.15);color:var(--fx-g)}
+.fx-row .tag.lib{background:rgba(93,124,255,.15);color:#a9b8ff}
+.fx-row .c{text-align:right}
+.fx-row .c small{display:block;color:var(--fx-m);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em}
+.fx-empty{color:var(--fx-m);margin:0}
+@media (max-width:900px){ .fx-tiles,.fx-grid{grid-template-columns:repeat(2,minmax(0,1fr))} .fx-two{grid-template-columns:1fr} .fx-top{grid-template-columns:auto 1fr} .fx-lvl{grid-column:1/-1;justify-self:start} }
 .prog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px}
 .prog-grid .card h3{margin:0 0 10px;display:flex;align-items:center;gap:8px}
 .pg-big{font-family:var(--f-display);font-weight:900;font-size:2.4rem;line-height:1;color:var(--good)}
@@ -1528,7 +1584,9 @@ body.trial{padding-top:42px}
 .rwopts button{border:0;border-radius:99px;padding:7px 14px;background:var(--soft);color:var(--ink);font-family:var(--f-display);font-weight:800;box-shadow:inset 0 0 0 2px var(--line)}
 .rwopts button[aria-pressed="true"]{background:var(--primary-ink);color:var(--on-primary);box-shadow:none}
 .vx-text{font-family:var(--f-body);font-size:clamp(1.25rem,2.4vw,1.55rem);line-height:2;margin:0;color:var(--ink)}
-.vx-text span{cursor:pointer;border-radius:7px;padding:1px 3px;transition:background .25s}
+.vx-text span{cursor:pointer;border-radius:7px;padding:1px 3px;transition:background .08s}
+.vx-heard{margin:0;text-align:center;font-size:1.02rem;color:var(--ink-soft);min-height:1.6em}
+.vx-heard span{font-weight:800;color:var(--primary)}
 .vx-text span.rd{background:color-mix(in srgb,var(--good) 26%,transparent)}
 .vx-text span.sk{text-decoration:underline wavy var(--warn) 2px;text-underline-offset:5px}
 .vx-text span.hp{background:color-mix(in srgb,var(--c-add) 20%,transparent)}
@@ -1832,6 +1890,9 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
     <div class="subtop"><button class="backbtn" id="prog-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Retour</button><h2>Mes progrès</h2></div>
     <div class="card prog-head"><div class="owl-host" data-mood="happy"></div><div class="bubble" id="prog-msg"></div></div>
     <div class="prog-grid" id="prog-body"></div>
+  </section>
+  <section class="screen" id="s-stats" hidden>
+    <div class="fx" id="stats-body"></div>
   </section>
   <section class="screen" id="s-learn" hidden>
     <div class="subtop"><button class="backbtn" id="learn-back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Retour</button><h2>Mon programme du jour</h2></div>
@@ -2284,6 +2345,7 @@ body:has(#cfull:not([hidden])) #fx{z-index:75}
     <button class="tab" data-go="tables"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>Tables</button>
     <button class="tab" data-go="trophies"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>Trophées</button>
     <button class="tab" data-go="shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 9 4 3l5 3M19 9l1-6-5 3"/><path d="M12 6c-5 0-8 3.5-8 8.5S7.5 21 12 21s8-1.5 8-6.5S17 6 12 6z"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/></svg>Boutique</button>
+    <button class="tab" data-go="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Mes stats</button>
   </div>
 </nav>
 <div class="packov" id="packov" hidden>
@@ -6320,7 +6382,7 @@ function strategy(q){
 /* ======================================================================
    NAVIGATION
    ====================================================================== */
-const SCREENS = ["welcome","home","adv","tables","trophies","shop","parents","play","result","duelset","duel","pets","cible","who","cmp","tips","tip","ses","fr","frq","learn","lesson","bilan","mem","voix","prog"];
+const SCREENS = ["welcome","home","adv","tables","trophies","shop","parents","play","result","duelset","duel","pets","cible","who","cmp","tips","tip","ses","fr","frq","learn","lesson","bilan","mem","voix","prog","stats"];
 let current = "home";
 function show(name, opts={}){
   if(typeof CASE!=="undefined" && CASE && CASE.busy && current==="shop" && name!=="shop") return;   // on attend la fin de la caisse
@@ -6333,7 +6395,7 @@ function show(name, opts={}){
   current = name;
   SCREENS.forEach(s => $("s-"+s).hidden = s!==name);
   $("topbar").hidden = ["welcome","play","duel","who","frq","bilan"].includes(name);
-  $("tabbar").hidden = !["home","adv","tables","trophies","shop","pets","tips","tip","ses","fr","learn","prog"].includes(name);
+  $("tabbar").hidden = !["home","adv","tables","trophies","shop","pets","tips","tip","ses","fr","learn","prog","stats"].includes(name);
   document.querySelectorAll(".tab").forEach(t => { if(t.dataset.go===name) t.setAttribute("aria-current","page"); else t.removeAttribute("aria-current"); });
   if(name!=="home") spotStop();        // on part travailler : la musique s'arrête
   if(name==="home"){ renderHome(); spotCard(); }
@@ -6350,6 +6412,7 @@ function show(name, opts={}){
   if(name==="ses") renderSes();
   if(name==="learn") renderLearn();
   if(name==="prog") renderProg();
+  if(name==="stats") renderStats();
   if(name==="bilan"){ if(!BL) BL = {view:"intro", timers:[]}; blRender(); }
   if(name==="mem" && MM) memRender();
   if(name==="voix" && VX) vxRender();
@@ -6357,6 +6420,7 @@ function show(name, opts={}){
   if(name!=="bilan" && BL && BL.view!=="intro"){ blStop(); BL = null; }
   if(name==="fr") renderFr();
   if(name!=="frq") document.body.classList.remove("frwide");
+  document.body.classList.toggle("fxwide", name==="stats");   // Mes stats : toute la largeur de l'ordinateur
   if(name==="tip") $("tip-ses").hidden = !(SES && SES.pending==="tip");
   if(name==="welcome") $("welcome-cancel").hidden = !(IDX.list.length>1 && IDX.cur!=="p1" && !D.started);
   if(name==="home") $("who-switch").hidden = IDX.list.length<2;
@@ -6690,46 +6754,106 @@ function openVoix(run, story){
 const vxWords = () => VX.keys.filter(Boolean).length;
 function vxWpm(){ if(!VX.tStart || !VX.tEnd) return 0; const sec = (VX.tEnd - VX.tStart)/1000, w = Math.round(vxWords()*60/sec); return sec>=15 && w>=10 && w<=250 ? w : 0; }
 function vxCount(){ let n = 0, r = 0; VX.keys.forEach((k,i)=>{ if(!k) return; n++; if(VX.read[i]===1 || VX.marks[i]===1) r++; }); return {n, r, pct: n ? Math.round(100*r/n) : 0}; }
-/* on compare ce que le micro a entendu (depuis le début de l'écoute) au texte, à partir du dernier mot validé */
-function vxApply(list){
-  let p = VX.base; const marks = {};
-  for(const w0 of list){ const w = vxNorm(w0); if(!w) continue;
-    for(let j=p, seen=0; j<VX.words.length && seen<6; j++){
-      const k = VX.keys[j]; if(!k) continue; seen++;
-      const near = k===w || (k.length>=4 && w.length>=4 && k.slice(0,4)===w.slice(0,4) && Math.abs(k.length-w.length)<=2)
-        || (w.length>=4 && k.length>w.length+2 && k.startsWith(w));   // mot à trait d'union entendu en morceaux (« pont levis »)
-      if(near){ for(let s=p; s<j; s++) if(VX.keys[s] && VX.read[s]!==1) marks[s] = 2; marks[j] = 1; p = j+1; break; }
-    }
+/* Homophones et mots courts que le micro écrit souvent autrement : même « son » = même mot */
+const VX_HOMO = (() => { const m = {}; [["et","est","ai","es","eh","e"],["a","as","ah"],["son","sont"],["on","ont"],["ce","se"],["ces","ses","cest","sest","sais","sait"],["mes","mais","met","mets","mai"],
+  ["sa","ca"],["peu","peut","peux"],["vers","vert","verre","ver","verts","vertes"],["sans","sang","cent","sent","sens"],["mer","mere","maire"],["dans","dent","dents"],["tout","tous","toux"],
+  ["quand","quant","camp","quen"],["leur","leurs"],["cette","sept","set"],["il","ils"],["elle","elles"],["fait","fais","faits"],["voix","voie","vois","voit"],["foi","fois","foie"],
+  ["pain","pin","peint"],["vingt","vin","vint"],["mot","mots","maux"],["pre","pret","pres"],["ou","hou","houx"],["la","las","lat"],["les","lait","laid","laie"],["de","deux","d"],
+  ["du","du"],["au","aux","eau","oh","o","haut","os"],["ni","nid","nie"],["si","six","scie","ci"],["dit","dis","dix"],["fin","faim","feint"],["cour","cours","court","courent"],
+  ["chat","chats"],["mon","mont","mont"],["ton","thon","tond"],["temps","tant","tend","taon"],["vent","vend","van"],["nom","non"],["la","l"],["le","l"]].forEach((g,k) => g.forEach(w => { if(!m[w]) m[w] = "h"+k; })); return m; })();
+function vxLev(a, b){ if(Math.abs(a.length-b.length) > 2) return 9; let prev = Array.from({length:b.length+1}, (_,k)=>k);
+  for(let x=1; x<=a.length; x++){ const cur = [x]; for(let y=1; y<=b.length; y++) cur[y] = Math.min(prev[y]+1, cur[y-1]+1, prev[y-1] + (a[x-1]===b[y-1] ? 0 : 1)); prev = cur; } return prev[b.length]; }
+/* un mot entendu correspond-il au mot du texte ? (indulgent : il apprend à lire, on ne le piège pas sur l'orthographe du micro) */
+function vxNear(k, w){
+  if(!k || !w) return false;
+  if(k===w) return true;
+  if(VX_HOMO[k] && VX_HOMO[k]===VX_HOMO[w]) return true;
+  if(k.length>=4 && w.length>=4){
+    if(k.slice(0,4)===w.slice(0,4) && Math.abs(k.length-w.length)<=2) return true;
+    if(vxLev(k, w) <= (Math.max(k.length, w.length) >= 7 ? 2 : 1)) return true;
+  }
+  if(w.length>=4 && k.length>w.length+2 && k.startsWith(w)) return true;   // mot à trait d'union entendu en morceaux (« pont levis »)
+  if(k.length>=5 && w.length>=2 && k.startsWith(w) && k.length - w.length <= 3 && /^(l|d|j|m|n|s|t|c|qu)/.test(k)) return true;   // « l'école » entendu « l »
+  return false;
+}
+/* on compare ce que le micro a entendu au texte, à partir du dernier mot validé (VX.base) ; dry = on compte sans rien marquer */
+function vxMatch(list, from){
+  const ws = list.map(vxNorm).filter(Boolean), marks = {}; let p = from, hits = 0;
+  const nextKey = j => { for(let q=j+1; q<VX.words.length; q++) if(VX.keys[q]) return q; return -1; };
+  let lo = from;   // juste après le dernier mot reconnu : les parties lues par Pythagore (duo) sont entre lo et p
+  const pyNear = w => { for(let q=lo; q<p; q++) if(VX.py[q] && vxNear(vxNorm(VX.words[q]), w)) return true; return false; };
+  for(let a=0; a<ws.length; a++){ const w = ws[a]; let hit = -1;
+    const nk = p < VX.words.length && VX.keys[p] ? p : nextKey(p - 1);
+    if(nk>=0 && vxNear(VX.keys[nk], w)) hit = nk;
+    else if(VX.duo && pyNear(w)) continue;   // c'est un mot de la partie de Pythagore (sa voix, ou l'enfant qui la lit aussi) : on l'ignore
+    if(hit<0) for(let j=p, seen=0; j<VX.words.length && seen<6; j++){ const k = VX.keys[j]; if(!k) continue; seen++; if(vxNear(k, w)){ hit = j; break; } }
+    if(hit<0 && a+1<ws.length){   // il a sauté une ligne, ou le micro a raté des mots : on se recale plus loin si DEUX mots de suite correspondent
+      for(let j=p, seen=0; j<VX.words.length && seen<45; j++){ const k = VX.keys[j]; if(!k) continue; seen++;
+        if(vxNear(k, w) && w.length>=3){ const n = nextKey(j); if(n>=0 && vxNear(VX.keys[n], ws[a+1])){ hit = j; break; } } } }
+    if(hit>=0){ for(let s=p; s<hit; s++) if(VX.keys[s] && VX.read[s]!==1) marks[s] = 2; marks[hit] = 1; p = hit+1; lo = p; hits++; }
+    while(p < VX.words.length && !VX.keys[p]) p++;
   }
   while(p < VX.words.length && !VX.keys[p]) p++;
-  VX.marks = marks; VX.p = p;
+  return {marks, p, hits};
 }
+function vxApply(list){ const m = vxMatch(list, VX.base); VX.marks = m.marks; VX.p = m.p; }
 function vxCommit(){ if(!VX) return; Object.entries(VX.marks).forEach(([i,v])=>{ if(VX.read[i]!==1) VX.read[i] = v; }); VX.base = VX.p; VX.marks = {}; }
 function vxPaint(){
   if(!VX || VX.view!=="read") return;
   document.querySelectorAll("#vx-text span").forEach(sp=>{ const i = +sp.dataset.i, st = VX.marks[i] || VX.read[i];
-    sp.className = (VX.py[i] ? "py " : "") + (st===1 ? "rd" : st===2 ? "sk" : VX.help[i] ? "hp" : ""); if(i===VX.p && VX.on) sp.classList.add("cur"); });
-  if(VX.on && VX.p!==VX.lastP){ VX.lastP = VX.p; const cur = document.querySelector("#vx-text span.cur"); if(cur && cur.scrollIntoView){ const r = cur.getBoundingClientRect(); if(r.top < 90 || r.bottom > innerHeight - 140) cur.scrollIntoView({block:"center", behavior:"smooth"}); } }
+    const cls = (VX.py[i] ? "py " : "") + (st===1 ? "rd" : st===2 ? "sk" : VX.help[i] ? "hp" : "") + (i===VX.p && VX.on ? " cur" : "");
+    if(sp.className!==cls.trim()) sp.className = cls.trim(); });
+  if(VX.on && VX.p!==VX.lastP){ VX.lastP = VX.p; const cur = document.querySelector("#vx-text span.cur"); if(cur && cur.scrollIntoView){ const r = cur.getBoundingClientRect(); if(r.top < 90 || r.bottom > innerHeight - 160) cur.scrollIntoView({block:"center", behavior:"smooth"}); } }
   const c = vxCount(), bar = $("vx-bar"); if(bar) bar.style.width = c.pct + "%";
   const lab = $("vx-pct"); if(lab) lab.textContent = c.pct>=80 ? `${c.pct} % des mots bien lus` : "Continue, tranquillement…";
+  const hd = $("vx-heard"); if(hd){ hd.hidden = !VX.on; hd.innerHTML = VX.heard ? `<span>J'entends :</span> « ${esc(VX.heard)} »` : VX.waitMsg ? esc(VX.waitMsg) : "<span>Je t'écoute…</span> lis le mot surligné."; }
   if(VX.on && VX.p >= VX.words.length){ vxStop(); vxCommit(); VX.tEnd = VX.tEnd || Date.now(); toast("Bravo, tu as lu jusqu'au bout !"); sfx("win"); vxRender(); }
+}
+/* Écoute : une nouvelle reconnaissance à chaque relance (Edge en coupe souvent : silence, réseau…), relance automatique sans limite tant qu'il lit,
+   et un chien de garde si le micro se fige. Seuls les refus du micro (permission, pas de micro) l'arrêtent vraiment. */
+function vxListen(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR || !VX){ if(VX){ VX.mic = false; vxRender(); } return; }
+  let r; try{ r = new SR(); }catch(e){ VX.mic = false; VX.on = false; vxRender(); return; }
+  r.lang = "fr-FR"; r.continuous = true; r.interimResults = true; r.maxAlternatives = 3;
+  const sess = {fin: 0};   // résultats définitifs déjà pris en compte dans cette écoute
+  r.onresult = e => { if(!VX || VX.rec!==r) return; VX.used = true; VX.lastEv = Date.now(); VX.netErr = 0; VX.waitMsg = "";
+    let interim = [], last = [];
+    for(let i=sess.fin; i<e.results.length; i++){ const R_ = e.results[i];
+      if(R_.isFinal && i===sess.fin){   // définitif : on garde la version (parmi les propositions du micro) qui colle le mieux au texte, et on valide
+        let best = R_[0].transcript, bh = -1; for(let a=0; a<R_.length; a++){ const h = vxMatch(R_[a].transcript.split(/\s+/), VX.base).hits; if(h>bh){ bh = h; best = R_[a].transcript; } }
+        vxApply(best.split(/\s+/)); vxCommit(); sess.fin = i+1; last = last.concat(best.split(/\s+/)); }
+      else { interim = interim.concat(R_[0].transcript.split(/\s+/)); }
+    }
+    if(interim.length) vxApply(interim); else VX.marks = {};
+    const heard = last.concat(interim).filter(Boolean); if(heard.length) VX.heard = heard.slice(-8).join(" ");
+    vxPaint(); };
+  r.onerror = e => { if(!VX || VX.rec!==r) return; VX.lastErr = e.error;
+    if(["not-allowed","service-not-allowed","audio-capture","language-not-supported"].includes(e.error)){ VX.on = false; VX.mic = false; VX.micErr = e.error; vxRender(); }
+    else if(e.error==="network"){ VX.netErr = (VX.netErr||0) + 1; VX.waitMsg = "Le micro se reconnecte…"; vxPaint(); } };
+  r.onend = () => { if(!VX || VX.rec!==r) return; vxCommit(); VX.rec = null; VX.endT = Date.now();
+    if(!(VX.on && VX.view==="read" && current==="voix")){ VX.on = false; vxRender(); return; }
+    VX.quick = VX.endT - (VX.startT||0) < 1500 ? (VX.quick||0) + 1 : 0;
+    if((VX.netErr||0) > 8){ VX.on = false; VX.micMsg = "Le micro ne répond plus (internet ?). Touche le bouton pour réessayer."; vxRender(); return; }
+    const wait = VX.netErr ? Math.min(4000, 400 * 2 ** VX.netErr) : VX.quick > 3 ? 1200 : 120;
+    setTimeout(()=>{ if(VX && VX.on && !VX.rec && VX.view==="read" && current==="voix") vxListen(); }, wait); };
+  VX.rec = r; VX.startT = Date.now(); VX.lastEv = Date.now();
+  try{ r.start(); }catch(e){ VX.rec = null; VX.endT = Date.now(); }
 }
 function vxStart(){
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if(!SR){ VX.mic = false; vxRender(); return; }
-  try{
-    const r = new SR(); r.lang = "fr-FR"; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
-    r.onresult = e => { if(!VX || VX.rec!==r) return; VX.used = true; VX.restarts = 0; let txt = ""; for(let i=0;i<e.results.length;i++) txt += " " + e.results[i][0].transcript; vxApply(txt.split(/\s+/)); vxPaint(); };
-    r.onerror = e => { if(!VX || VX.rec!==r) return; if(["not-allowed","service-not-allowed","audio-capture","network","language-not-supported","bad-grammar"].includes(e.error)){ VX.on = false; VX.mic = false; VX.micErr = e.error; vxRender(); } };
-    r.onend = () => { if(!VX || VX.rec!==r) return; vxCommit();
-      const now = Date.now(); if(now - (VX.rsT||0) > 8000){ VX.rsT = now; VX.restarts = 0; }
-      VX.restarts = (VX.restarts||0) + 1;
-      if(VX.on && VX.view==="read" && VX.restarts <= 4){ try{ r.start(); }catch(_){ VX.on = false; vxRender(); } }
-      else { VX.on = false; vxRender(); } };
-    VX.rec = r; VX.on = true; VX.used = true; VX.tStart = VX.tStart || Date.now(); hush(); r.start(); vxRender();
-  }catch(e){ VX.mic = false; VX.on = false; vxRender(); }
+  VX.on = true; VX.used = true; VX.micMsg = ""; VX.netErr = 0; VX.quick = 0; VX.heard = ""; VX.waitMsg = ""; VX.tStart = VX.tStart || Date.now();
+  hush(); vxListen(); vxRender();
+  if(!VX.dog) VX.dog = setInterval(()=>{   // chien de garde : relance si l'écoute est tombée ou figée
+    if(!VX || current!=="voix"){ return; }
+    if(!VX.on || VX.view!=="read") return;
+    const now = Date.now();
+    if(!VX.rec && now - (VX.endT||0) > 2500) vxListen();
+    else if(VX.rec && now - (VX.lastEv||0) > 20000){ VX.lastEv = now; try{ VX.rec.abort(); }catch(e){} }
+  }, 2000);
 }
-function vxStop(){ if(VX && VX.rec){ VX.on = false; try{ VX.rec.stop(); }catch(e){} } }
+function vxStop(){ if(VX){ VX.on = false; if(VX.rec){ const r = VX.rec; try{ r.stop(); }catch(e){ try{ r.abort(); }catch(_){} } } if(VX.dog){ clearInterval(VX.dog); VX.dog = null; } } }
 function vxRender(){
   const card = $("vx-card"); if(!VX || !card) return;
   const st = VX.st;
@@ -6750,6 +6874,7 @@ function vxRender(){
       ${!st.soir && VX.rep===0 && TTS_OK ? `<div class="cb-btns"><button class="btn sm alt" id="vx-listen">Écouter l'histoire</button></div>` : ""}
       <h3 class="vx-title">${esc(st.t)}</h3>
       <p class="vx-text" id="vx-text">${VX.words.map((w,i)=>`<span data-i="${i}"${VX.py[i] ? ' class="py"' : ""}>${esc(w)}</span>`).join(" ")}</p>
+      ${VX.mic ? `<p class="vx-heard" id="vx-heard" aria-live="polite" hidden></p>` : ""}${VX.micMsg ? `<p class="learn-ai" style="margin:0">${esc(VX.micMsg)}</p>` : ""}
       ${micUI}
       ${VX.mic || VX.tStart ? `<div class="cb-btns"><button class="btn ${VX.mic && !c.r ? "alt" : ""}" id="vx-done">J'ai fini de lire</button></div>` : ""}`;
     paintOwls(); vxPaint(); return;
@@ -8087,6 +8212,96 @@ function progChart(wk){
     g += w.p==null ? `<text x="${x+bw/2}" y="${H-30}" text-anchor="middle">–</text>` : `<rect class="bar${k===5?" now":""}" x="${x}" y="${y}" width="${bw}" height="${h}" rx="7"/><text class="v" x="${x+bw/2}" y="${y-6}" text-anchor="middle">${w.p} %</text>`;
     g += k===5 ? `<text x="${W-2}" y="${H-6}" text-anchor="end">cette semaine</text>` : k===0 ? `<text x="${x}" y="${H-6}" text-anchor="start">il y a 5 semaines</text>` : ""; });
   return `<svg class="pg-chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Réussite des 6 dernières semaines : ${wk.map(w=>w.p==null?"pas joué":w.p+" %").join(", ")}">${g}</svg>`;
+}
+/* ===== Mes stats : le jour et depuis le début, façon FACEIT. Règle : on ne montre que les progrès (flèche verte) ;
+   sinon un message neutre et encourageant (« stable », « garde le rythme »), jamais de « − » ni de rouge. ===== */
+const FX_DAYS = ["dim.","lun.","mar.","mer.","jeu.","ven.","sam."], FX_MONTHS = ["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];
+const fxRate = h => h && h.n ? Math.round(100*h.ok/h.n) : null;
+const fxTier = p => p==null ? "#3a3f48" : p>=80 ? "var(--fx-g)" : p>=60 ? "var(--fx-y)" : "var(--fx-b)";   // jamais de rouge
+function fxLvlColor(l){ return l<=1 ? "#e8e8e8" : l<=3 ? "#1ce400" : l<=7 ? "#ffc800" : l<=9 ? "#ff6309" : "#ff2a00"; }
+function fxDelta(cur, prev, kind){   // kind "pt" : écart en points de % ; "rel" : progression en % ; "n" : écart brut
+  if(cur==null) return "";
+  if(prev==null || prev===0) return cur>0 ? `<span class="fx-d up">▲ c'est parti</span>` : "";
+  const d = kind==="pt" ? cur - prev : kind==="n" ? cur - prev : Math.round(100*(cur - prev)/prev);
+  if(d>0) return `<span class="fx-d up">▲ +${kind==="n" ? d : Math.min(d, 999) + " %"} <small>vs hier</small></span>`;
+  return `<span class="fx-d flat">● ${d===0 ? "stable" : "garde le rythme"}</span>`;
+}
+function statsData(){
+  const C = D.coach, t = dayNum(), today = dnStr(t), yest = dnStr(t-1), H = D.hist;
+  const hT = H[today] || {n:0, ok:0, ms:0}, hY = H[yest] || {n:0, ok:0, ms:0};
+  const sumW = (a, b) => { let n=0, ok=0, ms=0; for(let k=a;k<b;k++){ const h = H[dnStr(t-k)]; if(h){ n += h.n||0; ok += h.ok||0; ms += h.ms||0; } } return {n, ok, ms, p: n ? Math.round(100*ok/n) : null}; };
+  const w1 = sumW(0, 7), w0 = sumW(7, 14);
+  const P = C.plan && C.plan.d===t ? C.plan : null, stDone = P ? P.steps.filter(x=>x.r!=null).length : 0, stAll = P ? P.steps.length : 0;
+  const dd = [...new Set(C.dd||[])].sort((a,b)=>a-b); let best = 0, run = 0; dd.forEach((d,k)=>{ run = k && d===dd[k-1]+1 ? run+1 : 1; best = Math.max(best, run); });
+  let cur = 0; for(let k=0; dd.includes(t-k) || (k===0 && dd.includes(t-1)); k++){ if(dd.includes(t-k)) cur++; else if(k>0) break; }
+  const learned = Object.values(C.n||{}).filter(v=>v.n>0 && v.b>=2).length;
+  const days60 = Object.keys(H).filter(k=>H[k] && (H[k].n || H[k].fg)), ms60 = days60.reduce((a,k)=>a+(H[k].ms||0), 0);
+  const cats = {}; for(let k=0;k<30;k++){ const h = H[dnStr(t-k)]; if(h && h.c) Object.entries(h.c).forEach(([c,a])=>{ if(!CAT[c] || !Array.isArray(a)) return; cats[c] = cats[c] || [0,0]; cats[c][0] += a[0]||0; cats[c][1] += a[1]||0; }); }
+  const wpm = (D.voix.hist||[]).concat(D.soir.hist||[]).map(h=>h && h.wpm||0);
+  const recent = []; for(let k=0;k<30 && recent.length<8;k++){ const key = dnStr(t-k), h = H[key]; if(h && (h.n || h.fg || dd.includes(t-k))) recent.push({k, key, h, prog: dd.includes(t-k)}); }
+  const days = []; for(let k=13;k>=0;k--){ const h = H[dnStr(t-k)]; days.push({k, p: fxRate(h), n: h ? h.n||0 : 0}); }
+  return {hT, hY, rT: fxRate(hT), rY: fxRate(hY), w1, w0, stDone, stAll, progDone: dd.includes(t), best, cur, learned, days60: days60.length, ms60,
+    cats, wpmBest: Math.max(0, ...wpm), lus: (D.voix.hist||[]).length + (D.soir.hist||[]).length, tables: ALL_T.filter(x=>mastered(x)===9).length,
+    flash: flashRec().best||0, frGames: D.fr.games||0, tot: D.totals, progs: C.days||0, recent, days};
+}
+function statsMsg(S){
+  if(S.rT!=null && S.rY!=null && S.rT > S.rY) return {up:true, t:`Tu as été <b>${S.rT - S.rY} % meilleur qu'hier</b> en réussite. Bravo !`};
+  if(S.hT.n && S.hY.n && S.hT.n > S.hY.n) return {up:true, t:`<b>${S.hT.n - S.hY.n} calculs de plus qu'hier</b> : tu t'entraînes de plus en plus !`};
+  if(S.w1.p!=null && S.w0.p!=null && S.w1.p > S.w0.p) return {up:true, t:`<b>En progression</b> : +${S.w1.p - S.w0.p} % de réussite cette semaine par rapport à la semaine d'avant.`};
+  if(S.cur>=2) return {up:true, t:`<b>${S.cur} jours de suite</b> avec ton programme fini : la régularité, c'est ça qui fait progresser !`};
+  if(S.hT.n) return {up:false, t:`<b>En progression</b> : chaque calcul entraîne ton cerveau. Continue comme ça !`};
+  return {up:false, t:`Pas encore joué aujourd'hui : <b>ton programme du jour t'attend</b> pour faire monter tes stats !`};
+}
+function fxChart(days){
+  const W = 640, H = 190, L = 34, R = 14, T = 16, B = 30, x = i => L + i*(W-L-R)/13, y = p => T + (100-p)*(H-T-B)/100;
+  const pts = days.map((d,i)=>d.p==null ? null : [x(i), y(d.p), d.p, i]);
+  let path = "", area = "", seg = [];
+  const flush = () => { if(seg.length){ path += "M" + seg.map(q=>q[0].toFixed(1)+","+q[1].toFixed(1)).join("L"); if(seg.length>1) area += `<path d="M${seg[0][0].toFixed(1)},${y(0)}L${seg.map(q=>q[0].toFixed(1)+","+q[1].toFixed(1)).join("L")}L${seg[seg.length-1][0].toFixed(1)},${y(0)}Z" fill="url(#fxg)"/>`; seg = []; } };
+  pts.forEach(q=>{ if(q) seg.push(q); }); flush();   // une seule courbe : les jours sans jeu sont simplement sautés
+  const last = pts.filter(Boolean).pop();
+  const grid = [0,50,80,100].map(p=>`<line class="gl" x1="${L}" x2="${W-R}" y1="${y(p)}" y2="${y(p)}"/><text class="ax" x="${L-6}" y="${y(p)+4}" text-anchor="end">${p}</text>`).join("");
+  const axis = days.map((d,i)=>{ const dt = new Date(dnStr(dayNum()-d.k)+"T12:00:00"); return i%2===1 || i===13 ? `<text class="ax" x="${x(i)}" y="${H-8}" text-anchor="middle">${i===13 ? "auj." : dt.getDate()}</text>` : ""; }).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Réussite jour par jour, 14 derniers jours : ${days.map(d=>d.p==null?"pas joué":d.p+" %").join(", ")}">
+    <defs><linearGradient id="fxg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5500" stop-opacity=".35"/><stop offset="1" stop-color="#ff5500" stop-opacity="0"/></linearGradient></defs>
+    ${grid}${area}<path class="ln" d="${path}"/>${pts.filter(Boolean).map(q=>`<circle class="pt" cx="${q[0].toFixed(1)}" cy="${q[1].toFixed(1)}" r="4"/>`).join("")}
+    ${last ? `<text class="lab" x="${Math.min(last[0], W-R-4)}" y="${last[1]-10}" text-anchor="${last[3]>=12 ? "end" : "middle"}">${last[2]} %</text>` : ""}${axis}</svg>`;
+}
+function renderStats(){
+  const box = $("stats-body"); if(!box) return;
+  const S = statsData(), M = statsMsg(S), lp = lvlProgress(D.xp), lc = fxLvlColor(lp.l), N = esc(D.name.trim() || "Joueur");
+  const ring = (() => { const r = 36, c = 2*Math.PI*r, f = Math.max(0, Math.min(1, lp.pct/100));
+    return `<svg viewBox="0 0 86 86" aria-hidden="true"><circle cx="43" cy="43" r="${r}" fill="#0d0e10" stroke="#30343c" stroke-width="6"/><circle cx="43" cy="43" r="${r}" fill="none" stroke="${lc}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${(c*f).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 43 43)"/></svg>`; })();
+  const tile = (k, v, unit, d) => `<div class="fx-tile"><span class="k">${k}</span><span class="v">${v}${unit ? `<small>${unit}</small>` : ""}</span>${d===undefined ? "" : d || `<span class="fx-d flat" style="visibility:hidden">·</span>`}</div>`;
+  const minT = Math.round((S.hT.ms||0)/60000), minY = Math.round((S.hY.ms||0)/60000);
+  const today = [
+    tile("Calculs", S.hT.n, "", S.hT.n ? fxDelta(S.hT.n, S.hY.n, "rel") : ""),
+    tile("Réussite", S.rT==null ? "–" : S.rT, S.rT==null ? "" : "%", fxDelta(S.rT, S.rY, "pt")),
+    tile("Temps", minT, "min", minT ? fxDelta(minT, minY, "rel") : ""),
+    tile("Programme", S.progDone ? "✓" : S.stAll ? `${S.stDone}/${S.stAll}` : "–", "", S.progDone ? `<span class="fx-d up">▲ fini !</span>` : S.stDone ? `<span class="fx-d flat">● en cours</span>` : "")
+  ].join("");
+  const totRate = S.tot.answered ? Math.round(100*S.tot.correct/S.tot.answered) : null;
+  const glob = [
+    tile("Calculs en tout", fmt(S.tot.answered||0)), tile("Réussite globale", totRate==null ? "–" : totRate, totRate==null ? "" : "%"),
+    tile("Programmes finis", S.progs), tile("Notions apprises", S.learned),
+    tile("Meilleure série", S.best, S.best>1 ? "jours" : "jour"), tile("Tables par cœur", S.tables, "/ 9"),
+    tile("Record Éclair", S.flash), tile(S.wpmBest ? "Lecture (record)" : "Textes lus", S.wpmBest || S.lus, S.wpmBest ? "mots/min" : "")
+  ].join("");
+  const wk = S.w1.p!=null ? `<div class="fx-msg ${S.w0.p!=null && S.w1.p>S.w0.p ? "" : "flat"}" style="margin-top:12px"><span>${S.w0.p!=null && S.w1.p>S.w0.p ? `<b style="color:var(--fx-g)">▲</b> Cette semaine : <b style="color:var(--fx-g)">${S.w1.p} %</b> de réussite, +${S.w1.p - S.w0.p} % par rapport à la semaine d'avant.` : `Cette semaine : <b>${S.w1.p} %</b> de réussite sur ${S.w1.n} calculs. Garde le rythme !`}</span></div>` : "";
+  const cats = Object.entries(S.cats).filter(([,a])=>a[0]>=5).map(([c,a])=>({c, n:a[0], p:Math.round(100*a[1]/a[0])})).sort((a,b)=>b.n-a.n).slice(0,8);
+  const rows = S.recent.map(r=>{ const dt = new Date(r.key+"T12:00:00"), p = fxRate(r.h), m = Math.round((r.h.ms||0)/60000);
+    return `<div class="fx-row"><i style="background:${fxTier(p)}"></i><span class="t">${r.k===0 ? "Aujourd'hui" : r.k===1 ? "Hier" : `${FX_DAYS[dt.getDay()]} ${dt.getDate()} ${FX_MONTHS[dt.getMonth()]}`}</span>
+      <span class="tag ${r.prog ? "ok" : "lib"}">${r.prog ? "Programme ✓" : "Entraînement"}</span>
+      <span class="c">${r.h.n||0}<small>calculs</small></span><span class="c">${p==null ? "–" : p + " %"}<small>réussite</small></span><span class="c">${m}<small>min</small></span></div>`; }).join("");
+  box.innerHTML = `<div class="fx-top"><div class="fx-av">${owlSVG(D.equip)}</div>
+      <div><p class="fx-name">${N}</p><p class="fx-sub">Niveau ${lp.l} · ${esc(titleOf(lp.l))} · ${S.cur>=2 ? `🔥 ${S.cur} jours de suite` : `${S.days60} jour${S.days60>1?"s":""} joué${S.days60>1?"s":""} sur 60`}</p>
+        <div class="fx-xp"><span>${fmt(D.xp)} XP</span><span class="fx-xpbar"><i style="width:${Math.round(lp.pct)}%"></i></span><span>encore ${fmt(Math.max(0, lp.need - lp.cur))} XP pour le niveau ${lp.l+1}</span></div></div>
+      <div class="fx-lvl" title="Niveau ${lp.l}">${ring}<b style="color:${lc}">${lp.l}</b><small>niveau</small></div></div>
+    <div class="fx-msg ${M.up ? "" : "flat"}">${M.up ? `<span style="color:var(--fx-g);font-size:1.2rem">▲</span>` : `<span style="color:#8fa3ff;font-size:1.1rem">●</span>`}<span>${M.t}</span></div>
+    <div class="fx-p"><h3 class="fx-h">Aujourd'hui</h3><div class="fx-tiles">${today}</div>${wk}</div>
+    <div class="fx-two"><div class="fx-p fx-chart"><h3 class="fx-h">Réussite · 14 derniers jours</h3>${S.days.some(d=>d.p!=null) ? fxChart(S.days) : `<p class="fx-empty">Joue quelques jours et ta courbe apparaîtra ici.</p>`}</div>
+      <div class="fx-p"><h3 class="fx-h">Mes matières · 30 jours</h3>${cats.length ? `<div class="fx-cats">${cats.map(x=>`<div class="fx-cat"><span>${esc(CAT[x.c].nm)} <small style="color:var(--fx-m)">· ${x.n}</small></span><b style="color:${fxTier(x.p)}">${x.p} %</b><i><em style="width:${x.p}%;background:${fxTier(x.p)}"></em></i></div>`).join("")}</div>` : `<p class="fx-empty">Pas encore assez de calculs.</p>`}</div></div>
+    <div class="fx-p"><h3 class="fx-h">Depuis le début</h3><div class="fx-grid">${glob}</div></div>
+    <div class="fx-p"><h3 class="fx-h">Mes derniers jours</h3>${rows ? `<div class="fx-rows">${rows}</div>` : `<p class="fx-empty">Rien pour l'instant : à toi de jouer !</p>`}</div>`;
 }
 function renderProg(){
   const P = progData(), N = esc(D.name.trim()), last = P.wk[5], prev = P.wk[4], st = P.path.st[P.path.cur];
