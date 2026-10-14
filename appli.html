@@ -1459,6 +1459,14 @@ svg.barmodel{width:min(560px,100%);height:auto;display:block}
 .item .icon{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;background:var(--card);color:var(--primary-ink)}
 .item .icon svg{width:40px;height:40px}
 .price{display:inline-flex;align-items:center;gap:4px}
+.ic{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;flex:none;vertical-align:middle;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 0 1.5px rgba(255,255,255,.75),0 1px 3px rgba(0,0,0,.22)}
+.ic svg{width:14px!important;height:14px!important;margin:0!important}
+.ic-pl{background:linear-gradient(160deg,#ffcf5c,#f08a12);color:#fff}
+.ic-di{background:linear-gradient(160deg,#7fe0ff,#2a86d6);color:#fff}
+.btn.case-go{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-size:1.05rem;padding:9px 9px 9px 20px;border-radius:999px;box-shadow:0 3px 0 color-mix(in srgb,var(--primary) 60%,#000);align-self:center;width:auto;min-width:0;margin:6px auto 0}
+.btn.case-go.alt{box-shadow:0 3px 0 color-mix(in srgb,var(--primary) 30%,#000)}
+.btn.case-go .cost{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.24);border-radius:999px;padding:3px 11px 3px 3px;font-variant-numeric:tabular-nums;font-size:1rem}
+.btn.case-go[disabled] .cost{background:rgba(0,0,0,.08)}
 .price svg{width:16px;height:16px}
 .kp-prev{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;width:100%}
 .kp-prev .key{min-height:30px;font-size:1rem;border-radius:9px;box-shadow:0 3px 0 var(--line);pointer-events:none}
@@ -10258,7 +10266,7 @@ function renderMissions(){
   const rows = M.list.map((m,i)=>{
     const T = MISSION_T[m.t], done = m.p>=m.g, pct = Math.min(100, Math.round(100*m.p/m.g));
     const act = m.c ? `<span class="mnum">Récupéré</span>`
-      : done ? `<button class="btn sm" data-claim="${i}"><span class="price">${FEATHER}+${m.r}</span></button>`
+      : done ? `<button class="btn sm" data-claim="${i}"><span class="price">${IC_PL()}+${m.r}</span></button>`
       : `<span class="mrw">${FEATHER}${m.r}</span>`;
     return `<div class="mrow ${done?"done":""} ${m.c?"claimed":""}"><span class="mic" aria-hidden="true">${done?"✓":T.ic}</span>
       <span class="mtxt"><span>${T.lab(m.g)}</span><span class="pbar"><i style="width:${pct}%"></i></span><span class="mnum">${Math.min(m.p,m.g)} / ${m.g}</span></span>${act}</div>`;
@@ -10675,7 +10683,7 @@ function renderAlbum(){
   const pk = D.album.packs;
   $("open-pack-btn").textContent = pk ? `Ouvrir ${pk>1?`mes ${pk} pochettes`:"ma pochette"}` : "Aucune pochette";
   $("open-pack-btn").disabled = !pk;
-  $("buy-pack").innerHTML = `<span class="price">Acheter une pochette · ${FEATHER}${PACK_PRICE}</span>`;
+  $("buy-pack").innerHTML = `<span class="price">Acheter une pochette ${IC_PL()}${PACK_PRICE}</span>`;
   $("buy-pack").disabled = D.plumes < PACK_PRICE;
   $("album-pages").innerHTML = ALBUM_PAGES.filter(([k])=>visible.some(x=>x.page===k)).map(([k,l])=>{ const n=STICKERS.filter(x=>x.page===k && have[x.id]).length; return `<button data-page="${k}" aria-pressed="${albumPage===k}">${l} <small>${n}/8</small></button>`; }).join("");
   $("album-grid").innerHTML = STICKERS.filter(x=>x.page===albumPage).map(x=>
@@ -10777,6 +10785,8 @@ const badgeName = id => (BADGES.find(b=>b.id===id)||{}).nm;
 /* ======================================================================
    BOUTIQUE
    ====================================================================== */
+const IC_PL = () => `<i class="ic ic-pl">${FEATHER}</i>`;
+const IC_DI = () => `<i class="ic ic-di"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M7.5 4.5h9l4 5L12 20 3.5 9.5z"/><path d="M3.5 9.5h17M12 20 9 9.5l1.6-5M12 20l3-10.5-1.6-5"/></svg></i>`;
 const FEATHER = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4C11 4 6 9 5 19"/><path d="M20 4c0 7-4 12-11 12"/><path d="M5 19l-1 2"/></svg>`;
 const ICONS = {
   music:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="17" cy="16" r="3" fill="currentColor"/></svg>`,
@@ -10800,8 +10810,8 @@ function itemCard(it){
   let btn;
   if(on) btn = OPTIONAL.includes(it.type) ? `<button class="btn sm alt" data-off="${it.uid}">Enlever</button>` : `<button class="btn sm alt" disabled>Choisi</button>`;
   else if(own) btn = `<button class="btn sm" data-wear="${it.uid}">Choisir</button>`;
-  else if(D.plumes>=it.p) btn = `<button class="btn sm" data-buy="${it.uid}"><span class="price">${FEATHER}${it.p}</span></button>`;
-  else btn = `<button class="btn sm alt" disabled title="Il te manque ${it.p-D.plumes} plumes"><span class="price">${FEATHER}${it.p}</span></button>`;
+  else if(D.plumes>=it.p) btn = `<button class="btn sm" data-buy="${it.uid}"><span class="price">${IC_PL()}${it.p}</span></button>`;
+  else btn = `<button class="btn sm alt" disabled title="Il te manque ${it.p-D.plumes} plumes"><span class="price">${IC_PL()}${it.p}</span></button>`;
   const tryBtn = ["music","sfx","fx","dance"].includes(it.type) ? `<button class="mini" data-try="${it.uid}">${it.type==="music"||it.type==="sfx"?"Écouter":"Voir"}</button>` : "";
   const genre = it.type==="music" && TRACKS[it.id] ? `<small class="genre">${TRACKS[it.id].nm}</small>` : "";
   return `<div class="item ${on?"on":""}" data-uid="${it.uid}">${preview(it)}<b>${it.nm}</b>${genre}${tryBtn}${btn}</div>`;
@@ -11066,7 +11076,7 @@ function cfullRender(){
       <div class="cf-art${isK ? " kn" : ""}">${isK ? knifeCard(k.m, k.f, "f"+(++owlUid)) : owlSVG(lookOf(k))}</div>
       <span class="cf-rar">${RAR[k.r].nm}</span><b class="cf-nm">${esc(k.nm)}</b>
       <div class="btnrow" style="justify-content:center">${equipped ? `<button class="btn big alt" disabled>Équipé</button>` : `<button class="btn big" ${isK ? `data-knife="${k.id}"` : isC ? `data-crea="${k.id}"` : `data-skin="${k.id}"`}>Équiper</button>`}
-        ${left && caseMoney(CASE.type)>=price ? `<button class="btn big alt" data-case="${CASE.type}">Encore une · ${caseCur(CASE.type, price)}</button>` : ""}
+        ${left && caseMoney(CASE.type)>=price ? `<button class="btn case-go alt" data-case="${CASE.type}">Encore une ${caseCur(CASE.type, price)}</button>` : ""}
         <button class="btn big alt" id="cf-close">Fermer</button></div></div>`;
 }
 $("cfull").addEventListener("click", e=>{
@@ -11080,14 +11090,14 @@ $("cfull").addEventListener("click", e=>{
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && CASE && CASE.done){ CASE = null; cfullRender(); renderShop(); } });
 const casePrice = t => t==="crea" ? CREA_PRICE : t==="knife" ? KNIFE_PRICE : CASE_PRICE;
 const caseMoney = t => t==="knife" ? D.plumes : D.diam;
-const caseCur = (t, n) => t==="knife" ? `${FEATHER}${n}` : `${DIAM}${n}`;
+const caseCur = (t, n) => `<span class="cost">${t==="knife" ? IC_PL() : IC_DI()}${n}</span>`;
 const caseLeft = t => t==="crea" ? creasLeft() : t==="knife" ? knivesLeft() : skinsLeft();
 function caseCard(type){
   if(type==="knife"){
     const price = KNIFE_PRICE, left = knivesLeft(), busy = CASE && CASE.busy, can = D.plumes>=price && left.length && !busy;
     return `<div class="card cases" id="case-knife"><h3>Caisse Lames</h3><p class="muted" style="margin:0">Une lame de collection que ton personnage tient à la main. <b>${price} plumes.</b></p>
     ${caseArt("knife", "k")}
-    ${left.length ? `<button class="btn big" data-case="knife" id="case-open-knife" ${can ? "" : "disabled"}>Ouvrir la caisse · ${FEATHER}${price}</button>
+    ${left.length ? `<button class="btn case-go" data-case="knife" id="case-open-knife" ${can ? "" : "disabled"} aria-label="Ouvrir la caisse pour ${price} plumes">Ouvrir ${caseCur("knife", price)}</button>
       ${D.plumes<price && !busy ? `<span class="muted">Il te manque ${price-D.plumes} plumes. Chaque bonne réponse en rapporte !</span>` : ""}`
       : `<div style="color:var(--good);font-family:var(--f-display);font-weight:800">Tu as toutes les lames. Collection complète !</div>`}
     <div class="odds">${RAR.slice(0,5).map(r=>`<span><b style="background:${r.col}"></b>${r.nm} ${r.p} %</span>`).join("")}</div>
@@ -11103,7 +11113,7 @@ function caseCard(type){
   return `<div class="card cases" id="case-${type}"><h3>${title}</h3><p class="muted" style="margin:0">${help}</p>
     ${caseArt(isC ? "crea" : "skin", type)}${"" && (isC ? CASE_SVG.replace(/cbg/g,'cbgc').replace('#4b3cc4','#c43c6b').replace('#22186e','#6e1838').replace('#5d4de0','#e05d8a') : CASE_SVG)}
 
-    ${left.length ? `<button class="btn big" data-case="${type}" id="case-open-${type}" ${can ? "" : "disabled"}>Ouvrir la caisse · ${DIAM}${price}</button>
+    ${left.length ? `<button class="btn case-go" data-case="${type}" id="case-open-${type}" ${can ? "" : "disabled"} aria-label="Ouvrir la caisse pour ${price} diamant${price>1?"s":""}">Ouvrir ${caseCur(type, price)}</button>
       ${D.diam<price && !busy ? `<span class="muted">Il te manque ${price-D.diam} diamant${price-D.diam>1?"s":""}. Lis ton chapitre du soir pour en gagner !</span>` : ""}`
       : `<div style="color:var(--good);font-family:var(--f-display);font-weight:800">${isC ? "Tu as toutes les créatures. Bravo !" : `Tu as tous les skins de ${esc(cur.nm)}. Choisis une autre créature pour en gagner d'autres !`}</div>`}
     <div class="odds">${RAR.filter((r,i)=>i<5 || isC).map(r=>`<span><b style="background:${r.col}"></b>${r.nm} ${r.p} %</span>`).join("")}</div>
