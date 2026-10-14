@@ -672,6 +672,7 @@ svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
 .hubbtn.h-ses{background:var(--c-mult);box-shadow:0 6px 0 color-mix(in srgb,var(--c-mult) 55%,#000)}
 .hubbtn.h-calc{background:var(--c-add);box-shadow:0 6px 0 color-mix(in srgb,var(--c-add) 55%,#000)}
 .hubbtn.h-fr{background:var(--c-prob);box-shadow:0 6px 0 color-mix(in srgb,var(--c-prob) 55%,#000)}
+.hubbtn.h-fix{background:var(--c-comp);box-shadow:0 6px 0 color-mix(in srgb,var(--c-comp) 55%,#000)}
 .hubbtn:active{transform:translateY(4px);box-shadow:none}
 .hubbtn.done small::after{content:" ✓"}
 .hubmore{align-self:center;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:99px;padding:10px 18px;background:var(--card);color:var(--ink);font-family:var(--f-display);font-weight:800;font-size:1.05rem;box-shadow:var(--shadow);cursor:pointer;min-height:44px}
@@ -1020,6 +1021,10 @@ svg.pg-chart{width:100%;height:auto;display:block}
 .sv-dot2{fill:var(--c-add)}
 .sv-box{fill:color-mix(in srgb,var(--c-add) 30%,var(--card));stroke:var(--c-add);stroke-width:2}
 .sv-box2{fill:color-mix(in srgb,var(--c-mult) 30%,var(--card));stroke:var(--c-mult);stroke-width:2}
+.sv-out{fill:transparent;stroke:var(--ink-soft);stroke-width:2;stroke-dasharray:6 4}
+.sv-qq{fill:color-mix(in srgb,var(--warn) 22%,var(--card));stroke:var(--warn);stroke-width:2.4}
+svg.sv.steps{width:min(420px,100%);height:auto;display:block;margin:4px auto 0}
+@media (max-height:820px) and (min-width:700px){ svg.sv.steps{max-height:104px} .question.isprob .vpic + .prob .ptxt{font-size:1.04rem;line-height:1.3} }
 .sv-cut{fill:color-mix(in srgb,var(--bad) 25%,var(--card));stroke:var(--bad);stroke-width:2;stroke-dasharray:5 4}
 .pvt{border-collapse:collapse;font-variant-numeric:tabular-nums;margin:0 auto;max-width:100%}
 .pvt th,.pvt td{border:1px solid var(--line);padding:5px 9px;text-align:center}
@@ -1846,6 +1851,7 @@ svg.gs-svg{display:block;margin:2px auto;width:min(440px,100%);height:auto;overf
       <button class="hubbtn h-ses" id="hub-ses"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M8.5 15l2.2 2.2L15.5 13"/></svg><span><b>Entraînement libre</b><small id="hub-ses-sub">10 minutes</small></span></button>
       <button class="hubbtn h-calc" id="hub-calc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M7 3v6M4 6h6M14 6h6M5 15l4 4M9 15l-4 4M14 15h6M14 19h6"/></svg><span><b>Calcul</b><small>Additions, tables…</small></span></button>
       <button class="hubbtn h-fr" id="hub-fr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5.5C5.5 4 8.5 4 12 6c3.5-2 6.5-2 9-.5V19c-2.5-1.5-5.5-1.5-9 .5-3.5-2-6.5-2-9-.5z"/><path d="M12 6v13.5"/></svg><span><b>Français</b><small>Lire, écrire, grammaire</small></span></button>
+      <button class="hubbtn h-fix" id="hub-fix" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0 5.3 5.3l-8.6 8.6a2.1 2.1 0 0 1-3-3z"/><path d="M14.7 6.3 17 4l3 3-2.3 2.3"/><path d="M4 4l3.5 3.5M6 9l3-3"/></svg><span><b>Je répare mes erreurs</b><small id="hub-fix-sub"></small></span></button>
       <button class="hubmore" id="hub-more"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg>Plus de jeux</button>
     </div>
     <div class="spotcard" id="hub-spot" hidden><button class="spotbtn" id="hub-spot-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span><b>Ma musique</b><small>La playlist choisie par tes parents</small></span></button><div id="hub-spot-frame"></div></div>
@@ -4527,7 +4533,8 @@ const LADDER = {
     {nm:"Comparer, ce qui manque", g:()=>probGen(5)},
     {nm:"Paquets (tables 6 à 10)", g:()=>probGen(6)},
     {nm:"La monnaie", g:()=>probGen(7)},
-    {nm:"Deux étapes", g:()=>probGen(8)}
+    {nm:"Deux étapes", g:()=>probGen(8)},
+    {nm:"Problèmes à étapes avec un schéma", g:()=>probGen(9)}
   ]
 };
 const ELO_START = 800;
@@ -5354,7 +5361,7 @@ const MISSION_T = {
    ====================================================================== */
 const COACH_CALC = ("add:1 sub:1 deco:1 comp:1 deco:2 num:1 half:1 deco:3 add:2 deco:4 sub:2 num:2 suite:1 mult:1 heure:1 monnaie:1 half:2 comp:2 heure:2 mes:1 add:3 sub:3 mult:2 div:1 monnaie:2 add:4 sub:4 num:3 comp:3 heure:3 mult:3 div:2 half:3 monnaie:3 mes:2 suite:2 add:5 malin:1 sub:5 malin:2 num:4 num:8 mult:4 div:3 frac:1 suite:3 heure:4 comp:4 half:4 monnaie:4 prob:1 graph:1 "
   + "add:6 sub:6 num:5 mult:5 heure:5 mes:3 sym:1 prob:2 graph:2 frac:2 monnaie:5 add:7 malin:3 sub:7 mult:6 heure:6 comp:5 mes:4 half:5 monnaie:6 prob:3 mes:5 sym:2 frac:3 heure:7 heure:8 add:8 malin:4 sub:8 mult:7 prob:4 graph:3 mult:8 div:4 half:6 num:6 suite:4 frac:4 big:1 add:9 malin:5 pose:1 sub:9 mult:9 malin:6 div:5 comp:6 big:2 suite:5 num:7 frac:5 prob:5 graph:4 "
-  + "add:10 pose:2 sub:10 pose:3 half:7 mes:6 sym:3 big:3 div:6 comp:7 dec:1 heure:9 prob:6 mes:7 add:11 sub:11 pose:4 pose:5 malin:7 big:4 suite:6 pose:6 malin:8 pose:7 dec:2 half:8 comp:8 big:5 dec:3 prob:7 graph:5 mes:8 sym:4 add:12 sub:12 big:6 pose:8 dec:4 dec:5 big:7 prob:8 dec:6 dec:7 big:8 dec:8").split(" ").map(x=>"c:"+x);
+  + "add:10 pose:2 sub:10 pose:3 half:7 mes:6 sym:3 big:3 div:6 comp:7 dec:1 heure:9 prob:6 mes:7 add:11 sub:11 pose:4 pose:5 malin:7 big:4 suite:6 pose:6 malin:8 pose:7 dec:2 half:8 comp:8 big:5 dec:3 prob:7 graph:5 mes:8 sym:4 add:12 sub:12 big:6 pose:8 dec:4 dec:5 big:7 prob:8 prob:9 dec:6 dec:7 big:8 dec:8").split(" ").map(x=>"c:"+x);
 const COACH_FR = (()=>{ const out = [], ids = ["mots","gram","conj","accord","lire"], mx = Math.max(...ids.map(i=>FR_LADDER[i].length));
   for(let p=1; p<=mx; p++) ids.forEach(i=>{ if(FR_LADDER[i][p-1]) out.push(`f:${i}:${p}`); }); return out; })();
 const COACH_IDS = new Set([...COACH_CALC, ...COACH_FR]);
@@ -5372,7 +5379,7 @@ const DEF = () => ({schema:SCHEMA, name:"", owl:"Pythagore", owlSet:false, gardi
   cats:["add","sub","mult"], tables:ALL_T.slice(), level:3, mode:"serie", elo:{add:ELO_START,sub:ELO_START,mult:ELO_START}, eloBest:{add:1,sub:1,mult:1}, eloSlow:{add:0,sub:0,mult:0},
   xp:0, plumes:0, owned:FREE.slice(),
   equip:{color:"brun",hat:null,face:null,neck:null,dance:"saut",bg:"ciel",music:"douce",sfx:"classique",fx:"confettis",kp:"classique"},
-  badges:{}, facts:{}, stats:{}, records:{}, pool:[], adv:{stars:{}}, duel:{n2:"",l1:3,l2:2,goal:10,face:null}, missions:{week:null,list:[],bonus:false}, album:{have:{},packs:0,day:null,dayN:0}, extras:[], events:{}, tts:{auto:false,rate:1,voice:""}, gift:{n:0,last:null}, played:[], hist:{}, pets:{have:{},cur:null,hug:null}, histM:{}, recs:{}, knife:{have:[], cur:null, pity:0, n:0}, cible:{n:0,lvl:0,best:[0,0,0]}, cmp:{lvl:0,best:[0,0,0],n:0}, tips:[], seance:{last:null,n:0}, pause:{min:20,day:null,seen:0}, view:"clair", frKeys:false, sesFr:true, fr:{elo:{},best:{},stats:{},words:{},games:0,last:[],textes:0,miss:[],school:{words:[],at:0}}, coach:{seed:false,lt:null,n:{},plan:{d:0,steps:[],nw:0},last:0,days:0,msg:{d:0,t:"",ai:false},stuck:[]}, ai:{on:true}, bilan:{st:"todo",sec:0,res:{},ms:0,at:0,ask:0,prize:false}, profil:null, mem:{lv:2,st:0,n:0,ok:0,run:0,last:0,hist:[],chunk:false}, days:{last:null,streak:0}, daily:{date:null},
+  badges:{}, facts:{}, stats:{}, records:{}, pool:[], adv:{stars:{}}, duel:{n2:"",l1:3,l2:2,goal:10,face:null}, missions:{week:null,list:[],bonus:false}, album:{have:{},packs:0,day:null,dayN:0}, extras:[], events:{}, tts:{auto:false,rate:1,voice:""}, gift:{n:0,last:null}, played:[], hist:{}, pets:{have:{},cur:null,hug:null}, histM:{}, recs:{}, knife:{have:[], cur:null, pity:0, n:0}, fix:{k:{}, n:0}, cible:{n:0,lvl:0,best:[0,0,0]}, cmp:{lvl:0,best:[0,0,0],n:0}, tips:[], seance:{last:null,n:0}, pause:{min:20,day:null,seen:0}, view:"clair", frKeys:false, sesFr:true, fr:{elo:{},best:{},stats:{},words:{},games:0,last:[],textes:0,miss:[],school:{words:[],at:0}}, coach:{seed:false,lt:null,n:{},plan:{d:0,steps:[],nw:0},last:0,days:0,msg:{d:0,t:"",ai:false},stuck:[]}, ai:{on:true}, bilan:{st:"todo",sec:0,res:{},ms:0,at:0,ask:0,prize:false}, profil:null, mem:{lv:2,st:0,n:0,ok:0,run:0,last:0,hist:[],chunk:false}, days:{last:null,streak:0}, daily:{date:null},
   totals:{correct:0,answered:0,games:0,chests:0}});
 const isObj = v => !!v && typeof v==="object" && !Array.isArray(v);
 const num = (v,d,min=0,max=Infinity) => (typeof v==="number" && isFinite(v)) ? Math.min(max,Math.max(min,v)) : d;
@@ -5537,7 +5544,7 @@ function migrate(d){
     goal: [5,10,15].includes(dd.goal) ? dd.goal : 10, face: typeof dd.face==="boolean" ? dd.face : null};
   out.adv = {stars:{}};
   if(isObj(d.adv) && isObj(d.adv.stars)) Object.entries(d.adv.stars).forEach(([k,v]) => { if(/^\d+-[1-6]$/.test(k) && typeof v==="number") out.adv.stars[k] = Math.max(0, Math.min(3, Math.round(v))); });
-  out.pool = Array.isArray(d.pool) ? d.pool.filter(q=>isObj(q) && !(q.op==="v" && ["num","div","frac","pose","mes","malin","suite","graph","sym"].includes(q.cat)) && typeof q.t==="string" && !/<[a-z\/!]/i.test(q.t) && q.t.length<200 && typeof q.r==="number" && isFinite(q.r) && CAT[q.cat]).slice(-40) : [];
+  out.pool = Array.isArray(d.pool) ? d.pool.filter(q=>isObj(q) && q.op!=="v" && typeof q.t==="string" && !/<[a-z\/!]/i.test(q.t) && q.t.length<200 && typeof q.r==="number" && isFinite(q.r) && CAT[q.cat]).slice(-40) : [];
   const owned = new Set(FREE);
   (Array.isArray(d.owned)?d.owned:[]).forEach(id => { if(ITEM[id]) owned.add(id); });
   out.owned = [...owned];
@@ -5561,6 +5568,9 @@ function migrate(d){
   out.equip = eq;
   { const kn = isObj(d.knife) ? d.knife : {}, have = Array.isArray(kn.have) ? [...new Set(kn.have.filter(x=>typeof x==="string" && KNIFE_BY[x]))] : [];
     out.knife = {have, cur: typeof kn.cur==="string" && have.includes(kn.cur) ? kn.cur : null, pity: Math.round(num(kn.pity,0,0,99)), n: Math.round(num(kn.n,0,0,99999))}; }
+  { const fx = isObj(d.fix) ? d.fix : {}, k = {};   // « Je répare mes erreurs » : genres de questions ratées (cat:palier)
+    if(isObj(fx.k)) Object.entries(fx.k).slice(0,40).forEach(([key, v]) => { const [c, p] = String(key).split(":"); if(LADDER[c] && LADDER[c][+p-1] && isObj(v)) k[`${c}:${+p}`] = {m: Math.round(num(v.m,1,1,99)), d: Math.round(num(v.d,0,0,1e6))}; });
+    out.fix = {k, n: Math.round(num(fx.n,0,0,1e6))}; }
   return out;
 }
 const keyOf = id => id==="p1" ? KEY0 : `${KEY0}-${id}`;
@@ -6663,6 +6673,21 @@ function probGen(lv){
     const it2 = pick(items.filter(x=>x[0]!==it))[0];
     return mkProb(`${it2[0].toUpperCase()}${it2.slice(1)} coûte ${p1} € et ${it} coûte ${p2} €. Combien coûtent les deux ensemble ?`, "€", `${p1} + ${p2}`, p1+p2, "euro");
   }
+  if(lv===9){   // problèmes à étapes AVEC le schéma en barres dessiné
+    const T = rand(1,5), U = o.n;
+    const P = (txt, unit, x, r, ic, rows, sh, sf) => Object.assign(mkProb(txt, unit, x, r, ic), {pic: svgSteps(rows), sh, sf, two:true});
+    if(T===1){ const n=rand(2,5), k=rand(3,9), c=rand(2,9); return P(`${W.nm} ${W.av} ${n} paquets de ${k} ${U} et encore ${c} ${U} ${["billes","pommes","cartes","fleurs"].includes(U) ? "toutes seules" : "tout seuls"}. Combien ${deN(U)} ${W.a3} en tout ?`, U, `${n} × ${k} + ${c}`, n*k+c, o.ic,
+      [[...Array(n)].map(()=>({v:k})).concat([{v:c, c:"sv-box2"}]), [{v:n*k+c, q:true, lab:"?"}]], `Étape 1 : combien dans les ${n} paquets ? Étape 2 : ajoute les ${c} qui sont à part.`, `${n} × ${k} = ${n*k}, puis ${n*k} + ${c} = ${n*k+c}.`); }
+    if(T===2){ const n=rand(3,6), k=rand(4,9), c=rand(3, Math.min(15, n*k-4)); return P(`${W.nm} ${W.av} ${n} boîtes de ${k} ${U}. ${W.Il} en ${W.don} ${c} à ${otherKid(W)}. Combien ${W.reste} ?`, U, `${n} × ${k} − ${c}`, n*k-c, o.ic,
+      [[...Array(n)].map(()=>({v:k})), [{v:n*k-c, q:true, lab:"?"}, {v:c, out:true, sub:"donnés"}]], `Étape 1 : combien dans les ${n} boîtes ? Étape 2 : enlève ceux qui sont donnés.`, `${n} × ${k} = ${n*k}, puis ${n*k} − ${c} = ${n*k-c}.`); }
+    if(T===3){ const m=rand(2,5), pr=rand(2,9), bill = m*pr<10 ? 10 : m*pr<20 ? 20 : 50, it = pick(["cahiers","stylos","gâteaux","billes géantes","autocollants"]);
+      return P(`${W.nm} ${W.ach} ${m} ${it} à ${pr} € chacun. ${W.Il} ${W.pay} avec un billet de ${bill} €. Combien d'argent ${W.tu?"te rend":"lui rend"}-on ?`, "€", `${bill} − ${m} × ${pr}`, bill-m*pr, "euro",
+      [[{v:bill, c:"sv-box2", lab:`billet de ${bill} €`}], [...Array(m)].map(()=>({v:pr, lab:`${pr} €`})).concat([{v:bill-m*pr, q:true, lab:"?"}])], `Étape 1 : combien coûtent les ${m} ${it} ? Étape 2 : enlève ce prix du billet.`, `${m} × ${pr} = ${m*pr} €, puis ${bill} − ${m*pr} = ${bill-m*pr} €.`); }
+    if(T===4){ const a=rand(12,35), b=rand(4,15), c=rand(3, Math.min(a+b-3, 18)); return P(`Dans le bus, il y a ${a} personnes. ${b} personnes montent, puis ${c} descendent. Combien de personnes y a-t-il dans le bus maintenant ?`, "personnes", `${a} + ${b} − ${c}`, a+b-c, "bus",
+      [[{v:a}, {v:b, c:"sv-box2", sub:"montent"}], [{v:a+b-c, q:true, lab:"?"}, {v:c, out:true, sub:"descendent"}]], `Étape 1 : combien après ceux qui montent ? Étape 2 : enlève ceux qui descendent.`, `${a} + ${b} = ${a+b}, puis ${a+b} − ${c} = ${a+b-c}.`); }
+    const a=rand(6,12)*10, b=rand(12,28), c=rand(12,28); return P(`Un livre a ${a} pages. ${W.nm} en ${W.tu?"lis":"lit"} ${b} lundi et ${c} mardi. Combien de pages ${W.tu?"te":"lui"} reste-t-il à lire ?`, "pages", `${a} − ${b} − ${c}`, a-b-c, "livre",
+      [[{v:a, lab:`${a} pages`}], [{v:b, out:true, sub:"lundi"}, {v:c, out:true, sub:"mardi"}, {v:a-b-c, q:true, lab:"?"}]], `Étape 1 : combien de pages lues en tout ? Étape 2 : enlève-les du livre.`, `${b} + ${c} = ${b+c}, puis ${a} − ${b+c} = ${a-b-c}.`);
+  }
   // lv 8 : deux étapes
   const k=rand(3,9), n=rand(2,6);
   return pick([
@@ -7354,6 +7379,7 @@ function strategy(q){
     const sym = q.op==="+" ? "+" : "−";
     return {h:`Pense en ${u} : ${q.a}, c'est ${q.an} ${u} ; ${q.b}, c'est ${q.bn} ${u}.`, f:`${q.an} ${sym} ${q.bn} = ${q.rn} ${u}, c'est-à-dire ${fmt(q.r)}.`};
   }
+  if(q.op==="w" && q.sh) return {h:q.sh, f:q.sf};
   if(q.op==="w"){
     const x=q.x||"", two=/×/.test(x) && /[+−]/.test(x);
     const h = two ? "Il y a deux étapes. D'abord, calcule ce qu'il y a dans tous les paquets (une multiplication), puis termine avec le reste de l'histoire."
@@ -8824,7 +8850,7 @@ const BL_NAME = {"c:add":"Les additions","c:sub":"Les soustractions","c:mult":"L
 /* repères indicatifs : à quel niveau de classe correspond chaque palier */
 const BL_CLASS = {malin:MALIN_CLASS, suite:SUITE_CLASS, graph:GRAPH_CLASS, sym:SYM_CLASS, mes:["CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"], pose:["CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM2"], frac:["CE2","CM1","CM1","CM1","CM2"], div:["CE1","CE2","CE2","CM1","CM1","CM2"], num:["CE1","CE2","CE2","CE2","CE2","CM1","CM2","CE2"], add:["CP","CP","CE1","CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"], sub:["CP","CP","CE1","CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"],
   mult:["CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"], comp:["CP","CE1","CE1","CE2","CE2","CM1","CM1","CM1"], half:["CP","CE1","CE2","CE2","CE2","CM1","CM1","CM1"],
-  prob:["CP","CP","CE1","CE1","CE2","CE2","CE2","CM1"], big:["CE2","CM1","CM1","CM1","CM1","CM1","CM1","CM2"], dec:["CM1","CM1","CM1","CM1","CM1","CM1","CM2","CM2"],
+  prob:["CP","CP","CE1","CE1","CE2","CE2","CE2","CM1","CM1"], big:["CE2","CM1","CM1","CM1","CM1","CM1","CM1","CM2"], dec:["CM1","CM1","CM1","CM1","CM1","CM1","CM2","CM2"],
   mots:["CP","CE1","CE1","CE2","CE2","CM1","CM1"], gram:["CE1","CE1","CE2","CE2","CM1","CM1"], accord:["CE1","CE1","CE2","CE2","CM1","CM1"], conj:["CE1","CE1","CE2","CE2","CE2","CM1","CM1"], lire:["CP","CE1","CE1","CE2","CE2","CM1"]};
 const BL_WORDS = ["chat","lune","vélo","pomme","livre","train","fleur","ballon","soleil","chien","table","gâteau","bateau","maison","arbre","étoile","poisson","clé","sac","nuage","fusée","tortue"];
 const BL_SKIP = (()=>{ try{ return localStorage.getItem("pythagore-test-nobilan")==="1"; }catch(e){ return false; } })();   // tests automatiques seulement
@@ -9587,6 +9613,16 @@ function svgArray(r, c){
   for(let i=0;i<r;i++){ for(let k=0;k<c;k++) g += `<circle cx="${14 + k*s}" cy="${14 + i*s}" r="5.5" class="${k>=5 ? "sv-dot2" : "sv-dot"}"/>`; g += svgT(c*s + 22, 18 + i*s, i===0 ? `${c}` : "", "sv-small", "start"); }
   g += svgT(14, r*s + 20, `${r} rangées de ${c} → ${r} × ${c}`, "sv-small", "start");
   return `<svg class="sv" viewBox="0 0 ${W} ${H}" role="img" aria-label="${r} rangées de ${c} points">${g}</svg>`;
+}
+/* Schéma en barres à 2 rangées pour les problèmes à étapes (rangée du haut : ce qu'on sait ; en bas : ce qu'on cherche « ? ») */
+function svgSteps(rows){
+  const W = 360, X0 = 10, L = W - 2*X0; let g = "";
+  rows.forEach((segs, ri) => { const y = 8 + ri*48, tot = segs.reduce((a,s)=>a+s.v,0), raw = segs.map(s=>Math.max(30, s.v/tot*L)), k = L/raw.reduce((a,b)=>a+b,0); let x = X0;
+    segs.forEach((sg, i) => { const w = raw[i]*k, cls = sg.q ? "sv-qq" : sg.out ? "sv-out" : (sg.c || "sv-box");
+      g += `<rect x="${x.toFixed(1)}" y="${y}" width="${(w-3).toFixed(1)}" height="32" rx="6" class="${cls}"/>` + svgT((x+(w-3)/2).toFixed(1), y+22, sg.lab || sg.v, sg.q ? "sv-lab" : "sv-txt");
+      if(sg.sub) g += svgT((x+(w-3)/2).toFixed(1), y+46, sg.sub, "sv-small");
+      x += w; }); });
+  return `<svg class="sv steps" viewBox="0 0 ${W} ${8 + rows.length*48 + 6}" role="img" aria-label="Schéma en barres du problème">${g}</svg>`;
 }
 function svgBars(x, unit){
   // schéma en barres pour les problèmes
@@ -10949,10 +10985,39 @@ $("p-pause").addEventListener("click", e=>{ const b=e.target.closest("button"); 
 let SES = null;
 const sesDoneToday = () => D.seance.last===dayStr();
 function sesPool(){ return D.pool.filter(q=>CAT[q.cat]).slice(-6); }
+/* ---------- JE RÉPARE MES ERREURS : pour chaque erreur, un exemple fait ensemble (méthode), puis il retente seul ---------- */
+function fixItems(){
+  const out = [], seen = new Set();
+  D.pool.filter(q=>CAT[q.cat] && q.op!=="v" && typeof q.t==="string").slice().reverse().forEach(q=>{ if(!seen.has(q.t)){ seen.add(q.t); out.push({k:"p", q}); } });
+  Object.entries(D.fix.k).sort((a,b)=>b[1].m-a[1].m || b[1].d-a[1].d).forEach(([key])=>{ const [cat, p] = key.split(":"); if(LADDER[cat] && LADDER[cat][+p-1]) out.push({k:"k", key, cat, p:+p}); });
+  return out;
+}
+function fixQueue(max=4){
+  const Q = [], items = fixItems();
+  // on alterne : erreurs de calcul « exactes » et notions en images, les plus récentes d'abord
+  const P = items.filter(x=>x.k==="p"), K = items.filter(x=>x.k==="k"), pickd = [];
+  while(pickd.length<max && (P.length || K.length)){ if(K.length) pickd.push(K.shift()); if(pickd.length<max && P.length) pickd.push(P.shift()); }
+  pickd.forEach(it=>{
+    try{
+      if(it.k==="p"){ const q = it.q, p = q.p || palierOf(q.cat, D.elo[q.cat]||ELO_START);
+        let ex = null; for(let n=0; n<6 && (!ex || ex.t===q.t); n++) ex = q.cat==="mult" && q.fx ? genCat("mult", 3, [q.fx, q.fy].filter(Boolean), {p}) : genCat(q.cat, 3, ALL_T, {p});
+        if(ex && ex.t!==q.t) Q.push(Object.assign(ex, {guided:true, fixDemo:true}));
+        Q.push(Object.assign({}, q, {fixKey:"p:"+q.t, fixAgain:true}));
+      } else { const a = genCat(it.cat, 3, ALL_T, {p:it.p}); let b = a; for(let n=0; n<8 && b.t===a.t; n++) b = genCat(it.cat, 3, ALL_T, {p:it.p});
+        Q.push(Object.assign(a, {guided:true, fixDemo:true})); Q.push(Object.assign(b, {fixKey:"k:"+it.key})); }
+    }catch(e){}
+  });
+  return Q;
+}
+function startFix(){ const Q = fixQueue(); if(!Q.length){ toast("Rien à réparer : bravo !"); return; } start({kind:"fix", queue:Q}); }
+function renderFixBtn(){ const b = $("hub-fix"); if(!b) return; const n = fixItems().length; b.hidden = !n;
+  if(n) $("hub-fix-sub").textContent = `${n} erreur${n>1?"s":""} à réparer${D.fix.n ? ` · déjà ${D.fix.n} réparée${D.fix.n>1?"s":""}` : ""}`; }
+$("hub-fix").addEventListener("click", ()=>{ sfx("tap"); startFix(); });
 function sesBuild(){
   const steps = [];
   const pool = sesPool();
-  if(pool.length) steps.push({k:"redo", nm:"Je revois mes erreurs", d:`${pool.length} calcul${pool.length>1?"s":""} raté${pool.length>1?"s":""} à retenter`});
+  const nfix = fixItems().length;
+  if(nfix) steps.push({k:"redo", nm:"Je répare mes erreurs", d:`${Math.min(4,nfix)} erreur${Math.min(4,nfix)>1?"s":""} : on regarde la méthode ensemble, puis tu retentes`});
   const t = tipNext() || TIPS[Math.floor(R()*TIPS.length)];
   steps.push({k:"tip", tip:t.id, nm:"J'apprends une astuce", d:`« ${t.nm} »${D.tips.includes(t.id) ? " (révision)" : ""}`});
   if(D.sesFr){ const rc = frReco(), RP = {nm: frName(rc.id)}; steps.push({k:"fr", fr:rc.id, nm:"Un peu de français", d:`${rc.id==="lire" ? "Une petite histoire" : "5 questions"} · ${RP.nm}`}); }
@@ -10981,7 +11046,7 @@ function renderSes(){
 function sesRun(){
   const st = SES.steps[SES.i]; if(!st) return;
   SES.pending = st.k;
-  if(st.k==="redo"){ const pool = sesPool(); if(!pool.length){ sesStepDone(); show("ses"); return; } start({queue: pool.map(q=>Object.assign({}, q)).sort(()=>R()-.5)}); }
+  if(st.k==="redo"){ const Q = fixQueue(); if(!Q.length){ sesStepDone(); show("ses"); return; } start({kind:"fix", queue:Q}); }
   else if(st.k==="tip") openTip(st.tip);
   else if(st.k==="fr") frStart(st.fr, {n:5, ses:true});
   else start({kind:"normal", mode:"serie"});
@@ -11256,6 +11321,7 @@ function renderEvent(){
   $("ev-shop").addEventListener("click", ()=>{ shopTab=id; show("shop"); });
 }
 function renderHome(){
+  try{ renderFixBtn(); }catch(e){}
   const n = esc(D.name.trim());
   const days = liveDays(), pool = D.pool.filter(q=>D.cats.includes(q.cat)).length;
   const hi = n ? `Salut <b>${n}</b> !` : "Salut !";
@@ -12583,7 +12649,7 @@ function start(o){
        queue:o.queue||null, tip:o.tip||null, coach:o.coach||null, label:o.label||"", hasDec: (o.queue ? o.queue.some(q=>q.cat==="dec") : (o.cats||D.cats).includes("dec")), i:0, total:o.queue?o.queue.length:SERIE, score:0, answered:0, streak:0, bestStreak:0,
        mistakes:[], res:[], cur:null, typed:"", locked:false, waiting:false, over:false, time:CHRONO, tid:null, last:"", xp:0, pl:0};
   S.pumpkins=0; S.pkStickers=[]; S.pkSeen=false; S.started=Date.now();
-  if(kind==="redo"||kind==="daily"||kind==="coach") S.mode="serie";
+  if(kind==="redo"||kind==="fix"||kind==="daily"||kind==="coach") S.mode="serie";
   if(o.flash){ S.mode="chrono"; S.flash=true; S.flashBest = flashRec().best; }
   if(kind==="adv"||kind==="boss"){
     const I = ISLANDS[o.adv.i];
@@ -12647,7 +12713,7 @@ function next(){
   S.cur = S.queue && S.queue[S.i] ? Object.assign({}, S.queue[S.i]) : newQuestion();
   S.last=S.cur.t; S.typed=""; S.locked=false; S.waiting=false; S.cur.hint=!!S.cur.guided; S.cur.t0=performance.now();
   const ce = curEv();
-  S.cur.pumpkin = !!ce && S.kind!=="redo" && (R()<.15 || (S.mode==="serie" && !S.pkSeen && S.i>=S.total-2));
+  S.cur.pumpkin = !!ce && S.kind!=="redo" && S.kind!=="fix" && (R()<.15 || (S.mode==="serie" && !S.pkSeen && S.i>=S.total-2));
   if(S.cur.pumpkin) S.pkSeen = true;
   $("pumpkin-tag").hidden = !S.cur.pumpkin;
   if(S.cur.pumpkin){ $("pumpkin-tag").dataset.ev = ce; $("pumpkin-tag").innerHTML = `${EVTS[ce].svg()}${EVTS[ce].tag}`; }
@@ -12662,7 +12728,7 @@ function next(){
     qel.innerHTML = `${S.cur.pic ? `<div class="vpic">${S.cur.pic}</div>` : ""}${S.cur.pre ? `<p class="ptxt vpre">${S.cur.pre}</p>` : ""}<div class="pans${(before+after).trim().length>26 ? " flow" : ""}">${before.trim() ? `<span class="unit">${before.trim()}</span>` : ""}<span class="slot" id="slot"></span>${after.trim() ? `<span class="unit">${after.trim()}</span>` : ""}</div>`;
   } else if(S.cur.op==="w"){
     qel.dataset.x = S.cur.x;
-    qel.innerHTML = `<div class="prob">${PROB_IC[S.cur.ic] ? `<span class="pic" aria-hidden="true">${PROB_IC[S.cur.ic]}</span>` : ""}<p class="ptxt">${before.trim()}</p></div><div class="pans"><span class="slot" id="slot"></span><span class="unit">${after.trim()}</span></div>`;
+    qel.innerHTML = `${S.cur.pic ? `<div class="vpic">${S.cur.pic}</div>` : ""}<div class="prob">${PROB_IC[S.cur.ic] ? `<span class="pic" aria-hidden="true">${PROB_IC[S.cur.ic]}</span>` : ""}<p class="ptxt">${before.trim()}</p></div><div class="pans"><span class="slot" id="slot"></span><span class="unit">${after.trim()}</span></div>`;
   } else {
     delete qel.dataset.x;
     qel.innerHTML=`${before?`<span>${before}</span>`:""}<span class="slot" id="slot"></span>${after?`<span>${after}</span>`:""}`;
@@ -12691,7 +12757,7 @@ function renderHud(){
   if(S.mode==="serie"){
     $("hud-r").textContent=`${Math.min(S.i+1,S.total)}/${S.total}`; $("hud-r").classList.remove("low");
     $("track").innerHTML=Array.from({length:S.total},(_,k)=>`<i class="${S.res[k]|| (k===S.i?"now":"")}"></i>`).join("");
-    $("hud-l").textContent = S.kind==="coach" ? S.label : S.kind==="tip" ? `Astuce : ${TIP[S.tip].nm}` : S.kind==="daily" ? "Défi du jour" : S.kind==="redo" ? "Mes erreurs" : S.kind==="table" ? `Table de ${S.tables[0]}` : S.kind==="adv" ? `Île ${S.adv.i+1} · Étape ${S.adv.s}`
+    $("hud-l").textContent = S.kind==="coach" ? S.label : S.kind==="tip" ? `Astuce : ${TIP[S.tip].nm}` : S.kind==="daily" ? "Défi du jour" : S.kind==="redo" ? "Mes erreurs" : S.kind==="fix" ? "Je répare mes erreurs" : S.kind==="table" ? `Table de ${S.tables[0]}` : S.kind==="adv" ? `Île ${S.adv.i+1} · Étape ${S.adv.s}`
       : (S.level===3 && S.cur && S.cur.p ? `Palier ${S.cur.p} · ${palierName(S.cur.cat, S.cur.cat==="mult" ? Math.min(S.cur.p, LADDER.mult.length) : S.cur.p)}` : LEVELS[S.level]);
   } else if(S.mode==="course"){
     $("hud-l").textContent = S.firstRace ? `Premier essai : arrive avant ${fmtTime(S.ghost)}` : `Ton record : ${fmtTime(S.ghost)}`;
@@ -12758,7 +12824,10 @@ function learn(q, ok){
   const up = eloUpdate(q, ok);
   const i = D.pool.findIndex(p=>p.t===q.t);
   if(ok && i>=0 && !q.hint) D.pool.splice(i,1);
-  if(!ok && i<0 && !(q.op==="v" && ["num","div","frac","pose","mes","malin","suite","graph","sym"].includes(q.cat))){ const {cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}=q; D.pool.push({cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}); if(D.pool.length>40) D.pool.shift(); }
+  if(!ok && q.op==="v" && q.p && LADDER[q.cat] && !q.fixDemo){ const key = `${q.cat}:${q.p}`, f = D.fix.k[key] || {m:0, d:0}; f.m = Math.min(99, f.m+1); f.d = dayNum(); D.fix.k[key] = f;
+    const ks = Object.keys(D.fix.k); if(ks.length>30) delete D.fix.k[ks.sort((a,b)=>D.fix.k[a].d-D.fix.k[b].d)[0]]; }
+  if(ok && q.fixKey && !q.hint && S && S.kind==="fix"){ if(q.fixKey.startsWith("k:")) delete D.fix.k[q.fixKey.slice(2)]; D.fix.n++; S.fixed = (S.fixed||0) + 1; }
+  if(!ok && i<0 && q.op!=="v"){ const {cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}=q; D.pool.push({cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}); if(D.pool.length>40) D.pool.shift(); }
   persist();
   return up;
 }
@@ -12894,7 +12963,9 @@ function finish(){
     const ratio=tot ? G.score/tot : 0;
     stars = ratio>=1?3 : ratio>=.8?2 : ratio>=.5?1 : 0;
     big = `${G.score} / ${tot}`;
-    msg = G.kind==="redo"
+    msg = G.kind==="fix"
+      ? (G.fixed ? `Tu as réparé ${G.fixed} erreur${G.fixed>1?"s":""}${N} ! ${fixItems().length ? `Il en reste ${fixItems().length} pour une autre fois.` : "Tout est réparé !"}` : `On réessaiera${N} : chaque essai t'aide à retenir.`)
+      : G.kind==="redo"
       ? (ratio===1 ? `Toutes tes erreurs sont corrigées${N} !` : `Encore un essai et ce sera parfait${N}.`)
       : [`Continue de t'entraîner${N}, tu vas y arriver !`,`Pas mal${N}, encore un petit effort !`,`Très bon travail${N} !`,`Zéro faute, bravo${N} !`][stars];
   } else if(G.mode==="course"){
@@ -13075,7 +13146,7 @@ function finish(){
   $("adv-back").hidden = !isAdv;
   $("open-packs").hidden = !D.album.packs;
   $("open-packs").textContent = D.album.packs>1 ? `Ouvrir mes ${D.album.packs} pochettes` : "Ouvrir ma pochette";
-  const sesStep = SES && SES.pending && ((SES.pending==="redo" && G.kind==="redo") || (SES.pending==="tip" && G.kind==="tip") || (SES.pending==="game" && G.kind==="normal"));
+  const sesStep = SES && SES.pending && ((SES.pending==="redo" && (G.kind==="redo" || G.kind==="fix")) || (SES.pending==="tip" && G.kind==="tip") || (SES.pending==="game" && G.kind==="normal"));
   if(sesStep) sesStepDone();
   $("ses-next").hidden = !sesStep;
   if(sesStep) $("ses-next").textContent = SES.i>=SES.steps.length ? "Terminer ma séance" : "Suite de ma séance";
@@ -13097,7 +13168,8 @@ function finish(){
 $("again").addEventListener("click", ()=>{
   if(lastGame && lastGame.kind==="tip") tipQuiz(lastGame.tip);
   else if(lastGame && (lastGame.kind==="adv"||lastGame.kind==="boss")) startAdv(lastGame.adv.i, lastGame.adv.s);
-  else if(!lastGame || lastGame.kind==="daily" || lastGame.kind==="redo") start({});
+  else if(lastGame && lastGame.kind==="fix" && fixItems().length) startFix();
+  else if(!lastGame || lastGame.kind==="daily" || lastGame.kind==="redo" || lastGame.kind==="fix") start({});
   else start({kind:lastGame.kind, mode:lastGame.mode, level:lastGame.level, cats:lastGame.cats, tables:lastGame.tables});
 });
 $("redo").addEventListener("click", ()=>{ if(lastMistakes.length) start({queue:lastMistakes.slice().sort(()=>Math.random()-.5)}); });
