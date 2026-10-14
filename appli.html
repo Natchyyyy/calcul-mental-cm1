@@ -736,6 +736,10 @@ svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
 .hubstrip :is(.rewardcta,.soircta) b{font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hubstrip :is(.rewardcta,.soircta) small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:.8rem}
 .hubstrip .rewardcta .rw-bar{height:9px}
+.topgift{position:relative;color:#d9304f;background:color-mix(in srgb,#ff6b8b 18%,var(--soft))}
+.topgift .tg-dot{position:absolute;top:1px;right:1px;width:10px;height:10px;border-radius:50%;background:#ff3b5c;box-shadow:0 0 0 2px var(--card);display:none}
+.topgift.ready .tg-dot{display:block}
+.topgift.ready svg{animation:giftWig 1.6s ease-in-out infinite}
 .giftcta{background:linear-gradient(135deg,color-mix(in srgb,#ff6b8b 30%,var(--card)),var(--card) 75%)}
 .giftcta .rw-ic{background:#ff6b8b;color:#fff}
 .giftcta.ready .rw-ic{animation:giftWig 1.6s ease-in-out infinite}
@@ -756,7 +760,7 @@ svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
 .gmd.done > i{background:var(--good);color:#fff}
 .gmd.now > i{box-shadow:0 0 0 3px #ff6b8b}
 .gmd small{font-weight:800;color:var(--ink-soft)}
-@media (prefers-reduced-motion:reduce){ .giftcta.ready .rw-ic,.giftm-box.wiggle svg,.giftm-box.shake svg{animation:none} }
+@media (prefers-reduced-motion:reduce){ .topgift.ready svg,.giftcta.ready .rw-ic,.giftm-box.wiggle svg,.giftm-box.shake svg{animation:none} }
 .soircta{display:flex;align-items:center;gap:14px;width:100%;padding:12px 16px;border:0;border-radius:20px;background:linear-gradient(135deg,#1d2b5c,#3a2d73);color:#f4f1ff;box-shadow:var(--shadow);text-align:left}
 .soircta .sc-ic{width:48px;height:48px;flex:none;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.14);color:#ffe08a}
 .soircta .sc-ic svg{width:28px;height:28px}
@@ -1877,6 +1881,7 @@ svg.gs-svg{display:block;margin:2px auto;width:min(440px,100%);height:auto;overf
     <span class="counter flame" title="Jours d'affilée"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c1 4 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5 0 2 1 3 2 3 0-3-1-6 1-9.5z"/></svg><span id="top-days" class="num">0</span></span>
     <button class="counter plume" id="top-plumes-btn" title="Plumes : ouvrir la boutique"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 4C11 4 6 9 5 19"/><path d="M20 4c0 7-4 12-11 12"/><path d="M5 19l-1 2"/></svg><span id="top-plumes" class="num">0</span></button>
     <button class="counter diamc" id="top-diam-btn" title="Diamants : ouvrir les caisses" hidden><span id="top-diam" class="num">0</span></button>
+    <button class="round topgift" id="top-gift" hidden aria-label="Cadeau du jour"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M3 12h18M12 8v13"/><path d="M12 8c-2-4-7-4-6-1 1 2 6 1 6 1zM12 8c2-4 7-4 6-1-1 2-6 1-6 1z"/></svg><i class="tg-dot" aria-hidden="true"></i></button>
     <button class="round" id="music-btn" aria-label="Musique" aria-pressed="false"></button>
     <button class="round" id="go-parents" aria-label="Espace parents"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
   </div>
@@ -7892,6 +7897,7 @@ function renderOwlName(){
   const hs = $("hello-speak"); if(hs) hs.setAttribute("aria-label", `Écouter ${n}`);
 }
 function renderTop(){
+  try{ renderGiftCta(); }catch(e){}
   renderOwlName();
   const p = lvlProgress(D.xp);
   $("top-name").textContent = D.name.trim() || "Joueur";
@@ -11627,7 +11633,8 @@ const GIFT_BIG = `<svg viewBox="0 0 120 120"><defs><linearGradient id="gbx" x1="
 function renderGiftCta(){
   const b = $("hub-gift"); if(!b) return;
   const g = D.gift, claimed = g.last===dayStr(), can = playedToday() && !claimed, G = GIFTS[g.n % 7];
-  b.hidden = claimed; if(claimed) return;
+  const tg = $("top-gift"); if(tg){ tg.hidden = claimed || !D.started; tg.classList.toggle("ready", can); tg.setAttribute("aria-label", can ? "Ouvrir mon cadeau du jour" : "Cadeau du jour : fais une partie pour l'ouvrir"); tg.title = can ? "Ton cadeau du jour est prêt !" : `Cadeau du jour (jour ${g.n % 7 + 1} sur 7) : fais une partie pour l'ouvrir`; }
+  b.hidden = true; return;   // (le cadeau est maintenant en haut de l'écran : l'accueil reste compact)
   b.classList.toggle("ready", can);
   b.innerHTML = `<span class="rw-ic">${GIFT_IC}</span><span class="rw-t"><small>Cadeau du jour · jour ${g.n % 7 + 1} sur 7${G.t==="item" ? " · le gros cadeau !" : ""}</small><b>${can ? "Prêt ! Touche pour l'ouvrir" : "Fais une partie pour l'ouvrir"}</b></span>`;
   b.setAttribute("aria-label", can ? "Ouvrir mon cadeau du jour" : "Cadeau du jour : fais une partie pour l'ouvrir");
@@ -11648,7 +11655,8 @@ function giftOpenNow(){
     const r = box.getBoundingClientRect(); fxPlay(res && res.big ? "feux" : D.equip.fx, r.left + r.width/2, r.top + r.height/3, true); if(res && res.big) setTimeout(()=>fxPlay("etoiles", null, null, true), 300); }, reduced() ? 0 : 750);
 }
 $("giftm").addEventListener("click", e=>{ if(e.target.closest("#giftm-go") || e.target.closest("#giftm-box")) giftOpenNow(); else if(e.target.closest("#giftm-ok") || e.target.id==="giftm"){ $("giftm").hidden = true; sfx("tap"); try{ renderSoir(); }catch(_){} } });
-document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("giftm").hidden && !$("giftm-box").classList.contains("shake")){ $("giftm").hidden = true; try{ renderSoir(); }catch(_){} const h = $("hub-gift"); if(h && !h.hidden) h.focus({preventScroll:true}); } });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("giftm").hidden && !$("giftm-box").classList.contains("shake")){ $("giftm").hidden = true; try{ renderSoir(); }catch(_){} const h = $("top-gift"); if(h && !h.hidden) h.focus({preventScroll:true}); } });
+$("top-gift").addEventListener("click", ()=>{ $("hub-gift").click(); });
 $("hub-gift").addEventListener("click", ()=>{ sfx("tap"); if(playedToday() && D.gift.last!==dayStr()) giftOpenModal(); else if(TTS_OK) speak("Fais une partie, et tu pourras ouvrir ton cadeau du jour !"); else toast("Fais une partie, et tu pourras ouvrir ton cadeau du jour !"); });
 function renderEvent(){
   const el = $("event-card"), id = curEv();
