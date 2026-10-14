@@ -751,10 +751,10 @@ svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
 .giftm-msg{font-family:var(--f-display);font-weight:800;font-size:1.3rem;margin:0}
 .giftm-days{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
 .gmd{display:flex;flex-direction:column;align-items:center;gap:2px;width:44px}
-.gmd i{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--soft);font-style:normal;font-size:1.1rem;box-shadow:inset 0 0 0 1px var(--line)}
-.gmd i svg{width:20px;height:20px}
-.gmd.done i{background:var(--good);color:#fff}
-.gmd.now i{box-shadow:0 0 0 3px #ff6b8b}
+.gmd > i{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:var(--soft);font-style:normal;font-size:1.1rem;box-shadow:inset 0 0 0 1px var(--line)}
+.gmd > i > svg{width:20px;height:20px}
+.gmd.done > i{background:var(--good);color:#fff}
+.gmd.now > i{box-shadow:0 0 0 3px #ff6b8b}
 .gmd small{font-weight:800;color:var(--ink-soft)}
 @media (prefers-reduced-motion:reduce){ .giftcta.ready .rw-ic,.giftm-box.wiggle svg,.giftm-box.shake svg{animation:none} }
 .soircta{display:flex;align-items:center;gap:14px;width:100%;padding:12px 16px;border:0;border-radius:20px;background:linear-gradient(135deg,#1d2b5c,#3a2d73);color:#f4f1ff;box-shadow:var(--shadow);text-align:left}
@@ -1538,8 +1538,8 @@ svg.barmodel{width:min(560px,100%);height:auto;display:block}
 .item .icon{width:74px;height:74px;border-radius:50%;display:grid;place-items:center;background:var(--card);color:var(--primary-ink)}
 .item .icon svg{width:40px;height:40px}
 .price{display:inline-flex;align-items:center;gap:4px}
-.ic{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;flex:none;vertical-align:middle;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 0 1.5px rgba(255,255,255,.75),0 1px 3px rgba(0,0,0,.22)}
-.ic svg{width:14px!important;height:14px!important;margin:0!important}
+:is(.ic-pl,.ic-di){display:inline-grid;place-items:center;width:22px;height:22px;border-radius:7px;flex:none;vertical-align:middle;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 0 0 1.5px rgba(255,255,255,.75),0 1px 3px rgba(0,0,0,.22)}
+:is(.ic-pl,.ic-di) svg{width:14px!important;height:14px!important;margin:0!important}
 .ic-pl{background:linear-gradient(160deg,#ffcf5c,#f08a12);color:#fff}
 .ic-di{background:linear-gradient(160deg,#7fe0ff,#2a86d6);color:#fff}
 .btn.case-go{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-size:1.05rem;padding:9px 9px 9px 20px;border-radius:999px;box-shadow:0 3px 0 color-mix(in srgb,var(--primary) 60%,#000);align-self:center;width:auto;min-width:0;margin:6px auto 0}
@@ -5732,6 +5732,7 @@ function migrate(d){
     hist: Array.isArray(mm0.hist) ? mm0.hist.filter(h=>Array.isArray(h)).slice(-10).map(h=>[Math.round(num(h[0],2,2,9)), h[1] ? 1 : 0]) : [], chunk: mm0.chunk===true};
   if(isObj(co.n)) Object.entries(co.n).forEach(([k,v])=>{ if(COACH_IDS.has(k) && isObj(v)) out.coach.n[k] = {b: Math.round(num(v.b,0,0,5)), due: Math.round(num(v.due,0,0,1e6)), n: Math.round(num(v.n,0,0,1e6)), ok: Math.round(num(v.ok,0,0,1e6)), f: Math.round(num(v.f,0,0,1e6)), l: Math.round(num(v.l,0,0,1e6)), s: Math.round(num(v.s,0,0,100)), x: Math.round(num(v.x,0,0,9)), m: Math.round(num(v.m,0,0,2)), ...(num(v.pk,0,0,1e6) > 0 ? {pk: Math.round(num(v.pk,0,0,1e6))} : {}), ...(num(v.g,0,0,1e6) > 0 ? {g: Math.round(num(v.g,0,0,1e6))} : {})}; });
   out.coach.decoSeed = co.decoSeed===true;
+  out.coach.nsSeed = co.nsSeed===true;
   out.coach.numSeed = co.numSeed===true;
   out.coach.stuck = Array.isArray(co.stuck) ? co.stuck.filter(x=>isObj(x) && COACH_IDS.has(x.id)).slice(0,10).map(x=>({id:x.id, d: Math.round(num(x.d,0,0,1e6)), m: Math.round(num(x.m,1,0,2)), pre: COACH_IDS.has(x.pre) ? x.pre : null, ...(x.pause===true ? {pause:true} : {})})) : [];
   const cpl = isObj(co.plan) ? co.plan : {};
@@ -5824,6 +5825,7 @@ function migrate(d){
     out.knife = {have, cur: typeof kn.cur==="string" && have.includes(kn.cur) ? kn.cur : null, pity: Math.round(num(kn.pity,0,0,99)), n: Math.round(num(kn.n,0,0,99999)), duels: Math.round(num(kn.duels,0,0,99999)), wins: Math.round(num(kn.wins,0,0,99999)), trades: Math.round(num(kn.trades,0,0,99999))}; }
   { const fx = isObj(d.fix) ? d.fix : {}, k = {};   // « Je répare mes erreurs » : genres de questions ratées (cat:palier)
     if(isObj(fx.k)) Object.entries(fx.k).slice(0,40).forEach(([key, v]) => { const [c, p] = String(key).split(":"); if(LADDER[c] && LADDER[c][+p-1] && isObj(v)) k[`${c}:${+p}`] = {m: Math.round(num(v.m,1,1,99)), d: Math.round(num(v.d,0,0,1e6))}; });
+    if(Array.isArray(d.pool)) d.pool.forEach(q=>{ if(isObj(q) && q.op==="v" && typeof q.cat==="string" && LADDER[q.cat] && Number.isInteger(q.p) && LADDER[q.cat][q.p-1] && Object.keys(k).length<30){ const key = `${q.cat}:${q.p}`; k[key] = k[key] || {m:0, d:0}; k[key].m = Math.min(99, k[key].m+1); } });   // anciennes erreurs en images → « Je répare »
     out.fix = {k, n: Math.round(num(fx.n,0,0,1e6))}; }
   return out;
 }
@@ -6322,7 +6324,7 @@ function fxPlay(kind, x, y, big){
     for(let i=0;i<(big?9:3);i++) add({x:big ? W*(.2+R1()*.6) : cx, y:big ? H*(.2+R1()*.5) : cy, vx:0, vy:0, g:0, drag:1, s:6, grow: big?4.2:2.6, shape:"ring", c:cols[i%cols.length], max:big?60:40, delay:i*(big?7:6)});
   } else if(kind==="arcenciel"){
     const cols = ["#ff5a5a","#ffa53b","#ffe14d","#5fd36b","#49a8ff","#8a63ff"];
-    for(let i=0;i<(big?150:34);i++) add(big ? {x:R1()*W, y:-20-R1()*H*.5, vx:0, vy:2.5+R1()*3, g:.02, drag:1, s:3+R1()*3, shape:"drop", c:cols[i%6], max:260, delay:Math.floor(R1()*50)}
+    for(let i=0;i<(big?150:34);i++) add(big ? {x:R1()*W, y:-20-R1()*Math.min(280, H*.5), vx:0, vy:2.5+R1()*3, g:.02, drag:1, s:3+R1()*3, shape:"drop", c:cols[i%6], max:260, delay:Math.floor(R1()*50)}
       : {vx:(R1()-.5)*6, vy:-3-R1()*4, g:.18, drag:.99, s:3+R1()*2, shape:"drop", c:cols[i%6], max:70});
   } else { // confettis
     for(let i=0;i<160*n;i++) add({vx:(R1()-.5)*(big?12:7),vy:-R1()*(big?12:8)-3,s:6+R1()*6,c:conf[i%conf.length],max:big?170:70});
@@ -8485,6 +8487,13 @@ function coachEnsure(){
     C.decoSeed = true; ch = true;
     if(palierOf("add", D.elo.add)>=3 && palierOf("sub", D.elo.sub)>=3)
       ["c:deco:1","c:deco:2","c:deco:3","c:deco:4"].forEach((id,k)=>{ if(!C.n[id]) C.n[id] = {b:2, due: today+3+k, n:0, ok:1, f:today, l:0, s:0}; });
+  }
+  if(!C.nsSeed){   // nouvelles notions (14/10) : celles placées AVANT là où l'enfant en est et faciles pour lui → révision express, pas réenseignées
+    C.nsSeed = true; ch = true;
+    const NEW = new Set(["malin","suite","graph","sym"]), isNew = id => { const I = coachInfo(id); return NEW.has(I.cat) || id==="c:heure:8" || id==="c:heure:9" || id==="c:num:8" || id==="c:prob:9"; };
+    const front = COACH_CALC.findIndex(id => !isNew(id) && !C.n[id]); let k = 0;
+    if(front > 0) COACH_CALC.forEach((id, i) => { if(i < front - 4 && isNew(id) && !C.n[id]){ const I = coachInfo(id), cl = (BL_CLASS[I.cat] || PATH_EXTRA[I.cat] || [])[I.p-1] || "CM1";
+      if(cl!=="CM1" && cl!=="CM2") C.n[id] = {b:2, due: today+3+(k++%10), n:0, ok:1, f:today, l:0, s:0}; } });
   }
   if(C.plan.d!==today){ C.plan = coachBuild(today); ch = true; }
   if(C.last!==today && D.fr.school.words.length && frSchoolLeft().length && !C.plan.steps.some(x=>x.k==="ecole") && C.plan.steps.length<(D.court ? 3 : 8)){ C.plan.steps.push({k:"ecole", id:"ecole", r:null}); ch = true; }
@@ -11279,10 +11288,12 @@ function sesPool(){ return D.pool.filter(q=>CAT[q.cat]).slice(-6); }
 /* ---------- JE RÉPARE MES ERREURS : pour chaque erreur, un exemple fait ensemble (méthode), puis il retente seul ---------- */
 function fixItems(){
   const out = [], seen = new Set();
-  D.pool.filter(q=>CAT[q.cat] && q.op!=="v" && typeof q.t==="string").slice().reverse().forEach(q=>{ if(!seen.has(q.t)){ seen.add(q.t); out.push({k:"p", q}); } });
-  Object.entries(D.fix.k).sort((a,b)=>b[1].m-a[1].m || b[1].d-a[1].d).forEach(([key])=>{ const [cat, p] = key.split(":"); if(LADDER[cat] && LADDER[cat][+p-1]) out.push({k:"k", key, cat, p:+p}); });
+  const on = c => CAT[c] && (!CAT[c].extra || D.extras.includes(c));
+  D.pool.filter(q=>on(q.cat) && q.op!=="v" && typeof q.t==="string").slice().reverse().forEach(q=>{ if(!seen.has(q.t)){ seen.add(q.t); out.push({k:"p", q}); } });
+  Object.entries(D.fix.k).sort((a,b)=>b[1].m-a[1].m || b[1].d-a[1].d).forEach(([key])=>{ const [cat, p] = key.split(":"); if(on(cat) && LADDER[cat][+p-1]) out.push({k:"k", key, cat, p:+p}); });
   return out;
 }
+const qSig = q => `${q.t}|${q.pre||""}|${q.pic||""}|${q.r}`;
 function fixQueue(max=4){
   const Q = [], items = fixItems();
   // on alterne : erreurs de calcul « exactes » et notions en images, les plus récentes d'abord
@@ -11291,10 +11302,10 @@ function fixQueue(max=4){
   pickd.forEach(it=>{
     try{
       if(it.k==="p"){ const q = it.q, p = q.p || palierOf(q.cat, D.elo[q.cat]||ELO_START);
-        let ex = null; for(let n=0; n<6 && (!ex || ex.t===q.t); n++) ex = q.cat==="mult" && q.fx ? genCat("mult", 3, [q.fx, q.fy].filter(Boolean), {p}) : genCat(q.cat, 3, ALL_T, {p});
-        if(ex && ex.t!==q.t) Q.push(Object.assign(ex, {guided:true, fixDemo:true}));
+        let ex = null; for(let n=0; n<6 && (!ex || qSig(ex)===qSig(q)); n++) ex = q.cat==="mult" && q.fx ? genCat("mult", 3, [q.fx, q.fy].filter(Boolean), {p}) : genCat(q.cat, 3, ALL_T, {p});
+        if(ex && qSig(ex)!==qSig(q)) Q.push(Object.assign(ex, {guided:true, fixDemo:true}));
         Q.push(Object.assign({}, q, {fixKey:"p:"+q.t, fixAgain:true}));
-      } else { const a = genCat(it.cat, 3, ALL_T, {p:it.p}); let b = a; for(let n=0; n<8 && b.t===a.t; n++) b = genCat(it.cat, 3, ALL_T, {p:it.p});
+      } else { const a = genCat(it.cat, 3, ALL_T, {p:it.p}); let b = a; for(let n=0; n<12 && qSig(b)===qSig(a); n++) b = genCat(it.cat, 3, ALL_T, {p:it.p});
         Q.push(Object.assign(a, {guided:true, fixDemo:true})); Q.push(Object.assign(b, {fixKey:"k:"+it.key})); }
     }catch(e){}
   });
@@ -11603,7 +11614,7 @@ function giftClaim(){
   D.gift.n++; D.gift.last = dayStr();
   const nb=[]; if(D.gift.n>=7 && unlock("gift7")) nb.push("gift7"); if(G.t==="item") nb.push(...shopBadges());
   persist(); sfx(G.t==="item"?"win":"coin");
-  renderGift(); renderTop(); renderPackDot(); try{ renderGiftCta(); }catch(e){}
+  renderGift(); renderTop(); renderPackDot(); try{ renderSoir(); }catch(e){}
   return {msg: nb.length ? `${msg} Trophée « ${badgeName(nb[0])} » !` : msg, big: G.t==="item", G};
 }
 /* le cadeau du jour, bien visible sur l'accueil (il s'ouvre après une partie du jour) */
@@ -11628,7 +11639,7 @@ function giftOpenModal(){
   $("giftm-btns").innerHTML = `<button class="btn big" id="giftm-go">Ouvrir</button>`; setTimeout(()=>{ const x = $("giftm-go"); if(x) x.focus({preventScroll:true}); }, 0);
 }
 function giftOpenNow(){
-  const box = $("giftm-box"); if(!box || box.classList.contains("open")) return;
+  const box = $("giftm-box"); if(!box || /open|shake/.test(box.className)) return;
   box.className = "giftm-box shake"; sfx("tap");
   setTimeout(()=>{ const res = giftClaim(); box.className = "giftm-box open";
     $("giftm-msg").textContent = res ? res.msg.replace(/^Cadeau : /, "") : "Déjà ouvert aujourd'hui. Reviens demain !";
@@ -11636,7 +11647,7 @@ function giftOpenNow(){
     const r = box.getBoundingClientRect(); fxPlay(res && res.big ? "feux" : D.equip.fx, r.left + r.width/2, r.top + r.height/3, true); if(res && res.big) setTimeout(()=>fxPlay("etoiles", null, null, true), 300); }, reduced() ? 0 : 750);
 }
 $("giftm").addEventListener("click", e=>{ if(e.target.closest("#giftm-go") || e.target.closest("#giftm-box")) giftOpenNow(); else if(e.target.closest("#giftm-ok") || e.target.id==="giftm"){ $("giftm").hidden = true; sfx("tap"); try{ renderSoir(); }catch(_){} } });
-document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("giftm").hidden){ $("giftm").hidden = true; try{ renderSoir(); }catch(_){} } });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("giftm").hidden && !$("giftm-box").classList.contains("shake")){ $("giftm").hidden = true; try{ renderSoir(); }catch(_){} const h = $("hub-gift"); if(h && !h.hidden) h.focus({preventScroll:true}); } });
 $("hub-gift").addEventListener("click", ()=>{ sfx("tap"); if(playedToday() && D.gift.last!==dayStr()) giftOpenModal(); else if(TTS_OK) speak("Fais une partie, et tu pourras ouvrir ton cadeau du jour !"); else toast("Fais une partie, et tu pourras ouvrir ton cadeau du jour !"); });
 function renderEvent(){
   const el = $("event-card"), id = curEv();
@@ -12348,7 +12359,7 @@ function cfullRender(){
     F.innerHTML = CASE.battle ? `<div class="cf-title">Duel de caisses</div>
       <div class="duo-lab">${owlSVG(Object.assign({}, D.equip, {dance:"saut"}))}<b>${esc(D.name.trim() || "Toi")}</b></div>
       <div class="reel big duo" id="reel"><div class="reel-mark"></div><div class="strip" id="strip" style="transform:translateX(${-(CASE.pos||0)}px)">${CASE.tiles.map(t=>rTile(t, false)).join("")}</div></div>
-      <div class="duo-lab">${owlSVG({color:"brun", dance:"saut"})}<b>Pythagore</b></div>
+      <div class="duo-lab">${owlSVG({crea:"hibou", color:"brun", knife:null, hat:null, face:null, neck:null, dance:"saut"})}<b>Pythagore</b></div>
       <div class="reel big duo" id="reel2"><div class="reel-mark"></div><div class="strip" id="strip2" style="transform:translateX(${-(CASE.pos2||0)}px)">${CASE.tiles2.map(t=>rTile(t, false)).join("")}</div></div>`
       : `<div class="cf-title">${isK ? "Caisse Lames" : isC ? "Caisse Créatures" : "Caisse Skins"}</div>
       <div class="reel big" id="reel"><div class="reel-mark"></div><div class="strip" id="strip" style="transform:translateX(${-(CASE.pos||0)}px)">${CASE.tiles.map((t,i)=>rTile(t, false)).join("")}</div></div>`;
@@ -12362,7 +12373,7 @@ function cfullRender(){
       <div class="cf-art${isK ? " kn" : ""}">${isK ? knifeCard(k.m, k.f, "f"+(++owlUid)) : owlSVG(lookOf(k))}</div>
       <span class="cf-rar">${RAR[k.r].nm}</span><b class="cf-nm">${esc(k.nm)}</b>
       <div class="btnrow" style="justify-content:center">${equipped ? `<button class="btn big alt" disabled>Équipé</button>` : `<button class="btn big" ${isK ? `data-knife="${k.id}"` : isC ? `data-crea="${k.id}"` : `data-skin="${k.id}"`}>Équiper</button>`}
-        ${left && caseMoney(CASE.type)>=price ? `<button class="btn case-go alt" data-case="${CASE.type}"${CASE.battle ? ` data-battle="1"` : ""}>${CASE.battle ? "Revanche" : "Encore une"} ${caseCur(CASE.type, price)}</button>` : ""}
+        ${left && caseMoney(CASE.type)>=price + (CASE.battle ? DUEL_EXTRA : 0) ? `<button class="btn case-go alt" data-case="${CASE.type}"${CASE.battle ? ` data-battle="1"` : ""}>${CASE.battle ? "Revanche" : "Encore une"} ${caseCur(CASE.type, price + (CASE.battle ? DUEL_EXTRA : 0))}</button>` : ""}
         <button class="btn big alt" id="cf-close">Fermer</button></div></div>`;
 }
 $("cfull").addEventListener("click", e=>{
@@ -12375,6 +12386,7 @@ $("cfull").addEventListener("click", e=>{
 });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && CASE && CASE.done){ CASE = null; cfullRender(); renderShop(); } });
 const casePrice = t => t==="crea" ? CREA_PRICE : t==="knife" ? KNIFE_PRICE : CASE_PRICE;
+const DUEL_EXTRA = 25;   // le duel coûte un peu plus cher (le bonus moyen compense)
 const caseMoney = t => t==="knife" ? D.plumes : D.diam;
 const caseCur = (t, n) => `<span class="cost">${t==="knife" ? IC_PL() : IC_DI()}${n}</span>`;
 const caseLeft = t => t==="crea" ? creasLeft() : t==="knife" ? knivesLeft() : skinsLeft();
@@ -12384,7 +12396,7 @@ function caseCard(type){
     return `<div class="card cases" id="case-knife"><h3>Caisse Lames</h3><p class="muted" style="margin:0">Une lame de collection que ton personnage tient à la main. <b>${price} plumes.</b></p>
     ${caseArt("knife", "k")}
     ${left.length ? `<div class="case-btns"><button class="btn case-go" data-case="knife" id="case-open-knife" ${can ? "" : "disabled"} aria-label="Ouvrir la caisse pour ${price} plumes">Ouvrir ${caseCur("knife", price)}</button>
-      <button class="btn case-go alt" data-case="knife" data-battle="1" id="case-battle-knife" ${can ? "" : "disabled"} aria-label="Duel contre Pythagore pour ${price} plumes">${SWORDS_IC}Duel contre Pythagore ${caseCur("knife", price)}</button></div>
+      <button class="btn case-go alt" data-case="knife" data-battle="1" id="case-battle-knife" ${can && D.plumes>=price+DUEL_EXTRA ? "" : "disabled"} aria-label="Duel contre Pythagore pour ${price+DUEL_EXTRA} plumes">${SWORDS_IC}Duel contre Pythagore ${caseCur("knife", price+DUEL_EXTRA)}</button></div>
       <p class="muted" style="margin:0;font-size:.85rem">Duel : Pythagore ouvre une caisse en même temps. Si ta lame est plus rare que la sienne : <b>+60 plumes</b> (égalité : +20). Ta lame est toujours à toi.${D.knife.duels ? ` Duels gagnés : ${D.knife.wins||0} / ${D.knife.duels}.` : ""}</p>
       ${D.plumes<price && !busy ? `<span class="muted">Il te manque ${price-D.plumes} plumes. Chaque bonne réponse en rapporte !</span>` : ""}`
       : `<div style="color:var(--good);font-family:var(--f-display);font-weight:800">Tu as toutes les lames. Collection complète !</div>`}
@@ -12426,6 +12438,7 @@ function tradeTile(k){ return `<div class="skin" style="--rc:${RAR[k.r].col}">${
 function tradeHtml(){
   const opts = tradeOpts().filter(o=>o.have.length && o.up.length), cur = CREA_BY[creaCur()] || CREA[0];
   const lab = o => o.kind==="knife" ? "lames" : `skins de ${esc(cur.nm)}`;
+  if(TRADE && TRADE.crea!==creaCur()) TRADE = null;
   const sel = TRADE && opts.find(o=>o.kind===TRADE.kind && o.r===TRADE.r && o.can);
   if(sel) return `<div class="card trade" id="trade-card"><h3>Échange 5 → 1</h3><p class="muted" style="margin:0">Tu donnes ces 5 ${lab(sel)} <b style="color:${RAR[sel.r].col}">${RAR[sel.r].nm}</b> et tu reçois 1 ${sel.kind==="knife" ? "lame" : "skin"} <b style="color:${RAR[sel.r+1].col}">${RAR[sel.r+1].nm}</b> que tu n'as pas encore.</p>
     <div class="skingrid">${sel.have.slice(0,5).map(tradeTile).join("")}</div>
@@ -12436,7 +12449,7 @@ function tradeHtml(){
       : `<p class="muted" style="margin:0">Ouvre des caisses : dès que tu as 5 lames ou 5 skins de la même rareté, tu pourras les échanger ici.</p>`}</div>`;
 }
 function tradeDo(){
-  const o = TRADE && tradeOpts().find(x=>x.kind===TRADE.kind && x.r===TRADE.r); if(!o || !o.can || (CASE && CASE.busy)) return;
+  const o = TRADE && TRADE.crea===creaCur() && tradeOpts().find(x=>x.kind===TRADE.kind && x.r===TRADE.r); if(!o || !o.can || (CASE && CASE.busy)){ TRADE = null; renderShop(); return; }
   const give = new Set(o.have.slice(0,5).map(k=>k.id)), up = pick(o.up);
   if(o.kind==="knife"){ D.knife.have = D.knife.have.filter(id=>!give.has(id)).concat([up.id]); }
   else D.skins = D.skins.filter(id=>!give.has(id)).concat([up.id]);
@@ -12469,7 +12482,7 @@ function casesHtml(){
 function caseOpen(type, battle){
   if(CASE && CASE.busy) return;
   battle = !!battle && type==="knife";
-  const isC = type==="crea", isK = type==="knife", price = casePrice(type);
+  const isC = type==="crea", isK = type==="knife", price = casePrice(type) + (battle ? DUEL_EXTRA : 0);
   if(caseMoney(type) < price) return;
   const k = casePick(type); if(!k) return;
   const all = isC ? CREA.filter(c=>c.id!=="hibou") : isK ? KNIFES : skinsFor(creaCur());
@@ -12487,7 +12500,9 @@ function caseOpen(type, battle){
   if(battle){   // duel : Pythagore ouvre une caisse en même temps (sa lame ne te revient pas ; si ta lame est plus rare, tu gagnes un bonus)
     const k2 = (()=>{ const t = caseTier(null, 4), pool = KNIFES.filter(x=>x.r===t); return pick(pool.length ? pool : KNIFES); })();
     const t2 = []; for(let i=0;i<N;i++) t2.push(i===W ? k2 : (()=>{ const near = Math.abs(i-W)<=3, t = caseTier(null, 4); const pool = KNIFES.filter(x=>x.r===t && (!near || x.r<=k2.r)); return pick(pool.length ? pool : KNIFES); })());
-    Object.assign(CASE, {battle:true, k2, tiles2:t2, off2:(R()*0.6-0.3)});
+    const v = k.r>k2.r ? "win" : k.r===k2.r ? "tie" : "lose", bonus = {win:60, tie:20, lose:0}[v];
+    D.plumes += bonus; D.knife.duels = (D.knife.duels||0) + 1; if(v==="win") D.knife.wins = (D.knife.wins||0) + 1; persist();   // crédité tout de suite : rien n'est perdu si l'appli se ferme
+    Object.assign(CASE, {battle:true, k2, tiles2:t2, off2:(R()*0.6-0.3), verdict:v, bonus});
   }
   sfx("tap"); renderShop(); cfullRender();
   const strip = $("strip"), reel = $("reel"); if(!strip || !reel){ caseDone(); return; }
@@ -12520,8 +12535,7 @@ function caseReveal(r){ try{ if(!ensureAudio()) return;
 function caseDone(){
   if(!CASE) return;
   CASE.busy = false; CASE.done = true;
-  if(CASE.battle){ const a = CASE.k.r, b = CASE.k2.r; CASE.verdict = a>b ? "win" : a===b ? "tie" : "lose"; CASE.bonus = a>b ? 60 : a===b ? 20 : 0;
-    D.plumes += CASE.bonus; D.knife.duels = (D.knife.duels||0) + 1; if(a>b) D.knife.wins = (D.knife.wins||0) + 1; persist(); renderTop();
+  if(CASE.battle){ renderTop();
     const e2 = document.querySelectorAll("#cfull #strip2 .rtile")[CASE_W]; if(e2) e2.classList.add("win"); }
   const k = CASE.k, el = document.querySelectorAll("#cfull #strip .rtile")[CASE_W]; if(el){ el.classList.add("win"); if(k.r>=3 && !reduced()) el.classList.add("suspense"); }
   const sus = k.r>=3 && !reduced();
@@ -12589,12 +12603,12 @@ function buy(it){
   equipItem(it);
   return true;
 }
-$("shoptabs").addEventListener("click", e=>{ const b=e.target.closest(".stab"); if(!b) return; if(CASE && CASE.busy) return; CASE = null; shopTab=b.dataset.tab; if(!(chestState&&chestState.busy)) chestState=null; sfx("tap"); renderShop(); });
+$("shoptabs").addEventListener("click", e=>{ const b=e.target.closest(".stab"); if(!b) return; if(CASE && CASE.busy) return; CASE = null; TRADE = null; shopTab=b.dataset.tab; if(!(chestState&&chestState.busy)) chestState=null; sfx("tap"); renderShop(); });
 $("shop-body").addEventListener("click", e=>{
   const b=e.target.closest("button"); if(!b || b.disabled) return;
   if(b.id==="chest-open"){ openChest(); return; }
   if(b.dataset.case){ caseOpen(b.dataset.case, !!b.dataset.battle); return; }
-  if(b.dataset.trade){ const [kind, r] = b.dataset.trade.split(":"); TRADE = {kind, r:+r}; sfx("tap"); renderShop(); setTimeout(()=>{ const c = $("trade-card"); if(c) keepInView(c); }, 50); return; }
+  if(b.dataset.trade){ const [kind, r] = b.dataset.trade.split(":"); TRADE = {kind, r:+r, crea: creaCur()}; sfx("tap"); renderShop(); setTimeout(()=>{ const c = $("trade-card"); if(c) keepInView(c); }, 50); return; }
   if(b.dataset.tradeok){ tradeDo(); return; }
   if(b.dataset.tradeno){ TRADE = null; sfx("tap"); renderShop(); return; }
   if(b.dataset.knife){ const id = b.dataset.knife; if(D.knife.have.includes(id)){ D.knife.cur = D.knife.cur===id ? null : id; persist(); applyLook(); sfx("tap"); toast(D.knife.cur ? `Lame équipée : ${KNIFE_BY[id].nm}` : "Lame rangée"); renderShop(); } return; }
@@ -12678,7 +12692,7 @@ if(TTS_OK){ pickVoice(); try{ speechSynthesis.addEventListener("voiceschanged", 
 /* ce que la voix lit : nombres lisibles (3 000 → 3000), symboles en mots */
 function ttsText(t){
   return String(t).replace(/(\d)[\s  ](?=\d{3}(?!\d))/g,"$1").replace(/(\d)[\s  ](?=\d{3}(?!\d))/g,"$1")
-    .replace(/\b(\d{1,2}) h (\d{2})\b/g, (m,h,mn)=>`${h} heure${+h>1?"s":""} ${+mn}`).replace(/\b(\d{1,2}) h\b(?!\s*\d)/g, (m,h)=>`${h} heure${+h>1?"s":""}`).replace(/\b(\d+) min\b/g, "$1 minutes")
+    .replace(/\b(\d{1,2}) h (\d{2})\b/g, (m,h,mn)=>`${h} heure${+h>1?"s":""} ${+mn}`).replace(/\b(\d{1,2}) h\b(?!\s*\d)/g, (m,h)=>`${h} heure${+h>1?"s":""}`).replace(/\b1 min\b/g, "1 minute").replace(/\b(\d+) min\b/g, "$1 minutes")
     .replace(/\s*€/g," euros").replace(/×/g," fois ").replace(/÷/g," divisé par ").replace(/−/g," moins ").replace(/□/g," combien ").replace(/\s+/g," ").trim();
 }
 function ttsUtter(text, rate){
@@ -13218,10 +13232,10 @@ function learn(q, ok){
   const up = eloUpdate(q, ok);
   const i = D.pool.findIndex(p=>p.t===q.t);
   if(ok && i>=0 && !q.hint) D.pool.splice(i,1);
-  if(!ok && q.op==="v" && q.p && LADDER[q.cat] && !q.fixDemo){ const key = `${q.cat}:${q.p}`, f = D.fix.k[key] || {m:0, d:0}; f.m = Math.min(99, f.m+1); f.d = dayNum(); D.fix.k[key] = f;
+  if(!ok && q.op==="v" && q.p && LADDER[q.cat] && !q.fixDemo && !q.defi){ const key = `${q.cat}:${q.p}`, f = D.fix.k[key] || {m:0, d:0}; f.m = Math.min(99, f.m+1); f.d = dayNum(); D.fix.k[key] = f;
     const ks = Object.keys(D.fix.k); if(ks.length>30) delete D.fix.k[ks.sort((a,b)=>D.fix.k[a].d-D.fix.k[b].d)[0]]; }
   if(ok && q.fixKey && !q.hint && S && S.kind==="fix"){ if(q.fixKey.startsWith("k:")) delete D.fix.k[q.fixKey.slice(2)]; D.fix.n++; S.fixed = (S.fixed||0) + 1; }
-  if(!ok && i<0 && q.op!=="v"){ const {cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}=q; D.pool.push({cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}); if(D.pool.length>40) D.pool.shift(); }
+  if(!ok && i<0 && q.op!=="v"){ const {cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc,pic,sh,sf}=q; D.pool.push(Object.assign({cat,op,a,b,r,t,fx,fy,p,x,u,ic,den,an,bn,rn,dsrc}, op==="w" && pic ? {pic,sh,sf} : {})); if(D.pool.length>40) D.pool.shift(); }
   persist();
   return up;
 }
@@ -13300,9 +13314,11 @@ function submit(){
     S.streak=0; S.res[S.i]="ko";
     const dg = errDiag(q, val), near = typeof q.r==="number" && Math.abs(val - q.r) <= Math.max(1, Math.round(Math.abs(q.r)*.1));
     S.mistakes.push(Object.assign({typed:val, typedTxt:S.typed, diag:dg}, q));
-    const backAt = !(S.queue && S.mode==="serie" && !q.again && !q.defi) ? -1 : S.coach && S.coach.mix ? S.queue.findIndex((x,k)=>k>=S.i+2 && x.nid===q.nid && !x.again && !x.easy) : (S.i+3 < S.queue.length ? S.i+3 : -1);
-    const back = backAt>=0;
+    const isFix = S.kind==="fix";
+    const backAt = isFix || !(S.queue && S.mode==="serie" && !q.again && !q.defi) ? -1 : S.coach && S.coach.mix ? S.queue.findIndex((x,k)=>k>=S.i+2 && x.nid===q.nid && !x.again && !x.easy) : (S.i+3 < S.queue.length ? S.i+3 : -1);
+    let back = backAt>=0;
     if(back) S.queue[backAt] = Object.assign({}, S.queue[S.i], {again:true, fromPool:false, guided:false});
+    if(isFix && q.fixKey && !q.fixDemo && !q.again){ S.queue.push(Object.assign({}, S.queue[S.i], {again:true, guided:false})); S.total = S.queue.length; back = true; }   // « Je répare » : on ne remplace rien, on la remet à la fin
     // 2 erreurs de suite dans le programme : on glisse 3 calculs plus faciles (la brique qui manque), puis on y retourne
     if(!q.defi) S.wrongRun = (S.wrongRun||0) + 1;
     let eased = null;
@@ -13459,6 +13475,7 @@ function finish(){
   if(advNewStars) md.push(...missionAdd("stars",advNewStars));
   md.push(...missionAdd("streak",G.bestStreak,true));
   if(G.kind==="redo" && G.score) md.push(...missionAdd("redo",G.score));
+  if(G.kind==="fix" && G.fixed) md.push(...missionAdd("redo",G.fixed));
 
   const nb=[]; const u=id=>{ if(unlock(id)) nb.push(id); };
   u("first");
@@ -13478,7 +13495,7 @@ function finish(){
   if(G.kind==="daily") u("daily");
   if(D.days.streak>=3) u("days3");
   if(D.days.streak>=7) u("days7");
-  if(G.kind==="redo" && G.score===G.total) u("redo");
+  if((G.kind==="redo" && G.score===G.total) || (G.kind==="fix" && G.fixed>=3)) u("redo");
   if(newLvl>=5) u("lvl5");
   if(newLvl>=10) u("lvl10");
   if(G.mode==="course" && G.raceWon && !G.firstRace) u("course");
