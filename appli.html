@@ -254,7 +254,7 @@ svg.diam{width:1.15em;height:1.15em;flex:none;vertical-align:-.2em}
 .cf-wave{position:absolute;left:50%;top:44%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;border:6px solid var(--rc);box-shadow:0 0 30px var(--rc);z-index:0;pointer-events:none;animation:cfWave 1.4s cubic-bezier(.2,.7,.3,1) forwards}
 .cf-wave.w2{animation-delay:.25s;opacity:0}
 @keyframes cfWave{0%{transform:scale(.2);opacity:1}100%{transform:scale(28);opacity:0}}
-.cf-stamp{position:absolute;top:9%;left:50%;z-index:3;transform:translateX(-50%) rotate(-6deg);font-family:var(--f-display);font-weight:900;font-size:clamp(1.8rem,5vw,3rem);letter-spacing:.06em;text-transform:uppercase;color:#fff;padding:6px 22px;border-radius:16px;background:var(--rc);box-shadow:0 0 40px var(--rc),0 6px 0 rgba(0,0,0,.35);animation:cfStamp .7s cubic-bezier(.2,1.8,.4,1) both;pointer-events:none}
+.cf-stamp{position:absolute;top:2.5%;left:50%;z-index:3;transform:translateX(-50%) rotate(-6deg);font-family:var(--f-display);font-weight:900;font-size:clamp(1.5rem,4vw,2.3rem);letter-spacing:.06em;text-transform:uppercase;color:#fff;padding:6px 22px;border-radius:16px;background:var(--rc);box-shadow:0 0 40px var(--rc),0 6px 0 rgba(0,0,0,.35);animation:cfStamp .7s cubic-bezier(.2,1.8,.4,1) both;pointer-events:none}
 @keyframes cfStamp{0%{transform:translateX(-50%) rotate(-6deg) scale(3);opacity:0}100%{transform:translateX(-50%) rotate(-6deg) scale(1);opacity:1}}
 .cfull.done.r4 .cf-res,.cfull.done.r5 .cf-res{animation:cfShake .5s ease-out .1s}
 @keyframes cfShake{0%,100%{transform:none}20%{transform:translate(-8px,4px)}40%{transform:translate(7px,-5px)}60%{transform:translate(-5px,3px)}80%{transform:translate(3px,-2px)}}
@@ -7080,10 +7080,10 @@ function mkHeure(kd){
     if(R()<.3){ return V({hh:h, mm:m0, r:m0, pre:`${E[0]} dure ${dur} minutes. ${Il} ${E[2]} à ${hm(eh,em)}.`, t:`${Il} ${E[1]} à ${h} h □`, pic:svgClock(eh,em,true),
       say:`${E[0]} dure ${dur} minutes. ${Il} ${E[2]} à ${hm(eh,em)}. À quelle heure ${inv(E[1], il)} ? Écris seulement les minutes.`,
       sh:`Recule de ${dur} minutes depuis ${hm(eh,em)} : d'abord jusqu'à ${eh} h pile (${em} minutes), puis encore ${dur-em} minutes.`, sf:`${hm(eh,em)} − ${em} min = ${eh} h ; ${eh} h − ${dur-em} min = ${hm(h,m0)}.`}); }
-    const askH = R()<.35;
+    const askH = R()<.2;
     return V({hh:h, mm:m0, r: askH ? eh : em, pre:`${E[0]} ${E[1]} à ${hm(h,m0)} et dure ${dur} minutes.`, t: askH ? `${Il} ${E[2]} à □ h ${String(em).padStart(2,"0")}` : `${Il} ${E[2]} à ${eh} h □`, pic:svgClock(h,m0,true),
       say:`${E[0]} ${E[1]} à ${hm(h,m0)} et dure ${dur} minutes. À quelle heure ${inv(E[2], il)} ? Écris seulement ${askH ? "les heures" : "les minutes"}.`,
-      sh:`Avance jusqu'à l'heure pile : de ${hm(h,m0)} à ${h+1} h, il y a ${60-m0} minutes. Puis ajoute ce qui reste des ${dur} minutes.`, sf:`${hm(h,m0)} + ${60-m0} min = ${h+1} h ; il reste ${dur-(60-m0)} min : ${hm(eh,em)}.`}); }
+      sh: askH ? `Avance de ${60-m0} minutes : tu arrives à l'heure pile suivante. Puis ajoute ce qui reste des ${dur} minutes.` : `Avance jusqu'à l'heure pile : de ${hm(h,m0)} à ${h+1} h, il y a ${60-m0} minutes. Puis ajoute ce qui reste des ${dur} minutes.`, sf:`${hm(h,m0)} + ${60-m0} min = ${h+1} h ; il reste ${dur-(60-m0)} min : ${hm(eh,em)}.`}); }
   if(kd===9){   // durées en heures et minutes (bonds : jusqu'à l'heure pile, les heures, les minutes), jours, semaines
     if(R()<.55){ let E, h, m0, dh, em, d, n = 0;
       do{ E = pick(EV9); h = rand(E[5], E[6]); m0 = 5*rand(4,11); dh = rand(1,2); em = 5*rand(1, m0/5-1); d = (dh)*60 + (60-m0) + em; n++; } while((d<E[3] || d>E[4]) && n<40);
@@ -8457,7 +8457,8 @@ function coachBuild(today){
   if(steps.length && steps.length<7 && flashNeeded(today)) steps.push({k:"flash", id:"flash", r:null});   // en dernier : un défi rapide pour finir
   if(!D.court && steps.length<7){   // notions solides en retard : une étape « Révisions express » (3 questions chacune) pour ne pas les oublier
     const inDue = new Set(due.map(([id])=>id));
-    const late = recs.filter(([id,v])=>v.due<=today && v.b>=3 && id[0]==="c" && !v.m && !inDue.has(id)).sort((a,b)=>a[1].due-b[1].due).slice(0,3).map(([id])=>id);
+    const lateAll = recs.filter(([id,v])=>v.due<=today && v.b>=3 && id[0]==="c" && !v.m && !inDue.has(id)).sort((a,b)=>a[1].due-b[1].due);
+    const late = lateAll.slice(0, lateAll.length>8 ? 5 : 3).map(([id])=>id);   // gros retard de notions solides : 5 vérifications express au lieu de 3
     if(late.length>=2){ const at = steps.findIndex(x=>x.k==="voix" || x.k==="flash"); steps.splice(at<0 ? steps.length : at, 0, {k:"mix", id:"mix", ids:late, quick:true, r:null}); }   // avant la lecture et l'Éclair (qui reste le dernier)
   }
   if(memNeeded() && !D.court) steps.unshift({k:"mem", id:"mem", r:null});      // 3 minutes pour apprendre à retenir, en échauffement
@@ -10118,7 +10119,7 @@ function coachDone(c, sc, total){
         C.stuck = [{id:c.id, d:today, m:2, pre: okPre ? pre : null, pause:true}, ...(C.stuck||[]).filter(x=>x.id!==c.id)].slice(0,10); }
       else { v.m = Math.min(2, (v.m||0) + 1); stuck = coachStuck(c.id, v.m); } } }
     else if(verdict!=="moyen"){ v.x = 0; if(v.m && v.b>=3) v.m--; }
-    days = COACH_DAYS[v.b]; v.due = today + days;
+    days = COACH_DAYS[v.b] + (v.b===5 && v.ok>=5 ? 14 : 0); v.due = today + days;   // très solide (5 réussites ou plus) : on espace encore un peu (46 jours)
     if(pause){ days = 3; v.due = v.pk; } else if(v.pk && verdict!=="rate") delete v.pk;
     // déjà su : on passe tout de suite à la suite (4 notions nouvelles au plus par jour)
     if(verdict==="deja" && step && C.plan.nw < COACH_NEW_MAX && C.plan.steps.length<(D.court ? 3 : 8) && coachLate(today) <= COACH_REV_MAX+2){
