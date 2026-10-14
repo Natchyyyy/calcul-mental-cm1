@@ -5619,7 +5619,7 @@ const MISSION_T = {
    une notion nouvelle par jour si tout va bien, des révisions espacées (raté → demain ; réussi → de plus en plus tard)
    ====================================================================== */
 const COACH_CALC = ("add:1 sub:1 deco:1 comp:1 deco:2 num:1 half:1 deco:3 add:2 deco:4 sub:2 num:2 suite:1 mult:1 heure:1 monnaie:1 half:2 comp:2 heure:2 mes:1 add:3 sub:3 mult:2 div:1 monnaie:2 add:4 sub:4 num:3 comp:3 heure:3 mult:3 div:2 half:3 monnaie:3 mes:2 suite:2 add:5 malin:1 sub:5 malin:2 num:4 mult:4 div:3 frac:1 suite:3 heure:4 comp:4 half:4 monnaie:4 prob:1 graph:1 "
-  + "add:6 sub:6 num:5 mult:5 heure:5 mes:3 sym:1 prob:2 graph:2 frac:2 monnaie:5 add:7 malin:3 sub:7 mult:6 heure:6 comp:5 mes:4 half:5 monnaie:6 prob:3 mes:5 sym:2 frac:3 heure:7 heure:8 add:8 malin:4 sub:8 mult:7 prob:4 graph:3 mult:8 div:4 half:6 num:6 num:8 suite:4 frac:4 big:1 add:9 malin:5 pose:1 sub:9 mult:9 malin:6 div:5 comp:6 big:2 suite:5 num:7 frac:5 prob:5 graph:4 "
+  + "add:6 sub:6 num:5 mult:5 heure:5 mes:3 sym:1 prob:2 graph:2 frac:2 monnaie:5 add:7 malin:3 sub:7 mult:6 heure:6 comp:5 mes:4 half:5 monnaie:6 prob:3 mes:5 sym:2 frac:3 heure:7 heure:8 add:8 malin:4 sub:8 mult:7 prob:4 graph:3 mult:8 div:4 half:6 num:6 suite:4 frac:4 big:1 add:9 malin:5 pose:1 sub:9 mult:9 malin:6 div:5 comp:6 big:2 suite:5 num:7 num:8 frac:5 prob:5 graph:4 "
   + "add:10 pose:2 sub:10 pose:3 half:7 mes:6 sym:3 big:3 div:6 comp:7 dec:1 heure:9 prob:6 mes:7 add:11 sub:11 pose:4 pose:5 malin:7 big:4 suite:6 pose:6 malin:8 pose:7 dec:2 half:8 comp:8 big:5 dec:3 prob:7 graph:5 mes:8 sym:4 add:12 sub:12 big:6 pose:8 dec:4 dec:5 big:7 prob:8 prob:9 dec:6 dec:7 big:8 dec:8").split(" ").map(x=>"c:"+x);
 const COACH_FR = (()=>{ const out = [], ids = ["mots","gram","conj","accord","lire"], mx = Math.max(...ids.map(i=>FR_LADDER[i].length));
   for(let p=1; p<=mx; p++) ids.forEach(i=>{ if(FR_LADDER[i][p-1]) out.push(`f:${i}:${p}`); }); return out; })();
@@ -9969,6 +9969,20 @@ function divPicOf(q){
   if(Number.isInteger(a) && Number.isInteger(b) && b>=2 && b<=10){ const r = Math.floor(a/b); if(r>=1 && r<=10) return svgArray(r, b); }
   return svgArray(4, 6);
 }
+/* un dessin pour l'exemple « autrement » des nouvelles notions sans image : suite = droite avec les bonds ; calcul malin = paquets */
+function exPic(q){
+  const t = String(q.t), nums = (t.replace(/(\d)[\s\u202f\u00a0](?=\d{3}\b)/g, "$1").match(/\d+/g) || []).map(Number);
+  try{
+    if(q.cat==="suite"){ const parts = t.split(":")[0].split(",").map(x=>x.trim()), gap = parts.findIndex(x=>x.includes("□")), terms = parts.map(x=>x.includes("□") ? q.r : Number(x.replace(/\D/g,"")));
+      const ds = terms.slice(1).map((v,i)=>v-terms[i]); if(gap>=0 && terms.every(Number.isFinite) && ds.every(d=>d===ds[0]) && ds[0]) return msSuiteLine(terms, gap, ds[0]);
+      return svgSteps([terms.map((v,i)=>({v:1, lab: i===gap ? "?" : v, q: i===gap}))]); }
+    if(/×/.test(t) && nums.length>=2){ const a = nums[0], b = nums[1], n = Math.min(a, b), k = Math.max(a, b);
+      if(n<=10) return svgSteps([[...Array(n)].map(()=>({v:k})), [{v:n*k, q:true, lab:"?"}]]); }
+    if(/−/.test(t) && nums.length>=2 && nums[0]>nums[1]){ const A = nums[0], B = nums[1]; return svgSteps([[{v:A}], [{v:A-B, q:true, lab:"?"}, {v:B, out:true, lab:B, sub:"on enlève"}]]); }
+    if(/\+/.test(t) && nums.length>=2) return svgSteps([nums.filter(v=>v>0).slice(0, 4).map((v,i)=>({v, c: i%2 ? "sv-box2" : "sv-box"})), [{v:1, q:true, lab:"?"}]]);
+  }catch(e){}
+  const L = LESSON[`${q.cat}:${q.kd||q.p}`] || ""; return (L.match(/<svg[\s\S]*?<\/svg>/) || [""])[0];
+}
 function lessonExB(id){
   const I = coachInfo(id);
   if(I.dom==="c"){
@@ -9976,11 +9990,11 @@ function lessonExB(id){
     const head = q.op==="v" ? `<p class="lex-q" style="font-size:1.2rem">${q.pre||""} ${before}<span class="lex-blank">?</span>${after||""}</p>`
       : q.op==="w" ? `<p class="lex-txt">${before.trim()}</p>` : `<p class="lex-q">${before}<span class="lex-blank">?</span>${after||""}</p>`;
     let pic = "", cap = "";
-    if(q.op==="w"){ pic = svgBars(q.x, q.u); cap = "Je dessine l'histoire avec des barres : ça montre si on rassemble, si on enlève ou si on fait des paquets."; }
+    if(q.op==="w"){ pic = q.pic || svgBars(q.x, q.u); cap = "Je dessine l'histoire avec des barres : ça montre si on rassemble, si on enlève ou si on fait des paquets."; }
     else if(q.cat==="mult"){ const r_ = q.op==="?" ? q.a : q.fx, c_ = q.op==="?" ? q.r : q.fy; pic = svgArray(Math.min(10, r_), Math.min(10, c_)); cap = "Une multiplication, ce sont des rangées toutes pareilles : je compte les rangées, puis combien il y a dans chaque rangée."; }
     else if(q.cat==="big"){ pic = bigTable(q); cap = "Dans le tableau des nombres, chaque chiffre a sa colonne : je calcule colonne par colonne."; }
     else if(q.op==="v"){
-      pic = q.cat==="pose" && q.R ? poseHtml(q.R, Infinity) : q.pic || (q.cat==="num" ? numPicOf(q) : q.cat==="div" ? divPicOf(q) : q.cat==="frac" ? fracBar(10, 10) : q.cat==="mes" ? convTable("L", 1, "m", "cm", true) : q.cat==="heure" ? svgClock(1, 0) : "");
+      pic = q.cat==="pose" && q.R ? poseHtml(q.R, Infinity) : q.pic || (q.cat==="num" ? numPicOf(q) : q.cat==="div" ? divPicOf(q) : q.cat==="frac" ? fracBar(10, 10) : q.cat==="mes" ? convTable("L", 1, "m", "cm", true) : q.cat==="heure" ? svgClock(1, 0) : exPic(q));
       cap = q.cat==="heure" ? "La petite aiguille (rouge) montre les heures, la grande (bleue) montre les minutes. Je regarde d'abord la petite, puis la grande."
         : q.cat==="mes" ? "Je mets tout dans la même unité. Dans le tableau, chaque colonne vaut 10 fois celle de droite : je complète avec des 0."
         : q.cat==="pose" ? "Je pose l'opération bien alignée, puis je calcule colonne par colonne en commençant par la droite, sans oublier les retenues."
