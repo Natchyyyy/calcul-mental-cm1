@@ -2661,24 +2661,24 @@ function msMalinGen(kd){
     const t = rand(0,3) ? `${n} × ${m} = □` : `${m} × ${n} = □`;
     const ch = eight ? [n, 2*n, 4*n, 8*n] : [n, 2*n, 4*n];
     return Q({r, t, sh: eight ? `× 8, c'est doubler 3 fois : double ${n}, puis double encore, et encore.` : `× 4, c'est doubler 2 fois : double ${n}, puis double encore.`,
-      sf:`${t.replace(" = □", "")} : ${ch.join(" → ")}. Donc ${n} × ${m} = ${r}.`});
+      sf:`${t.replace(" = □", "")} : ${ch.join(" → ")}. Donc ${t.replace(" = □", "")} = ${r}.`});
   });
   // kd 8 : regrouper malin
   return msTry(() => {
     const v = rand(0, 3);
     if(v === 0){                                     // 25 × 4 × k
       const k = rand(2, 9), r = 100*k, f = pick([[25, 4, k], [25, k, 4], [4, k, 25], [k, 25, 4]]);
-      return Q({r, pre:"Regroupe malin avant de calculer.", t:`${f.join(" × ")} = □`, sh:"Commence par 25 × 4 : ça fait un nombre rond.", sf:`25 × 4 = 100, puis 100 × ${k} = ${r}.`});
+      return Q({r, pre:"Sois malin : regroupe les nombres avant de calculer.", t:`${f.join(" × ")} = □`, sh:"Commence par 25 × 4 : ça fait un nombre rond.", sf:`25 × 4 = 100, puis 100 × ${k} = ${r}.`});
     }
     if(v === 1){                                     // 2 × k × 5
       const k = rand(11, 49), r = 10*k, f = pick([[2, k, 5], [5, k, 2], [k, 2, 5], [k, 5, 2]]);
-      return Q({r, pre:"Regroupe malin avant de calculer.", t:`${f.join(" × ")} = □`, sh:"Commence par 2 × 5 : ça fait 10.", sf:`2 × 5 = 10, puis 10 × ${k} = ${r}.`});
+      return Q({r, pre:"Sois malin : regroupe les nombres avant de calculer.", t:`${f.join(" × ")} = □`, sh:"Commence par 2 × 5 : ça fait 10.", sf:`2 × 5 = 10, puis 10 × ${k} = ${r}.`});
     }
     // additions : deux nombres qui font une dizaine ronde
     const u = rand(1, 9), a = rand(1, 4)*10 + u, c = (v === 2 ? 0 : rand(1, 3)*10) + (10 - u), b = rand(12, 69);
     if(b % 10 === 0 || b % 10 === u || b % 10 === 10 - u) return null;   // une seule paire possible
     const s = a + c, r = s + b, f = rand(0,1) ? [a, b, c] : [c, b, a];
-    return Q({r, pre:"Regroupe malin avant de calculer.", t:`${f.join(" + ")} = □`, sh:`Regroupe ${a} et ${c} : ça fait une dizaine ronde.`, sf:`${a} + ${c} = ${s}, puis ${s} + ${b} = ${r}.`});
+    return Q({r, pre:"Sois malin : regroupe les nombres avant de calculer.", t:`${f.join(" + ")} = □`, sh:`Regroupe ${a} et ${c} : ça fait un nombre rond.`, sf:`${a} + ${c} = ${s}, puis ${s} + ${b} = ${r}.`});
   });
 }
 function mkMalin(kd){
@@ -2707,7 +2707,7 @@ const MALIN_LESSON = {
 };
 
 /* =================== NOTION 2 : Suites de nombres =================== */
-const SUITE_NAMES = ["Compter de 2 en 2, de 5 en 5, de 10 en 10", "En reculant", "De 3 en 3, de 4 en 4", "De 100 en 100, de 50 en 50", "Le nombre qui manque au milieu", "Trouve la règle"];
+const SUITE_NAMES = ["Compter de 2 en 2, de 5 en 5, de 10 en 10", "En reculant", "De 3 en 3, de 4 en 4, de 6 en 6…", "De 100 en 100, de 50 en 50", "Le nombre qui manque au milieu", "Trouve la règle"];
 const SUITE_CLASS = ["CE1","CE1","CE2","CE2","CE2","CM1"];
 
 function mkSuite(kd){
@@ -2784,13 +2784,7 @@ function mkSuite(kd){
         sh:`Compare ${terms[1]} et ${terms[2]}, puis ${terms[2]} et ${terms[3]}. L'écart n'est pas toujours le même… pense au double !`,
         sf:`Chaque nombre est le double du précédent : ${terms.join(" → ")}. Le double de ${terms[3]}, c'est ${r}.`});
     }
-    if(v === 3){                                     // moitiés (ou × 3, plus rare)
-      if(rand(0, 3) === 0){
-        const s = pick([1, 2]), terms = [s, 3*s, 9*s, 27*s], r = 81*s;
-        return Q({r, pre:"Trouve la règle, puis continue.", t:`${terms.join(", ")}, □`,
-          sh:`Compare ${terms[0]} et ${terms[1]}, puis ${terms[1]} et ${terms[2]}. L'écart change… essaie une multiplication.`,
-          sf:`On multiplie par 3 à chaque fois : ${terms.join(" → ")}. ${terms[3]} × 3 = ${r}.`});
-      }
+    if(v === 3){                                     // moitiés
       const k = rand(1, 8), terms = [16*k, 8*k, 4*k, 2*k], r = k;
       return Q({r, pre:"Trouve la règle, puis continue.", t:`${terms.join(", ")}, □`,
         sh:`Compare ${terms[0]} et ${terms[1]}, puis ${terms[1]} et ${terms[2]}. L'écart n'est pas toujours le même… pense à la moitié !`,
@@ -2803,7 +2797,7 @@ function mkSuite(kd){
     if(terms.includes(d)) return null;
     const diff = down ? `${terms[1]} − ${terms[2]}` : `${terms[2]} − ${terms[1]}`;
     return Q({r:d, pre:"Trouve la règle de cette suite.", t:`${terms.join(", ")} : on ${down ? "enlève" : "ajoute"} □`,
-      sh:`Fais le calcul entre deux nombres qui se suivent : ${diff}.`,
+      sh:`Calcule l'écart entre deux nombres qui se suivent : ${diff}.`,
       sf:`${diff} = ${d}, et c'est pareil pour les autres. La règle : on ${down ? "enlève" : "ajoute"} ${d}.`});
   });
 }
@@ -2815,7 +2809,7 @@ const SUITE_LESSON = {
     + msLine([40, 125, 210, 295, 380].map((x,i) => ({x, lab:String(30 + 5*i)})), [0,1,2,3].map(i => ({a:376 - 85*i, b:299 - 85*i, lab:"− 5", h:24})), "Une ligne des nombres avec des bonds de moins 5", "ms-s"),
   "suite:3": `De 3 en 3 : 0, 3, 6, 9, 12… c'est la table de 3 ! On peut partir d'un autre nombre : 7, 10, 13, 16… on <b>ajoute 3 à chaque fois</b>.<br>`
     + msLine([40, 125, 210, 295, 380].map((x,i) => ({x, lab:String(7 + 3*i)})), [0,1,2,3].map(i => ({a:44 + 85*i, b:121 + 85*i, lab:"+ 3", h:24})), "Une ligne des nombres avec des bonds de plus 3", "ms-s"),
-  "suite:4": `<b>De 100 en 100</b>, c'est le chiffre des centaines qui change : 340, 440, 540, 640. Attention au passage du mille : 900, 1 000, 1 100.<br><b>De 50 en 50</b> : 0, 50, 100, 150, 200… deux bonds de 50 font 100.`,
+  "suite:4": `<b>De 100 en 100</b>, c'est le chiffre des centaines qui change : 340, 440, 540, 640. Attention au passage à 1 000 : 900, 1 000, 1 100.<br><b>De 50 en 50</b> : 0, 50, 100, 150, 200… deux bonds de 50 font 100.`,
   "suite:5": `Le nombre qui manque est au milieu. <b>Trouve d'abord la règle</b> avec deux nombres qui se suivent, puis remplis le trou.<br>Exemple : 14, 18, ?, 26, 30. On ajoute 4 : 18 + 4 = 22. On vérifie : 22 + 4 = 26. C'est bon !<br>`
     + msLine([40, 125, 210, 295, 380].map((x,i) => ({x, lab:String(14 + 4*i), q:i === 2})), [0,1,2,3].map(i => ({a:44 + 85*i, b:121 + 85*i, lab:"+ 4", h:24, dash:i === 1 || i === 2})), "Une ligne des nombres avec des bonds de plus 4 et un nombre qui manque", "ms-s"),
   "suite:6": `Sois détective ! <b>Calcule l'écart</b> entre deux nombres qui se suivent. S'il est toujours le même, c'est la règle : 7, 13, 19, 25 → on ajoute 6.<br>Sinon, essaie le <b>double</b> ou la <b>moitié</b> : 3, 6, 12, 24, 48.`,
@@ -2886,7 +2880,7 @@ const gsDe = w => /^[aeiouyéèêœ]/i.test(w) ? `d'${w}` : `de ${w}`;
 const gsHas = art => /^les /.test(art) ? "ont" : "a";
 const gsR1 = v => Math.round(v * 10) / 10;
 /* phrase avec « @ » → question parlée : « Léa a @ billes » → « Léa a combien de billes ? » */
-const gsAsk = s => gsCap(s.replace(/@ /, "combien de ").replace(/combien de ([aeiouyéèêœ])/gi, "combien d'$1").replace(/@/, "combien")) + " ?";
+const gsAsk = s => /^(.+?) a @ ans$/.test(s) ? s.replace(/^(.+?) a @ ans$/, "Quel âge a $1 ?") : gsCap(s.replace(/@ /, "combien de ").replace(/combien de ([aeiouyéèêœ])/gi, "combien d'$1").replace(/@/, "combien")) + " ?";
 const gsSay = (pre, s) => ((pre ? pre + " " : "") + gsAsk(s)).replace(/\s+/g, " ").trim();
 const gsShuf = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 const gsSome = (arr, n) => gsShuf(arr).slice(0, n);
@@ -2899,32 +2893,32 @@ const gsQ = (cat, kd, o) => Object.assign({cat, op: "v", kd}, o);
    ===================================================================== */
 const GS_KIDS = ["Léa", "Tom", "Inès", "Noah", "Jade", "Malik", "Zoé", "Sacha", "Lina", "Hugo", "Emma", "Adam", "Nino", "Rose"];
 const GS_DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
-const GS_GAMES = {Loup: "le loup", Foot: "le foot", Marelle: "la marelle", Corde: "la corde à sauter", Ballon: "le ballon prisonnier", Billes: "les billes"};
+const GS_GAMES = {Loup: "le loup", Foot: "le foot", Marelle: "la marelle", Corde: "la corde", "Cache-cache": "le cache-cache", Billes: "les billes"};
 const GS_SNACK = {Crêpes: "les crêpes", Gâteau: "le gâteau", Fruits: "les fruits", Yaourt: "le yaourt", Tartine: "la tartine", Compote: "la compote"};
 /* chaque contexte : titre, en-têtes, étiquettes, valeurs possibles (tableaux), pas possibles (barres), phrases */
 const GS_CTX = [
   {ttl: "Les billes des enfants", hd: ["Enfant", "Billes"], labs: GS_KIDS, n: [2, 30], st: [1, 2, 5], u: "billes",
-    one: (L, X) => `${L} a ${X} billes`, more: (A, B, X) => `${A} a ${X} billes de plus que ${B}`,
+    one: (L, X) => `${L} a ${X} billes`, more: (A, B, X) => `${A} a ${X} billes de plus ${gsQue(B)}`,
     both: (A, B) => `${A} et ${B} mettent leurs billes ensemble.`, all: X => `Les enfants ont ${X} billes en tout`},
   {ttl: "Livres lus cette année", hd: ["Enfant", "Livres"], labs: GS_KIDS, n: [2, 20], st: [1, 2], u: "livres",
-    one: (L, X) => `${L} a lu ${X} livres`, more: (A, B, X) => `${A} a lu ${X} livres de plus que ${B}`,
+    one: (L, X) => `${L} a lu ${X} livres`, more: (A, B, X) => `${A} a lu ${X} livres de plus ${gsQue(B)}`,
     both: (A, B) => `On compte les livres lus par ${A} et par ${B}.`, all: X => `Les enfants ont lu ${X} livres en tout`},
   {ttl: "Les animaux du zoo", hd: ["Animal", "Nombre"], labs: ["Lions", "Girafes", "Zèbres", "Singes", "Ours", "Phoques", "Tigres", "Lamas"], n: [2, 15], st: [1, 2], u: "animaux",
     one: (L, X) => `Au zoo, il y a ${X} ${gsLc(L)}`, more: (A, B, X) => `Il y a ${X} ${gsLc(A)} de plus que ${gsDe(gsLc(B))}`,
     both: (A, B) => `On compte les ${gsLc(A)} et les ${gsLc(B)} ensemble.`, all: X => `Au zoo, il y a ${X} animaux en tout`},
   {ttl: "Fruits vendus au marché", hd: ["Fruit", "Vendus"], labs: ["Pommes", "Poires", "Kiwis", "Melons", "Ananas", "Citrons", "Prunes"], n: [10, 60], st: [5, 10], u: "fruits",
-    one: (L, X) => `Le marchand a vendu ${X} ${gsLc(L)}`, more: (A, B, X) => `Il a vendu ${X} ${gsLc(A)} de plus que ${gsDe(gsLc(B))}`,
+    one: (L, X) => `Le marchand a vendu ${X} ${gsLc(L)}`, more: (A, B, X) => `Le marchand a vendu ${X} ${gsLc(A)} de plus que ${gsDe(gsLc(B))}`,
     both: (A, B) => `On compte ensemble les ${gsLc(A)} et les ${gsLc(B)}.`, all: X => `En tout, le marchand a vendu ${X} fruits`},
   {ttl: "Température à midi (en degrés)", hd: ["Jour", "Degrés"], labs: GS_DAYS, days: true, n: [5, 30], st: [2, 5], u: "degrés", noSum: true,
     one: (L, X) => `${L}, il a fait ${X} degrés`, more: (A, B, X) => `${A}, il a fait ${X} degrés de plus que ${gsLc(B)}`},
   {ttl: "Médailles de natation", hd: ["Enfant", "Médailles"], labs: GS_KIDS, n: [2, 12], st: [1, 2], u: "médailles",
-    one: (L, X) => `${L} a gagné ${X} médailles`, more: (A, B, X) => `${A} a gagné ${X} médailles de plus que ${B}`,
+    one: (L, X) => `${L} a gagné ${X} médailles`, more: (A, B, X) => `${A} a gagné ${X} médailles de plus ${gsQue(B)}`,
     both: (A, B) => `On compte les médailles ${gsDe(A)} et ${gsDe(B)} ensemble.`, all: X => `Les enfants ont gagné ${X} médailles en tout`},
   {ttl: "Points au jeu de fléchettes", hd: ["Enfant", "Points"], labs: GS_KIDS, n: [10, 90], st: [5, 10], u: "points",
-    one: (L, X) => `${L} a marqué ${X} points`, more: (A, B, X) => `${A} a marqué ${X} points de plus que ${B}`,
+    one: (L, X) => `${L} a marqué ${X} points`, more: (A, B, X) => `${A} a marqué ${X} points de plus ${gsQue(B)}`,
     both: (A, B) => `On compte les points ${gsDe(A)} et ${gsDe(B)} ensemble.`, all: X => `Les enfants ont marqué ${X} points en tout`},
   {ttl: "L'âge des enfants", hd: ["Enfant", "Âge"], labs: GS_KIDS, n: [6, 12], st: [1], u: "ans", onlyTable: true, noSum: true,
-    one: (L, X) => `${L} a ${X} ans`, more: (A, B, X) => `${A} a ${X} ans de plus que ${B}`},
+    one: (L, X) => `${L} a ${X} ans`, more: (A, B, X) => `${A} a ${X} ans de plus ${gsQue(B)}`},
   {ttl: "Le jeu préféré de la classe", hd: ["Jeu", "Votes"], labs: Object.keys(GS_GAMES), n: [2, 12], st: [1, 2], u: "votes",
     one: (L, X) => `${X} enfants ont choisi ${GS_GAMES[L]}`, more: (A, B, X) => `${gsCap(GS_GAMES[A])} ${gsHas(GS_GAMES[A])} eu ${X} votes de plus que ${GS_GAMES[B]}`,
     both: (A, B) => `On compte les votes pour ${GS_GAMES[A]} et pour ${GS_GAMES[B]}.`, all: X => `En tout, ${X} enfants ont voté`},
@@ -2932,10 +2926,10 @@ const GS_CTX = [
     one: (L, X) => `${X} enfants ont voté pour ${GS_SNACK[L]}`, more: (A, B, X) => `${gsCap(GS_SNACK[A])} ${gsHas(GS_SNACK[A])} eu ${X} votes de plus que ${GS_SNACK[B]}`,
     both: (A, B) => `On compte les votes pour ${GS_SNACK[A]} et pour ${GS_SNACK[B]}.`, all: X => `En tout, ${X} enfants ont voté`},
   {ttl: "Œufs pondus par les poules", hd: ["Jour", "Œufs"], labs: GS_DAYS, days: true, n: [2, 15], st: [1, 2], u: "œufs",
-    one: (L, X) => `${L}, les poules ont pondu ${X} œufs`, more: (A, B, X) => `${A}, elles ont pondu ${X} œufs de plus que ${gsLc(B)}`,
+    one: (L, X) => `${L}, les poules ont pondu ${X} œufs`, more: (A, B, X) => `${A}, les poules ont pondu ${X} œufs de plus que ${gsLc(B)}`,
     both: (A, B) => `On compte les œufs de ${gsLc(A)} et de ${gsLc(B)} ensemble.`, all: X => `En tout, les poules ont pondu ${X} œufs`},
   {ttl: "Poissons pêchés au lac", hd: ["Enfant", "Poissons"], labs: GS_KIDS, n: [2, 15], st: [1, 2], u: "poissons",
-    one: (L, X) => `${L} a pêché ${X} poissons`, more: (A, B, X) => `${A} a pêché ${X} poissons de plus que ${B}`,
+    one: (L, X) => `${L} a pêché ${X} poissons`, more: (A, B, X) => `${A} a pêché ${X} poissons de plus ${gsQue(B)}`,
     both: (A, B) => `On compte les poissons ${gsDe(A)} et ${gsDe(B)} ensemble.`, all: X => `Les enfants ont pêché ${X} poissons en tout`}
 ];
 /* étiquettes : jours dans l'ordre, sinon au hasard */
@@ -2999,6 +2993,7 @@ function gsBarData(ctx, n, steps) {
   return {step, nT, labs, vals};
 }
 const gsQuote = L => `« ${L} »`;
+const gsQue = n => /^[aeiouyéèêâîôœh]/i.test(n) && !/^h[^aeiouy]/i.test(n) ? `qu'${n}` : `que ${n}`;
 
 function mkGraph(kd) {
   const V = o => gsQ("graph", kd, o);
@@ -3038,7 +3033,7 @@ function mkGraph(kd) {
     }
     const x = R() < .5, P = x ? A : B, Q = x ? B : A, vp = x ? va : vb, vq = x ? vb : va, pre = ctx.both(P, Q), r = va + vb;
     return V({r, pic, pre, t: `Ça fait □ ${ctx.u}`,
-      sh: `Lis ${what} (${gsQuote(P)} et ${gsQuote(Q)}), puis additionne-les.`,
+      sh: `Lis ${what} (${gsQuote(P)} et ${gsQuote(Q)}), puis additionne les deux nombres.`,
       sf: `${gsQuote(P)} : ${fmt(vp)} ; ${gsQuote(Q)} : ${fmt(vq)}. ${fmt(vp)} + ${fmt(vq)} = ${fmt(r)}.`,
       say: gsSay(pre, `Ça fait @ ${ctx.u}`), _d: Object.assign(_d, {k: "sum"})});
   }
@@ -3048,10 +3043,10 @@ function mkGraph(kd) {
     const pic = gsBars(ctx.ttl, d.labs, d.vals, d.step, d.nT), _d = {v: d.vals, labs: d.labs, step: d.step, nT: d.nT};
     if (total) {
       const r = d.vals.reduce((s, v) => s + v, 0);
-      return V({r, pic, pre: "Compte pour tout le diagramme.", t: ctx.all("□"),
+      return V({r, pic, pre: "Regarde tout le diagramme.", t: ctx.all("□"),
         sh: "Lis chaque barre, puis additionne tous les nombres. Commence par ceux qui vont bien ensemble.",
         sf: `${d.labs.map((l, i) => `${l} ${fmt(d.vals[i])}`).join(", ")}. ${d.vals.map(fmt).join(" + ")} = ${fmt(r)}.`,
-        say: gsSay("Compte pour tout le diagramme.", ctx.all("@")), _d: Object.assign(_d, {k: "tot"})});
+        say: gsSay("Regarde tout le diagramme.", ctx.all("@")), _d: Object.assign(_d, {k: "tot"})});
     }
     const mx = Math.max(...d.vals), mn = Math.min(...d.vals), r = mx - mn, Lx = d.labs[d.vals.indexOf(mx)], Ln = d.labs[d.vals.indexOf(mn)];
     const pre = "Compare la barre la plus haute et la barre la plus basse.";
@@ -3218,29 +3213,29 @@ function gsSym3Data(h) {
 }
 /* niveau 4 : figures classiques et lettres */
 const GS_SHAPES = [
-  {id: "carre", nm: "un carré", ax: 4, g: `<rect class="gs-shape" x="150" y="30" width="140" height="140"/>`, why: "On peut plier un carré en deux de 4 façons : de haut en bas, de gauche à droite, et selon ses 2 diagonales."},
-  {id: "rect", nm: "un rectangle", ax: 2, g: `<rect class="gs-shape" x="100" y="40" width="240" height="120"/>`, why: "Un rectangle se plie au milieu de haut en bas, ou au milieu de gauche à droite. Plié selon une diagonale, les moitiés ne se superposent pas."},
-  {id: "rectv", nm: "un rectangle", ax: 2, g: `<rect class="gs-shape" x="170" y="18" width="100" height="164"/>`, why: "Un rectangle se plie au milieu de haut en bas, ou au milieu de gauche à droite. Plié selon une diagonale, les moitiés ne se superposent pas."},
+  {id: "carre", nm: "un carré", ax: 4, g: `<rect class="gs-shape" x="150" y="30" width="140" height="140"/>`, why: "On peut plier un carré en deux de 4 façons : un pli debout, un pli couché, et les 2 plis en biais (les diagonales)."},
+  {id: "rect", nm: "un rectangle", ax: 2, g: `<rect class="gs-shape" x="100" y="40" width="240" height="120"/>`, why: "Un rectangle se plie avec un pli debout au milieu, ou avec un pli couché au milieu. Plié en biais (selon une diagonale), les moitiés ne se superposent pas."},
+  {id: "rectv", nm: "un rectangle", ax: 2, g: `<rect class="gs-shape" x="170" y="18" width="100" height="164"/>`, why: "Un rectangle se plie avec un pli debout au milieu, ou avec un pli couché au milieu. Plié en biais (selon une diagonale), les moitiés ne se superposent pas."},
   {id: "equi", nm: "un triangle équilatéral (3 côtés égaux)", ax: 3, g: `<polygon class="gs-shape" points="220,26 135,173.2 305,173.2"/>`, why: "Dans un triangle équilatéral, on peut plier en partant de chaque sommet vers le milieu du côté d'en face : 3 plis."},
   {id: "iso", nm: "un triangle isocèle (2 côtés égaux)", ax: 1, g: `<polygon class="gs-shape" points="220,14 165,186 275,186"/>`, why: "Ce triangle se plie seulement par le trait vertical qui passe par la pointe du haut."},
   {id: "losange", nm: "un losange", ax: 2, g: `<polygon class="gs-shape" points="220,12 285,100 220,188 155,100"/>`, why: "Un losange se plie selon ses 2 diagonales : la verticale et l'horizontale."},
   {id: "coeur", nm: "un cœur", ax: 1, g: `<path class="gs-shape" d="M220 182C130 122 100 82 120 47C140 12 200 17 220 57C240 17 300 12 320 47C340 82 310 122 220 182Z"/>`, why: "Un cœur se plie seulement par le trait vertical du milieu."},
   {id: "hexa", nm: "un hexagone régulier (6 côtés égaux)", ax: 6, g: `<polygon class="gs-shape" points="310,100 265,22.1 175,22.1 130,100 175,177.9 265,177.9"/>`, why: "Un hexagone régulier se plie de sommet à sommet (3 plis) et de milieu de côté à milieu de côté (3 plis)."},
-  {id: "croix", nm: "une croix aux 4 branches égales", ax: 4, g: `<path class="gs-shape" d="M195 15H245V75H305V125H245V185H195V125H135V75H195Z"/>`, why: "Cette croix se plie de haut en bas, de gauche à droite, et selon les 2 diagonales."},
+  {id: "croix", nm: "une croix aux 4 branches égales", ax: 4, g: `<path class="gs-shape" d="M195 15H245V75H305V125H245V185H195V125H135V75H195Z"/>`, why: "Cette croix se plie de 4 façons : un pli debout, un pli couché, et les 2 plis en biais."},
   {id: "maison", nm: "une maison", ax: 1, g: `<polygon class="gs-shape" points="155,186 155,96 220,28 285,96 285,186"/>`, why: "La maison se plie seulement par le trait vertical qui passe par le haut du toit."},
   {id: "fleche", nm: "une flèche", ax: 1, g: `<polygon class="gs-shape" points="100,78 250,78 250,36 334,100 250,164 250,122 100,122"/>`, why: "La flèche se plie seulement par le trait horizontal du milieu, dans le sens de la flèche."},
   {id: "cerf", nm: "un cerf-volant", ax: 1, g: `<polygon class="gs-shape" points="220,12 282,70 220,188 158,70"/>`, why: "Le cerf-volant se plie seulement par le trait vertical qui va d'une pointe à l'autre."},
-  {id: "trap", nm: "un trapèze", ax: 1, g: `<polygon class="gs-shape" points="170,40 270,40 325,165 115,165"/>`, why: "Ce trapèze se plie seulement par le trait vertical du milieu."},
+  {id: "trap", nm: "un trapèze aux deux côtés penchés égaux", ax: 1, g: `<polygon class="gs-shape" points="170,40 270,40 325,165 115,165"/>`, why: "Ce trapèze se plie seulement par le trait vertical du milieu."},
   {id: "para", nm: "un parallélogramme", ax: 0, g: `<polygon class="gs-shape" points="170,40 345,40 270,165 95,165"/>`, why: "Plie-le dans tous les sens : les deux moitiés ne se superposent jamais, elles sont penchées dans des sens contraires. Il n'a aucun axe."},
   {id: "etoile", nm: "une étoile à 5 branches", ax: 5, g: (() => { let p = []; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? 37.5 : 95; p.push(`${gsR1(220 + rr * Math.cos(a))},${gsR1(108 + rr * Math.sin(a))}`); } return `<polygon class="gs-shape" points="${p.join(" ")}"/>`; })(), why: "On peut plier l'étoile par chaque pointe et le creux d'en face : 5 pointes, donc 5 plis."},
-  {id: "H", nm: "la lettre H", ax: 2, g: `<path class="gs-letter" d="M164 22V178M276 22V178M164 100H276"/>`, why: "Le H se plie de haut en bas au milieu, et aussi de gauche à droite au milieu."},
+  {id: "H", nm: "la lettre H", ax: 2, g: `<path class="gs-letter" d="M164 22V178M276 22V178M164 100H276"/>`, why: "Le H se plie avec un pli debout au milieu, et aussi avec un pli couché au milieu."},
   {id: "A", nm: "la lettre A", ax: 1, g: `<path class="gs-lfill" d="M146 186L204 22H236L294 186H264L250 146H190L176 186ZM199 120H241L220 62Z"/>`, why: "Le A se plie seulement par le trait vertical qui passe par sa pointe."},
   {id: "T", nm: "la lettre T", ax: 1, g: `<path class="gs-letter" d="M140 36H300M220 36V182"/>`, why: "Le T se plie seulement par le trait vertical du milieu."},
   {id: "M", nm: "la lettre M", ax: 1, g: `<path class="gs-lfill" d="M146 186V22H178L220 86L262 22H294V186H266V78L220 146L174 78V186Z"/>`, why: "Le M se plie seulement par le trait vertical du milieu."},
   {id: "E", nm: "la lettre E", ax: 1, g: `<path class="gs-letter" d="M282 32H166V168H282M166 100H266"/>`, why: "Le E se plie seulement par le trait horizontal du milieu."},
-  {id: "F", nm: "la lettre F", ax: 0, g: `<path class="gs-letter" d="M282 32H166V182M166 100H258"/>`, why: "Plié de haut en bas, le F n'a pas de barre en bas pour répondre à celle du haut ; plié de gauche à droite, les barres ne vont que d'un côté. Il n'a aucun axe."},
+  {id: "F", nm: "la lettre F", ax: 0, g: `<path class="gs-letter" d="M282 32H166V182M166 100H258"/>`, why: "Avec un pli couché, la barre du haut n'a rien en face en bas ; avec un pli debout, les barres ne vont que d'un côté. Il n'a aucun axe."},
   {id: "L", nm: "la lettre L", ax: 0, g: `<path class="gs-letter" d="M178 18V168H280"/>`, why: "Le L a une barre en bas mais pas en haut, et sa barre ne part que vers la droite. Il n'a aucun axe."},
-  {id: "O", nm: "la lettre O", ax: 2, g: `<ellipse class="gs-letter" cx="220" cy="100" rx="56" ry="78"/>`, why: "Ce O, plus haut que large, se plie de haut en bas et de gauche à droite. Plié en biais, ça ne marche pas."}
+  {id: "O", nm: "la lettre O", ax: 2, g: `<ellipse class="gs-letter" cx="220" cy="100" rx="56" ry="78"/>`, why: "Ce O, plus haut que large, se plie avec un pli debout et avec un pli couché. En biais, ça ne marche pas."}
 ];
 const gsShapeSvg = (s, withAxes) => gsSvg("gs-sym gs-shp", 440, 200, `Une figure : ${s.nm}.`,
   `<rect class="gs-paper" x="0" y="0" width="440" height="200" rx="10"/>` + s.g + (withAxes || ""));
@@ -3265,7 +3260,7 @@ function mkSym(kd) {
   }
   if (kd === 3) {
     const d = gsSym3Data(R() < .35), n = d.cells.length, p = d.pre.length;
-    const pre = p ? "On complète la figure par symétrie. Quelques carreaux sont déjà coloriés." : "On complète la figure par symétrie.";
+    const pre = p ? "On complète la figure par symétrie. Une partie est déjà coloriée de l'autre côté." : "On complète la figure par symétrie.";
     return V({r: d.r, pic: gsSym3Svg(d.h, d.side, d.cells, d.pre), pre, t: "Il faut colorier □ carreaux de plus",
       sh: p ? "Compte les carreaux de la moitié complète, puis enlève ceux déjà coloriés de l'autre côté." : "De l'autre côté de l'axe, il faut autant de carreaux que dans la moitié déjà coloriée. Compte-les un par un.",
       sf: p ? `La moitié complète a ${n} carreaux, et ${p} sont déjà coloriés de l'autre côté. ${n} − ${p} = ${d.r}.` : `La moitié coloriée a ${n} carreaux : il faut en colorier autant de l'autre côté, donc ${n}.`,
@@ -5359,8 +5354,8 @@ const MISSION_T = {
    LE COACH « APPRENDRE » : les notions dans l'ordre du CM1 (des bases vers le programme de l'année),
    une notion nouvelle par jour si tout va bien, des révisions espacées (raté → demain ; réussi → de plus en plus tard)
    ====================================================================== */
-const COACH_CALC = ("add:1 sub:1 deco:1 comp:1 deco:2 num:1 half:1 deco:3 add:2 deco:4 sub:2 num:2 suite:1 mult:1 heure:1 monnaie:1 half:2 comp:2 heure:2 mes:1 add:3 sub:3 mult:2 div:1 monnaie:2 add:4 sub:4 num:3 comp:3 heure:3 mult:3 div:2 half:3 monnaie:3 mes:2 suite:2 add:5 malin:1 sub:5 malin:2 num:4 num:8 mult:4 div:3 frac:1 suite:3 heure:4 comp:4 half:4 monnaie:4 prob:1 graph:1 "
-  + "add:6 sub:6 num:5 mult:5 heure:5 mes:3 sym:1 prob:2 graph:2 frac:2 monnaie:5 add:7 malin:3 sub:7 mult:6 heure:6 comp:5 mes:4 half:5 monnaie:6 prob:3 mes:5 sym:2 frac:3 heure:7 heure:8 add:8 malin:4 sub:8 mult:7 prob:4 graph:3 mult:8 div:4 half:6 num:6 suite:4 frac:4 big:1 add:9 malin:5 pose:1 sub:9 mult:9 malin:6 div:5 comp:6 big:2 suite:5 num:7 frac:5 prob:5 graph:4 "
+const COACH_CALC = ("add:1 sub:1 deco:1 comp:1 deco:2 num:1 half:1 deco:3 add:2 deco:4 sub:2 num:2 suite:1 mult:1 heure:1 monnaie:1 half:2 comp:2 heure:2 mes:1 add:3 sub:3 mult:2 div:1 monnaie:2 add:4 sub:4 num:3 comp:3 heure:3 mult:3 div:2 half:3 monnaie:3 mes:2 suite:2 add:5 malin:1 sub:5 malin:2 num:4 mult:4 div:3 frac:1 suite:3 heure:4 comp:4 half:4 monnaie:4 prob:1 graph:1 "
+  + "add:6 sub:6 num:5 mult:5 heure:5 mes:3 sym:1 prob:2 graph:2 frac:2 monnaie:5 add:7 malin:3 sub:7 mult:6 heure:6 comp:5 mes:4 half:5 monnaie:6 prob:3 mes:5 sym:2 frac:3 heure:7 heure:8 add:8 malin:4 sub:8 mult:7 prob:4 graph:3 mult:8 div:4 half:6 num:6 num:8 suite:4 frac:4 big:1 add:9 malin:5 pose:1 sub:9 mult:9 malin:6 div:5 comp:6 big:2 suite:5 num:7 frac:5 prob:5 graph:4 "
   + "add:10 pose:2 sub:10 pose:3 half:7 mes:6 sym:3 big:3 div:6 comp:7 dec:1 heure:9 prob:6 mes:7 add:11 sub:11 pose:4 pose:5 malin:7 big:4 suite:6 pose:6 malin:8 pose:7 dec:2 half:8 comp:8 big:5 dec:3 prob:7 graph:5 mes:8 sym:4 add:12 sub:12 big:6 pose:8 dec:4 dec:5 big:7 prob:8 prob:9 dec:6 dec:7 big:8 dec:8").split(" ").map(x=>"c:"+x);
 const COACH_FR = (()=>{ const out = [], ids = ["mots","gram","conj","accord","lire"], mx = Math.max(...ids.map(i=>FR_LADDER[i].length));
   for(let p=1; p<=mx; p++) ids.forEach(i=>{ if(FR_LADDER[i][p-1]) out.push(`f:${i}:${p}`); }); return out; })();
@@ -6677,14 +6672,14 @@ function probGen(lv){
     const T = rand(1,5), U = o.n;
     const P = (txt, unit, x, r, ic, rows, sh, sf) => Object.assign(mkProb(txt, unit, x, r, ic), {pic: svgSteps(rows), sh, sf, two:true});
     if(T===1){ const n=rand(2,5), k=rand(3,9), c=rand(2,9); return P(`${W.nm} ${W.av} ${n} paquets de ${k} ${U} et encore ${c} ${U} ${["billes","pommes","cartes","fleurs"].includes(U) ? "toutes seules" : "tout seuls"}. Combien ${deN(U)} ${W.a3} en tout ?`, U, `${n} × ${k} + ${c}`, n*k+c, o.ic,
-      [[...Array(n)].map(()=>({v:k})).concat([{v:c, c:"sv-box2"}]), [{v:n*k+c, q:true, lab:"?"}]], `Étape 1 : combien dans les ${n} paquets ? Étape 2 : ajoute les ${c} qui sont à part.`, `${n} × ${k} = ${n*k}, puis ${n*k} + ${c} = ${n*k+c}.`); }
-    if(T===2){ const n=rand(3,6), k=rand(4,9), c=rand(3, Math.min(15, n*k-4)); return P(`${W.nm} ${W.av} ${n} boîtes de ${k} ${U}. ${W.Il} en ${W.don} ${c} à ${otherKid(W)}. Combien ${W.reste} ?`, U, `${n} × ${k} − ${c}`, n*k-c, o.ic,
-      [[...Array(n)].map(()=>({v:k})), [{v:n*k-c, q:true, lab:"?"}, {v:c, out:true, sub:"donnés"}]], `Étape 1 : combien dans les ${n} boîtes ? Étape 2 : enlève ceux qui sont donnés.`, `${n} × ${k} = ${n*k}, puis ${n*k} − ${c} = ${n*k-c}.`); }
-    if(T===3){ const m=rand(2,5), pr=rand(2,9), bill = m*pr<10 ? 10 : m*pr<20 ? 20 : 50, it = pick(["cahiers","stylos","gâteaux","billes géantes","autocollants"]);
-      return P(`${W.nm} ${W.ach} ${m} ${it} à ${pr} € chacun. ${W.Il} ${W.pay} avec un billet de ${bill} €. Combien d'argent ${W.tu?"te rend":"lui rend"}-on ?`, "€", `${bill} − ${m} × ${pr}`, bill-m*pr, "euro",
+      [[...Array(n)].map(()=>({v:k})).concat([{v:c, c:"sv-box2", sub:"à part"}]), [{v:n*k+c, q:true, lab:"?"}]], `Étape 1 : combien dans les ${n} paquets ? Étape 2 : ajoute les ${c} qui sont à part.`, `${n} × ${k} = ${n*k}, puis ${n*k} + ${c} = ${n*k+c}.`); }
+    if(T===2){ const n=rand(3,6), k=rand(4,9), c=rand(3, Math.min(15, n*k-4)); return P(`${W.nm} ${W.av} ${n} boîtes de ${k} ${U}. ${W.Il} ${W.don} ${c} ${U} à ${otherKid(W)}. Combien ${W.reste} ?`, U, `${n} × ${k} − ${c}`, n*k-c, o.ic,
+      [[...Array(n)].map(()=>({v:k})), [{v:n*k-c, q:true, lab:"?"}, {v:c, out:true, sub:"donné"}]], `Étape 1 : combien dans les ${n} boîtes ? Étape 2 : enlève ce qui est donné.`, `${n} × ${k} = ${n*k}, puis ${n*k} − ${c} = ${n*k-c}.`); }
+    if(T===3){ const m=rand(2,5), pr=rand(2,9), bill = m*pr<10 ? 10 : m*pr<20 ? 20 : 50, it = pick(["cahiers","stylos","gâteaux","billes géantes","autocollants"]), ch = it==="billes géantes" ? "chacune" : "chacun";
+      return P(`${W.nm} ${W.ach} ${m} ${it} à ${pr} € ${ch}. ${W.Il} ${W.pay} avec un billet de ${bill} €. Combien d'argent ${W.tu?"te rend":"lui rend"}-on ?`, "€", `${bill} − ${m} × ${pr}`, bill-m*pr, "euro",
       [[{v:bill, c:"sv-box2", lab:`billet de ${bill} €`}], [...Array(m)].map(()=>({v:pr, lab:`${pr} €`})).concat([{v:bill-m*pr, q:true, lab:"?"}])], `Étape 1 : combien coûtent les ${m} ${it} ? Étape 2 : enlève ce prix du billet.`, `${m} × ${pr} = ${m*pr} €, puis ${bill} − ${m*pr} = ${bill-m*pr} €.`); }
     if(T===4){ const a=rand(12,35), b=rand(4,15), c=rand(3, Math.min(a+b-3, 18)); return P(`Dans le bus, il y a ${a} personnes. ${b} personnes montent, puis ${c} descendent. Combien de personnes y a-t-il dans le bus maintenant ?`, "personnes", `${a} + ${b} − ${c}`, a+b-c, "bus",
-      [[{v:a}, {v:b, c:"sv-box2", sub:"montent"}], [{v:a+b-c, q:true, lab:"?"}, {v:c, out:true, sub:"descendent"}]], `Étape 1 : combien après ceux qui montent ? Étape 2 : enlève ceux qui descendent.`, `${a} + ${b} = ${a+b}, puis ${a+b} − ${c} = ${a+b-c}.`); }
+      [[{v:a}, {v:b, c:"sv-box2", sub:"montent"}], [{v:a+b-c, q:true, lab:"?"}, {v:c, out:true, sub:"descendent"}]], `Étape 1 : combien après celles qui montent ? Étape 2 : enlève celles qui descendent.`, `${a} + ${b} = ${a+b}, puis ${a+b} − ${c} = ${a+b-c}.`); }
     const a=rand(6,12)*10, b=rand(12,28), c=rand(12,28); return P(`Un livre a ${a} pages. ${W.nm} en ${W.tu?"lis":"lit"} ${b} lundi et ${c} mardi. Combien de pages ${W.tu?"te":"lui"} reste-t-il à lire ?`, "pages", `${a} − ${b} − ${c}`, a-b-c, "livre",
       [[{v:a, lab:`${a} pages`}], [{v:b, out:true, sub:"lundi"}, {v:c, out:true, sub:"mardi"}, {v:a-b-c, q:true, lab:"?"}]], `Étape 1 : combien de pages lues en tout ? Étape 2 : enlève-les du livre.`, `${b} + ${c} = ${b+c}, puis ${a} − ${b+c} = ${a-b-c}.`);
   }
@@ -6789,26 +6784,40 @@ function mkHeure(kd){
   }
   if(kd===6){ const h = rand(1,10), m0 = pick([0,15,30]), dur = 5*rand(2, Math.min(11, (60-m0)/5 + 6)), end = h*60 + m0 + dur, eh = Math.floor(end/60), em = end%60, E = pick(H_EVT);
     return V({hh:h, mm:m0, eh, em, r:dur, pre:`${E[0]} ${E[1]} à ${hm(h,m0)} et ${E[2]} à ${hm(eh,em)}.`, t:"Ça dure □ minutes", pic:`<span class="clocks">${svgClock(h,m0,true)}<b>→</b>${svgClock(eh,em,true)}</span>`, say:`${E[0]} ${E[1]} à ${hm(h,m0)} et ${E[2]} à ${hm(eh,em)}. Combien de minutes ça dure ?`}); }
-  if(kd===8){   // heure d'arrivée / de départ : début + durée (on passe l'heure pile)
-    const h = rand(7,17), m0 = 5*rand(4,11), k0 = 13 - m0/5, dur = 5*rand(Math.max(3,k0), k0+5), end = h*60+m0+dur, eh = Math.floor(end/60), em = end%60, E = pick(H_EVT), back = R()<.3, Il = /^La /.test(E[0]) ? "Elle" : "Il", il = Il.toLowerCase();
-    if(back){ return V({hh:h, mm:m0, r:m0, pre:`${E[0]} dure ${dur} minutes. ${Il} ${E[2]} à ${hm(eh,em)}.`, t:`${Il} ${E[1]} à ${h} h □`, pic:svgClock(eh,em,true), say:`${E[0]} dure ${dur} minutes. ${Il} ${E[2]} à ${hm(eh,em)}. À quelle heure ${il} ${E[1]} ?`,
+  // durées réalistes par activité : [nom, verbe début, verbe fin, durée min, durée max, heure de début min, max, féminin]
+  const EV8 = [["Le dessin animé","commence","finit",20,30,8,18],["La partie de jeu vidéo","commence","se termine",20,30,16,18,1],["Le cours de piscine","commence","finit",40,45,9,16],
+    ["Le trajet en bus","part","arrive",15,50,7,17],["Le cours de musique","commence","finit",45,50,14,17],["La promenade du chien","commence","se termine",25,40,8,18,1]];
+  const EV9 = [["Le film","commence","finit",90,135,14,20],["Le match de foot","commence","se termine",70,95,14,17],["La sortie au musée","commence","se termine",80,150,9,14,1],
+    ["Le voyage en train","part","arrive",70,170,8,16],["La fête d'anniversaire","commence","se termine",120,170,14,15,1]];
+  const inv = (v, il) => v.startsWith("se ") ? `se ${v.slice(3)}-t-${il}` : /[ae]$/.test(v) ? `${v}-t-${il}` : `${v}-${il}`;   // finit-il, commence-t-il, se termine-t-elle
+  if(kd===8){   // heure d'arrivée / de départ : début + durée (on passe toujours l'heure pile)
+    let E, h, m0, dur, n = 0;
+    do{ E = pick(EV8); dur = 5*rand(E[3]/5, E[4]/5); h = rand(E[5], E[6]); m0 = 5*rand(Math.max(1, Math.ceil((65-dur)/5)), 11); n++; } while(m0+dur<=60 && n<30);
+    const end = h*60+m0+dur, eh = Math.floor(end/60), em = end%60, Il = E[7] ? "Elle" : "Il", il = Il.toLowerCase();
+    if(R()<.3){ return V({hh:h, mm:m0, r:m0, pre:`${E[0]} dure ${dur} minutes. ${Il} ${E[2]} à ${hm(eh,em)}.`, t:`${Il} ${E[1]} à ${h} h □`, pic:svgClock(eh,em,true),
+      say:`${E[0]} dure ${dur} minutes. ${Il} ${E[2]} à ${hm(eh,em)}. À quelle heure ${inv(E[1], il)} ? Écris seulement les minutes.`,
       sh:`Recule de ${dur} minutes depuis ${hm(eh,em)} : d'abord jusqu'à ${eh} h pile (${em} minutes), puis encore ${dur-em} minutes.`, sf:`${hm(eh,em)} − ${em} min = ${eh} h ; ${eh} h − ${dur-em} min = ${hm(h,m0)}.`}); }
     const askH = R()<.35;
     return V({hh:h, mm:m0, r: askH ? eh : em, pre:`${E[0]} ${E[1]} à ${hm(h,m0)} et dure ${dur} minutes.`, t: askH ? `${Il} ${E[2]} à □ h ${String(em).padStart(2,"0")}` : `${Il} ${E[2]} à ${eh} h □`, pic:svgClock(h,m0,true),
-      say:`${E[0]} ${E[1]} à ${hm(h,m0)} et dure ${dur} minutes. À quelle heure ${il} ${E[2]} ?`,
+      say:`${E[0]} ${E[1]} à ${hm(h,m0)} et dure ${dur} minutes. À quelle heure ${inv(E[2], il)} ? Écris seulement ${askH ? "les heures" : "les minutes"}.`,
       sh:`Avance jusqu'à l'heure pile : de ${hm(h,m0)} à ${h+1} h, il y a ${60-m0} minutes. Puis ajoute ce qui reste des ${dur} minutes.`, sf:`${hm(h,m0)} + ${60-m0} min = ${h+1} h ; il reste ${dur-(60-m0)} min : ${hm(eh,em)}.`}); }
-  if(kd===9){   // durées en heures et minutes, jours, semaines
-    if(R()<.55){ const h = rand(8,15), m0 = 5*rand(6,11), d = 5*rand(14,26), end = h*60+m0+d, eh = Math.floor(end/60), em = end%60, E = pick(H_EVT);
-      const dh = Math.floor(d/60), dm = d%60; if(dm===0) return mkHeure(9);
+  if(kd===9){   // durées en heures et minutes (bonds : jusqu'à l'heure pile, les heures, les minutes), jours, semaines
+    if(R()<.55){ let E, h, m0, dh, em, d, n = 0;
+      do{ E = pick(EV9); h = rand(E[5], E[6]); m0 = 5*rand(4,11); dh = rand(1,2); em = 5*rand(1, m0/5-1); d = (dh)*60 + (60-m0) + em; n++; } while((d<E[3] || d>E[4]) && n<40);
+      const eh = h+dh+1, dm = 60-m0+em;
       return V({hh:h, mm:m0, eh, em, r:dm, pre:`${E[0]} ${E[1]} à ${hm(h,m0)} et ${E[2]} à ${hm(eh,em)}.`, t:`Ça dure ${dh} h □ minutes`, pic:`<span class="clocks">${svgClock(h,m0,true)}<b>→</b>${svgClock(eh,em,true)}</span>`,
         say:`${E[0]} ${E[1]} à ${hm(h,m0)} et ${E[2]} à ${hm(eh,em)}. Ça dure ${dh} heure${dh>1?"s":""} et combien de minutes ?`,
-        sh:`Fais des bonds : de ${hm(h,m0)} jusqu'à ${h+1} h, puis les heures pile, puis les minutes qui restent.`, sf:`${hm(h,m0)} → ${h+1} h : ${60-m0} min ; ${h+1} h → ${hm(eh,em)} : ${(eh-h-1)*60+em} min. En tout ${d} min = ${dh} h ${dm} min.`}); }
+        sh:`Fais des bonds : de ${hm(h,m0)} jusqu'à ${h+1} h, puis les heures pile, puis les minutes qui restent.`,
+        sf:`De ${hm(h,m0)} à ${h+1} h : ${60-m0} min. De ${h+1} h à ${eh} h : ${dh} h. De ${eh} h à ${hm(eh,em)} : ${em} min. En tout : ${dh} h et ${60-m0} + ${em} = ${dm} min, donc ${dh} h ${dm} min.`}); }
     const J = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"], a = rand(0,3), b = rand(a+2,6), w = rand(2,4);
-    const L = [[`1 semaine = □ jours`,7,"Compte les jours : lundi, mardi… jusqu'à dimanche.","1 semaine = 7 jours."],[`${w} semaines = □ jours`,7*w,`1 semaine = 7 jours : fais ${w} fois 7.`,`${w} × 7 = ${7*w} jours.`],
-      [`1 jour = □ heures`,24,"Une journée entière, jour et nuit : c'est le tour complet de la petite aiguille deux fois.","1 jour = 24 heures."],[`Une demi-journée = □ heures`,12,"La moitié de 24 heures.","24 ÷ 2 = 12 heures."],
-      [`2 jours = □ heures`,48,"1 jour = 24 heures : fais le double.","24 + 24 = 48 heures."],[`1 an = □ mois`,12,"Récite les mois : janvier, février…","1 an = 12 mois."],
-      [`Aujourd'hui, c'est ${J[a]}. Dans □ jours, ce sera ${J[b]}`,b-a,`Avance jour après jour depuis ${J[a]} en comptant les bonds.`,`${J.slice(a,b+1).join(" → ")} : ${b-a} jours.`]];
-    const x = pick(L); return V({r:x[1], pre:"Les durées :", t:x[0], pic:"", say: x[0].includes("Dans □") ? x[0].replace("Dans □ jours, ce sera", "Dans combien de jours ce sera")+" ?" : x[0].replace("□ ","combien de ").replace(" = ",", c'est ")+" ?", sh:x[2], sf:x[3]}); }
+    const L = [[`1 semaine = □ jours`,7,"Compte les jours : lundi, mardi… jusqu'à dimanche.","1 semaine = 7 jours.", "Une semaine, c'est combien de jours ?"],
+      [`${w} semaines = □ jours`,7*w,`1 semaine = 7 jours : fais ${w} fois 7.`,`${w} × 7 = ${7*w} jours.`, `${w} semaines, c'est combien de jours ?`],
+      [`1 jour = □ heures`,24,"En un jour, la petite aiguille fait 2 fois le tour de l'horloge : 2 fois 12 heures.","1 jour = 24 heures.", "Un jour, c'est combien d'heures ?"],
+      [`La moitié d'un jour = □ heures`,12,"1 jour = 24 heures. La moitié de 24 ?","24 ÷ 2 = 12 heures.", "La moitié d'un jour, c'est combien d'heures ?"],
+      [`2 jours = □ heures`,48,"1 jour = 24 heures : fais le double.","24 + 24 = 48 heures.", "2 jours, c'est combien d'heures ?"],
+      [`1 an = □ mois`,12,"Récite les mois : janvier, février…","1 an = 12 mois.", "Un an, c'est combien de mois ?"],
+      [`Aujourd'hui, c'est ${J[a]}. Dans □ jours, ce sera ${J[b]}`,b-a,`Avance jour après jour depuis ${J[a]} en comptant les bonds.`,`De ${J[a]} à ${J[b]} : ${J.slice(a,b+1).join(" → ")}, soit ${b-a} jours.`, `Aujourd'hui, c'est ${J[a]}. Dans combien de jours ce sera ${J[b]} ?`]];
+    const x = pick(L); return V({r:x[1], pre:"Les durées :", t:x[0], pic:"", say:x[4], sh:x[2], sf:x[3]}); }
   const L7 = [["1 h = □ minutes",60],["2 h = □ minutes",120],["3 h = □ minutes",180],["1 h 30 = □ minutes",90],["1 h 15 = □ minutes",75],["1 h 45 = □ minutes",105],["2 h 30 = □ minutes",150],
     ["Une demi-heure = □ minutes",30],["Un quart d'heure = □ minutes",15],["Trois quarts d'heure = □ minutes",45],["90 minutes = 1 h □ minutes",30],["75 minutes = 1 h □ minutes",15],["100 minutes = 1 h □ minutes",40],
     ["120 minutes = □ h",2],["180 minutes = □ h",3],["1 minute = □ secondes",60],["2 minutes = □ secondes",120],["Une demi-minute = □ secondes",30]];
@@ -7322,13 +7331,13 @@ const MULT_IMG = {
   "6x6":["« six fois six… » : ça rime avec la réponse !","six fois six, trente-six : ça rime."],
   "7x7":["c'est juste un de moins qu'un nombre tout rond.","7 × 7 = 49, juste 1 de moins que 50."],
   "8x8":["pense au jeu d'échecs : 8 cases sur 8 cases.","un jeu d'échecs a 8 rangées de 8 cases : 64 cases."],
-  "3x8":["une journée, c'est 3 fois 8 heures : 8 h pour dormir, 8 h d'école, 8 h pour jouer.","3 × 8 = 24, comme les 24 heures d'une journée."],
+  "3x8":["pense aux heures d'une journée.","3 × 8 = 24, comme les 24 heures d'une journée."],
   "4x6":["une journée, c'est 4 fois 6 heures.","4 × 6 = 24, comme les 24 heures d'une journée."],
-  "6x7":["6 × 7, c'est le double de 3 × 7 (21).","3 × 7 = 21, et le double de 21, c'est 42."],
-  "4x7":["4 × 7, c'est le double du double de 7 : 7 → 14 → …","7 → 14 → 28 : on a doublé deux fois."],
-  "7x9":["mains ouvertes, plie le 7e doigt et compte les doigts de chaque côté.","plie le 7e doigt : 6 doigts à gauche, 3 à droite → 63."],
-  "8x9":["mains ouvertes, plie le 8e doigt et compte les doigts de chaque côté.","plie le 8e doigt : 7 doigts à gauche, 2 à droite → 72."],
-  "6x9":["mains ouvertes, plie le 6e doigt et compte les doigts de chaque côté.","plie le 6e doigt : 5 doigts à gauche, 4 à droite → 54."]
+  "6x7":["6 × 7, c'est le double de 3 × 7.","3 × 7 = 21, et le double de 21, c'est 42."],
+  "4x7":["pense à un mois de 4 semaines.","4 semaines de 7 jours = 28 jours (le mois de février)."],
+  "7x9":["tes 10 doigts posés sur la table : plie le 7<sup>e</sup> en partant de la gauche, puis compte les doigts de chaque côté.","7<sup>e</sup> doigt plié : 6 doigts avant, 3 après → 63."],
+  "8x9":["tes 10 doigts posés sur la table : plie le 8<sup>e</sup> en partant de la gauche, puis compte les doigts de chaque côté.","8<sup>e</sup> doigt plié : 7 doigts avant, 2 après → 72."],
+  "6x9":["tes 10 doigts posés sur la table : plie le 6<sup>e</sup> en partant de la gauche, puis compte les doigts de chaque côté.","6<sup>e</sup> doigt plié : 5 doigts avant, 4 après → 54."]
 };
 function strategy(q){
   const F=fmt, r=q.r;
@@ -7466,8 +7475,8 @@ function strategy(q){
     return {h:`Découpe : ${n} × ${k} = ${n} × 5 + ${n} × ${k-5} = ${A} + ${B}.`, f:`${A} + ${B} = ${r}.`};
   })();
   const im = (q.op==="x" || q.fx) && MULT_IMG[`${Math.min(q.a,q.b)}x${Math.max(q.a,q.b)}`];
-  if(im) return {h:`${res.h}<br><span class="memo">Image pour t'en souvenir : ${im[0]}</span>`, f:`${res.f}<br><span class="memo">Pour t'en souvenir : ${im[1]}</span>`};
-  if((q.op==="x" || q.fx) && (q.a===9 || q.b===9) && q.r<=90) { const n = q.a===9 ? q.b : q.a; return {h:res.h, f:`${res.f}<br><span class="memo">Avec tes doigts : mains ouvertes, plie le ${n}<sup>e</sup> doigt. ${n-1} doigt${n-1>1?"s":""} à gauche, ${10-n} à droite : ${n-1}${10-n}.</span>`}; }
+  if(im) return {h:`${res.h}<br><span class="memo">Pour t'en souvenir : ${im[0]}</span>`, f:`${res.f}<br><span class="memo">Pour t'en souvenir : ${im[1]}</span>`};
+  if((q.op==="x" || q.fx) && (q.a===9 || q.b===9) && q.r<=90) { const n = q.a===9 ? q.b : q.a; return {h:res.h, f:`${res.f}<br><span class="memo">Avec tes doigts : pose tes 10 doigts sur la table et plie le ${n}<sup>e</sup> en partant de la gauche. ${n-1} doigt${n-1>1?"s":""} avant, ${10-n} après : ${n-1}${10-n}.</span>`}; }
   return res;
 }
 
@@ -8848,7 +8857,7 @@ const blSkip = id => (id==="c:big" || id==="c:dec") && !((D.bilan.res["c:add"]||
 const BL_NAME = {"c:add":"Les additions","c:sub":"Les soustractions","c:mult":"Les tables de multiplication","c:comp":"Les compléments","c:half":"Les doubles et les moitiés","c:prob":"Les petits problèmes","c:big":"Les grands nombres","c:dec":"Les nombres à virgule",
   "f:mots":"Les mots bien écrits","f:gram":"Sujet, verbe, complément","f:accord":"Les accords","f:conj":"La conjugaison","f:lire":"Comprendre une histoire","m:chif":"Retenir des chiffres","m:mots":"Retenir des mots","m:rep":"Le truc pour retenir"};
 /* repères indicatifs : à quel niveau de classe correspond chaque palier */
-const BL_CLASS = {malin:MALIN_CLASS, suite:SUITE_CLASS, graph:GRAPH_CLASS, sym:SYM_CLASS, mes:["CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"], pose:["CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM2"], frac:["CE2","CM1","CM1","CM1","CM2"], div:["CE1","CE2","CE2","CM1","CM1","CM2"], num:["CE1","CE2","CE2","CE2","CE2","CM1","CM2","CE2"], add:["CP","CP","CE1","CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"], sub:["CP","CP","CE1","CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"],
+const BL_CLASS = {malin:MALIN_CLASS, suite:SUITE_CLASS, graph:GRAPH_CLASS, sym:SYM_CLASS, mes:["CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"], pose:["CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM2"], frac:["CE2","CM1","CM1","CM1","CM2"], div:["CE1","CE2","CE2","CM1","CM1","CM2"], num:["CE1","CE2","CE2","CE2","CE2","CM1","CM2","CM1"], add:["CP","CP","CE1","CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"], sub:["CP","CP","CE1","CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"],
   mult:["CE1","CE1","CE2","CE2","CE2","CE2","CM1","CM1","CM1"], comp:["CP","CE1","CE1","CE2","CE2","CM1","CM1","CM1"], half:["CP","CE1","CE2","CE2","CE2","CM1","CM1","CM1"],
   prob:["CP","CP","CE1","CE1","CE2","CE2","CE2","CM1","CM1"], big:["CE2","CM1","CM1","CM1","CM1","CM1","CM1","CM2"], dec:["CM1","CM1","CM1","CM1","CM1","CM1","CM2","CM2"],
   mots:["CP","CE1","CE1","CE2","CE2","CM1","CM1"], gram:["CE1","CE1","CE2","CE2","CM1","CM1"], accord:["CE1","CE1","CE2","CE2","CM1","CM1"], conj:["CE1","CE1","CE2","CE2","CE2","CM1","CM1"], lire:["CP","CE1","CE1","CE2","CE2","CM1"]};
@@ -9624,6 +9633,7 @@ function svgSteps(rows){
       x += w; }); });
   return `<svg class="sv steps" viewBox="0 0 ${W} ${8 + rows.length*48 + 6}" role="img" aria-label="Schéma en barres du problème">${g}</svg>`;
 }
+LESSON["prob:9"] = `Un problème à étapes se résout <b>en deux calculs</b>. Je regarde le <b>schéma</b> : d'abord je trouve la partie qui manque (les paquets, ce qui est lu, ce qui monte…), puis je fais le 2<sup>e</sup> calcul. 4 paquets de 3 bonbons et encore 6 : 4 × 3 = 12, puis 12 + 6 = <b>18</b>.<br>${svgSteps([[{v:3},{v:3},{v:3},{v:3},{v:6, c:"sv-box2", sub:"à part"}],[{v:18, q:true, lab:"?"}]])}`;
 function svgBars(x, unit){
   // schéma en barres pour les problèmes
   const m = /^(\d+) ([+−×]) (\d+)/.exec(x||""); if(!m) return "";
@@ -12285,7 +12295,8 @@ if(TTS_OK){ pickVoice(); try{ speechSynthesis.addEventListener("voiceschanged", 
 /* ce que la voix lit : nombres lisibles (3 000 → 3000), symboles en mots */
 function ttsText(t){
   return String(t).replace(/(\d)[\s  ](?=\d{3}(?!\d))/g,"$1").replace(/(\d)[\s  ](?=\d{3}(?!\d))/g,"$1")
-    .replace(/€/g," euros").replace(/×/g," fois ").replace(/÷/g," divisé par ").replace(/−/g," moins ").replace(/□/g," combien ").replace(/\s+/g," ").trim();
+    .replace(/\b(\d{1,2}) h (\d{2})\b/g, (m,h,mn)=>`${h} heure${+h>1?"s":""} ${+mn}`).replace(/\b(\d{1,2}) h\b(?!\s*\d)/g, (m,h)=>`${h} heure${+h>1?"s":""}`).replace(/\b(\d+) min\b/g, "$1 minutes")
+    .replace(/\s*€/g," euros").replace(/×/g," fois ").replace(/÷/g," divisé par ").replace(/−/g," moins ").replace(/□/g," combien ").replace(/\s+/g," ").trim();
 }
 function ttsUtter(text, rate){
   const u = new SpeechSynthesisUtterance(ttsText(text));
