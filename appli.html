@@ -11140,6 +11140,7 @@ function caseOpen(type){
   if(isK){ D.knife.have.push(k.id); D.knife.n++; D.knife.pity = k.r>=3 ? 0 : D.knife.pity + 1; }
   else if(isC){ D.crea.have.push(k.id); D.cases.cn++; }
   else { D.skins.push(k.id); D.cases.n++; if(all.some(x=>x.r>=3)) D.cases.pity = k.r>=3 ? 0 : D.cases.pity + 1; }
+  if(unlock("chest")) toast(`Trophée « ${badgeName("chest")} » !`);   // « Chanceux » : première caisse ouverte
   persist(); renderTop();
   statPush(isK ? "caisse lames" : isC ? "caisse créatures" : "caisse skins", {notion: isC || isK ? k.nm : `${(CREA_BY[k.crea]||{}).nm || "Hibou"} · ${k.nm}`, detail: RAR[k.r].nm});
   const N = 64, W = CASE_W, tiles = [];
