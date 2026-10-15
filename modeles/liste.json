@@ -22,13 +22,13 @@
   },
   {
    "n": "d_amphore.js",
-   "taille": 1176043,
-   "sha256": "904a049d3e9f4837da03b26433b31bfd18e039947228c8427f79586b69cfca44"
+   "taille": 2478383,
+   "sha256": "638c8e93d9fc4a0c4b5f05e8f72fab2d6cc91e71e1d7024f8ce30f1af8b2f0d2"
   },
   {
    "n": "d_applique.js",
-   "taille": 469356,
-   "sha256": "bb68c6b43df857c7da68854730781dd7f292f78e8670a652c778e2ebef84b57b"
+   "taille": 1012152,
+   "sha256": "00e22a6b024943a51896cfe7f4dcd19eed858107cea7653d779995b307436b8f"
   },
   {
    "n": "d_armure.js",
@@ -37,53 +37,53 @@
   },
   {
    "n": "d_banc.js",
-   "taille": 1083732,
-   "sha256": "3b7602e72d87aa852d67f4fdea73dbf0c7ab608068928fc814647627a03b68c3"
+   "taille": 2372716,
+   "sha256": "7b7d3c04c2e4ba6fe3dd51017ed2bc3f6cc5436453d4b3756f18ac1f5ce6d50b"
   },
   {
    "n": "d_biblio.js",
-   "taille": 1105514,
-   "sha256": "9e059506333a5deb5f877653c3d6f33050d535ed4efef11e20f10fcba99a93fd"
+   "taille": 7097514,
+   "sha256": "24177050a44cd18324c94daaa2aa374dd769534abc555866bf2710a315c43073"
   },
   {
    "n": "d_buis.js",
-   "taille": 435108,
-   "sha256": "04589c79af25e89b62e39084a79ad1d48d2d59c975bff96c3dab99771f61777a"
+   "taille": 1245364,
+   "sha256": "aee806fd790d107c955b3761388408a0e26d0d761def656748c92835ace2bc5d"
   },
   {
    "n": "d_buste1.js",
-   "taille": 1051014,
-   "sha256": "bfc525b9496a0bb615797cf82735517809f36d9d37e69c6b2e68c7312b2e2eb6"
+   "taille": 2162902,
+   "sha256": "d70418942b6643287acd59ff37b443c389b000b494afa7fc5ad8d0d5306d6d52"
   },
   {
    "n": "d_buste2.js",
-   "taille": 1081518,
-   "sha256": "8a32ab3bf274239c0e72d956b98668e22fe5aecfd96fc6a877cce9087b6ceefa"
+   "taille": 2118810,
+   "sha256": "bed0a108b3103f35ba05953e8a2cf19ab52216d3b8e64bc97e29bfd64d595983"
   },
   {
    "n": "d_canape.js",
-   "taille": 938394,
-   "sha256": "d33c54ceb3a1605c9df4df20009bd88ef288b3c8a912f7ec9041108a13803c41"
+   "taille": 2251018,
+   "sha256": "2779e48e2f83bb591c3c06ab4c0599c16a3d723a5b00527463f47d13f186e7ea"
   },
   {
    "n": "d_candelabre.js",
-   "taille": 1019154,
-   "sha256": "35da9d643eddb5afa78682dd9009cc3be03c35752360acd3e7e21c8ae869b48c"
+   "taille": 2686542,
+   "sha256": "ffb8078078e93a6375a33087568544cc2a8c82dc4031787f90c6fb96c326058d"
   },
   {
    "n": "d_cheminee.js",
-   "taille": 1190960,
-   "sha256": "7b04c90a6c0115a729081ba6fc3f776e5701a4a2d8d3832a1e3badae027d1d8b"
+   "taille": 7525520,
+   "sha256": "be8c2b029d9357b716046507bbe3d9d8552a44fc2d1f60bee50d90cd6a74f2ea"
   },
   {
    "n": "d_globe.js",
-   "taille": 1369893,
-   "sha256": "8bca99fcfffb739cecf15d757d6b2562df1528b2450a61a72405e8ceb6ff9e1d"
+   "taille": 3023973,
+   "sha256": "af7ec3da5ff18f6d9dfde9a8a9831554a9cb1db3a22bb39e038c83d2cc45d57c"
   },
   {
    "n": "d_hibou.js",
-   "taille": 1150357,
-   "sha256": "011a590190c1d4046f1959f2d9f3569224ff071e50e1d56376274440a7d0a04c"
+   "taille": 2381869,
+   "sha256": "6bbb25038c9055cf268b713706ba607d723732ce664c70ed1e21f555df16d761"
   },
   {
    "n": "d_lustre.js",
@@ -97,18 +97,18 @@
   },
   {
    "n": "d_porte.js",
-   "taille": 1228733,
-   "sha256": "24f692a4c5846cc138808e823b17453c3f8fd6a9370160d2df2e50608b469c41"
+   "taille": 7906461,
+   "sha256": "1e11d52a7c4f99e120b1393dacd2480a95dab1cb3ae24526f27c2e7e6be88dca"
   },
   {
    "n": "d_poteau.js",
-   "taille": 289374,
-   "sha256": "fe17b703c8916e85b04c1f5c09cd3959fd35d1a842c940f9b99dd96a4f90037d"
+   "taille": 625374,
+   "sha256": "94591ff891a4ae4f55cf37c002d62b058d9ba4de73a19d68279eba0ad91e2b53"
   },
   {
    "n": "d_telescope.js",
-   "taille": 1383757,
-   "sha256": "f4f32cd5e682132354378ec1523fe966d0431eeb779bacaf647afee7589c313a"
+   "taille": 2856889,
+   "sha256": "4cae73e3bf42d2271eedadea0eec221a152cb2bafbe7cbd1209f64ea57153e1f"
   },
   {
    "n": "dragon.js",
