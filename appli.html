@@ -1949,6 +1949,11 @@ svg.gs-svg{display:block;margin:2px auto;width:min(440px,100%);height:auto;overf
 .st-mus{padding:9px 11px} .st-mus svg{width:18px;height:18px} .st-mus:not(.on){opacity:.75}
 .st-top{gap:10px}
 
+.st-say{position:absolute;transform:translate(-50%,-100%);max-width:240px;padding:8px 13px;border-radius:16px;background:#fffaf0;color:#2a1c10;font-weight:700;font-size:.92rem;line-height:1.25;text-align:center;box-shadow:0 6px 20px rgba(0,0,0,.35);pointer-events:none;white-space:normal}
+.st-say::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:#fffaf0}
+.st-say.in{animation:stsay .35s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes stsay{from{opacity:0;transform:translate(-50%,-80%) scale(.6)}to{opacity:1;transform:translate(-50%,-100%) scale(1)}}
+
 /*/SALLE-CSS*/
 </style>
 
@@ -7908,10 +7913,13 @@ window.CompanionKit = function(THREE, K){
     const body = new THREE.MeshPhysicalMaterial({map: tex, roughness: metal ? .2 : gem ? .12 : .48, metalness: metal ? .9 : 0, clearcoat: .75, clearcoatRoughness: .22,
       sheen: metal || gem ? 0 : .08, sheenRoughness: .7, sheenColor: C(0xffffff), iridescence: gem ? .9 : 0});
     const belly = new THREE.MeshPhysicalMaterial({color: C(pal.belly || "#ffffff"), roughness: .55, clearcoat: .4, clearcoatRoughness: .4, sheen: .4, sheenColor: C(0xffffff)});
+    // motif lumineux : la texture d'émission existe dès le départ (sinon recompilation + ailes du hibou déjà copiées sans elle)
+    let ecv = null, et = null;
+    if(patSVG && glowPat){ ecv = document.createElement("canvas"); ecv.width = 512; ecv.height = 256; const g0 = ecv.getContext("2d"); g0.fillStyle = "#000"; g0.fillRect(0, 0, 512, 256);
+      et = new THREE.CanvasTexture(ecv); et.colorSpace = THREE.SRGBColorSpace; et.wrapS = THREE.RepeatWrapping; body.emissiveMap = et; body.emissive = C(0xffffff); body.emissiveIntensity = 1.4; }
     if(patSVG){
       try{ const img = new Image(); img.onload = () => { const g = cv.getContext("2d"); for(let k=0;k<4;k++) g.drawImage(img, k*128, 0, 128, 256); tex.needsUpdate = true;
-          if(glowPat){ const e = document.createElement("canvas"); e.width = 512; e.height = 256; const ge = e.getContext("2d"); ge.fillStyle = "#000"; ge.fillRect(0, 0, 512, 256); for(let k=0;k<4;k++) ge.drawImage(img, k*128, 0, 128, 256);
-            const et = new THREE.CanvasTexture(e); et.colorSpace = THREE.SRGBColorSpace; body.emissiveMap = et; body.emissive = C(0xffffff); body.emissiveIntensity = 1.4; body.needsUpdate = true; } };
+          if(ecv){ const ge = ecv.getContext("2d"); for(let k=0;k<4;k++) ge.drawImage(img, k*128, 0, 128, 256); et.needsUpdate = true; } };
         img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="10 10 100 100" width="128" height="256" preserveAspectRatio="none">${patSVG}</svg>`); }catch(e){}
     }
     return {body, belly, pal, aura: pal.aura || null, metal, tex};
@@ -10638,7 +10646,8 @@ window.SalleTrophees = (function(){
     const oc = new X_.OrbitControls(cam, canvas); S.orbit = oc; oc.target.set(0, .5, 0); oc.enableDamping = true; oc.dampingFactor = .07; oc.enablePan = false; oc.minDistance = 1.2; oc.maxDistance = 10.5; oc.maxPolarAngle = Math.PI*.49; oc.rotateSpeed = .6; oc.zoomSpeed = .8; oc.update();
     // contrôles « promenade »
     const pl = new X_.PointerLockControls(cam, canvas); S.pl = pl;
-    pl.addEventListener("unlock", () => { if(S.alive && S.mode === "walk" && !S.dragLook && !S.inspect) setMode(S, "visit"); });
+    pl.addEventListener("lock", () => hint(S));
+    pl.addEventListener("unlock", () => { if(S.alive) setTimeout(() => S.alive && hint(S), 0); if(S.alive && S.mode === "walk" && !S.dragLook && !S.inspect) setMode(S, "visit"); });
     // rendu final : bloom + vignette
     const comp = new X_.EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, {type: THREE.HalfFloatType, samples: S.quality > 1 ? 4 : 0})); S.comp = comp;
     comp.addPass(new X_.RenderPass(scene, cam));
@@ -10649,6 +10658,9 @@ window.SalleTrophees = (function(){
     comp.addPass(vig); S.vig = vig; comp.addPass(new X_.OutputPass());
     // interface
     buildUI(S); applyLevel(S); buildCompanion(S);
+    // lumière de la fête créée dès le départ (ajouter/enlever une lumière plus tard ferait recompiler tous les matériaux = gros à-coup)
+    if(!opts.manual) setTimeout(() => { if(S.alive && !S.focus && !S.inspect) say(S, "hello"); }, 3800);
+    S.burstL = new THREE.PointLight(0xffd36b, 0, 3.5, 2); S.burstL.position.set(0, -50, 0); scene.add(S.burstL);
     // événements
     S.ray = new THREE.Raycaster(); S.ptr = new THREE.Vector2();
     const onResize = () => { const w = host.clientWidth || innerWidth, h = host.clientHeight || innerHeight; renderer.setSize(w, h, false); comp.setSize(w, h); S.bloom.setSize(w, h); cam.aspect = w/h; cam.updateProjectionMatrix(); if(S.inspect) S.inspect.resize(); };
@@ -10662,12 +10674,13 @@ window.SalleTrophees = (function(){
     S.onBlur = () => { S.keys = {}; }; window.addEventListener("blur", S.onBlur);
     let down = null;
     canvas.addEventListener("pointerdown", e => { down = {x: e.clientX, y: e.clientY, t: performance.now()}; if(S.mode === "walk" && !pl.isLocked){ S.dragLook = {x: e.clientX, y: e.clientY}; canvas.setPointerCapture(e.pointerId); } });
+    canvas.addEventListener("pointerleave", () => { const tp = S.ui.querySelector(".st-tip"); if(tp) tp.hidden = true; });
     canvas.addEventListener("pointermove", e => { if(S.dragLook && S.mode === "walk" && !pl.isLocked){ const dx = e.clientX - S.dragLook.x, dy = e.clientY - S.dragLook.y; S.dragLook = {x: e.clientX, y: e.clientY}; S.yaw -= dx*.004; S.pitch = Math.max(-1.3, Math.min(1.3, S.pitch - dy*.004)); applyLook(S); }
       hover(S, e); });
     canvas.addEventListener("pointerup", e => { S.dragLook = null; if(!down) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y); down = null; if(moved > 6) return;
       if(S.mode === "walk"){ if(!pl.isLocked && !S.opts.manual){ lockPL(S); return; } const tr = aimed(S); if(tr) openInspect(S, tr); return; }
       click(S, e); });
-    canvas.addEventListener("dblclick", e => { if(S.mode === "visit"){ const hit = pick(S, e); if(hit && hit.ped.trophy) openInspect(S, hit.ped.trophy); } });
+    canvas.addEventListener("dblclick", e => { if(S.mode === "visit" && !petRay(S, e)){ const hit = pick(S, e); if(hit && hit.ped.trophy) openInspect(S, hit.ped.trophy); } });
     // boucle
     let last = performance.now();
     const loop = now => { if(!S.alive) return; S.raf = requestAnimationFrame(loop); const dt = Math.min(.05, (now - last)/1000); last = now; tick(S, dt, now/1000); };
@@ -10722,7 +10735,7 @@ window.SalleTrophees = (function(){
         <button class="st-pill st-mus ${S.opts.music ? "on" : ""}" data-a="music" title="Musique" aria-label="Musique" aria-pressed="${!!S.opts.music}">${ICON.note}</button></div>
       <div class="st-cross" hidden></div><div class="st-aim" hidden></div>
       <div class="st-tip" hidden></div>
-      <div class="st-hint"></div><div class="st-lvl"></div>
+      <div class="st-hint"></div><div class="st-lvl"></div><div class="st-say" hidden></div>
       <button class="st-pill st-over" data-a="over" hidden>${ICON.eye}<span>Vue d'ensemble</span></button>`;
     u.addEventListener("click", e => { const b = e.target.closest("[data-a]"); if(!b) return; const a = b.dataset.a; snd(S, "tap"); try{ b.blur(); }catch(_){}
       if(a === "quit"){ if(S.opts.onClose) S.opts.onClose(); }
@@ -10733,6 +10746,7 @@ window.SalleTrophees = (function(){
   function updateCount(S){ const c = S.ui.querySelector(".st-count"); if(c) c.textContent = `${S.opts.trophies.filter(t => t.got).length} / ${S.opts.trophies.length}`; }
   function hint(S){ const h = S.ui.querySelector(".st-hint"); if(!h) return;
     h.innerHTML = S.place ? `Choisis un socle pour <b>${esc(S.place.nm)}</b> (Échap pour annuler)`
+      : S.mode === "walk" && !S.opts.manual && S.pl && !S.pl.isLocked ? `<b>Clique dans la salle</b> pour reprendre la promenade (ou fais glisser la souris pour regarder) · <b>Z Q S D</b> pour marcher · <b>Échap</b> pour arrêter`
       : S.mode === "walk" ? `<b>Z Q S D</b> ou les flèches pour marcher · la souris pour regarder · <b>Maj</b> pour aller plus vite · <b>E</b> ou clic pour inspecter · <b>Échap</b> pour arrêter`
       : S.focus ? `Clique sur le trophée pour l'inspecter · fais tourner avec la souris`
       : `Clique sur un socle pour t'approcher · glisse pour tourner autour · molette pour zoomer`; }
@@ -10742,7 +10756,7 @@ window.SalleTrophees = (function(){
   /* ---------- modes ---------- */
   function setMode(S, m){
     if(S.inspect) closeInspect(S);
-    const THREE = T(), u = S.ui; S.keys = {}; if(S.vel) S.vel.set(0, 0);
+    const THREE = T(), u = S.ui; S.keys = {}; if(S.vel) S.vel.set(0, 0); const tp = u.querySelector(".st-tip"); if(tp) tp.hidden = true;
     if(m === "walk"){
       S.mode = "walk"; S.orbit.enabled = false; S.focus = null;
       // on part de là où on regarde, posé au sol, hors des obstacles
@@ -10775,8 +10789,22 @@ window.SalleTrophees = (function(){
   }
   function overview(S){ const THREE = T(); S.focus = null; S.fly = {from: S.cam.position.clone(), to: new THREE.Vector3(0, 4.3, 10.2), tf: S.orbit.target.clone(), tt: new THREE.Vector3(0, .5, 0), t: 0, d: 1.4};
     S.orbit.minDistance = 1.2; S.orbit.maxDistance = 10.5; S.ui.querySelector(".st-over").hidden = true; hint(S); }
+  /* le compagnon dit un petit mot (bulle au-dessus de lui) */
+  const SAY = {
+    got: ["Trop beau !", "Regarde comme il brille !", "On l'a bien mérité, celui-là !", "Waouh…", "Mon préféré !", "Quelle classe !"],
+    rare: ["Une pièce légendaire !", "Il est super rare, celui-là !", "Même les gardiens de musée sont jaloux !"],
+    relic: ["Une RELIQUE ! Sans perdre une seule vie !", "Rouge relique… le plus rare de tous !"],
+    locked: ["Celui-là, on va l'avoir !", "Encore un peu d'entraînement et il est à nous !", "Je le veux trop, celui-là !", "Bientôt sur ce socle…"],
+    hello: ["Bienvenue dans ta salle !", "On visite ?", "Ta collection est géniale !"]
+  };
+  function say(S, kind){
+    if(!S.pet) return; const L = SAY[kind] || SAY.got, el = S.ui && S.ui.querySelector(".st-say"); if(!el) return;
+    let t = L[Math.floor(Math.random()*L.length)]; if(t === S.lastSay && L.length > 1) t = L[(L.indexOf(t) + 1) % L.length]; S.lastSay = t;
+    el.textContent = t; el.hidden = false; el.classList.remove("in"); void el.offsetWidth; el.classList.add("in"); S.sayT = 2.8;
+  }
   function flyTo(S, P){
     const THREE = T(), wp = new THREE.Vector3(); P.g.getWorldPosition(wp);
+    if(P.trophy) setTimeout(() => { if(S.alive && S.focus === P) say(S, !P.trophy.got ? "locked" : P.trophy.relic ? "relic" : P.trophy.rank >= 3 ? "rare" : "got"); }, 1100);
     const top = new THREE.Vector3(wp.x, wp.y + P.H + .32, wp.z), out = new THREE.Vector3(wp.x, 0, wp.z);
     let dir = P.hero ? new THREE.Vector3(0, 0, 1) : (P.slot.y < 0 ? out.clone().normalize() : out.clone().normalize().negate());
     const pos = top.clone().add(dir.multiplyScalar(1.75)); pos.y = top.y + .45;
@@ -10795,8 +10823,8 @@ window.SalleTrophees = (function(){
     if(!hits.length || hits[0].distance > 3.2) return null; const P = S.peds.find(p => p.proxy === hits[0].object); return P && P.trophy; }
   function hover(S, e){
     if(S.mode !== "visit" || S.inspect) return; const tip = S.ui.querySelector(".st-tip");
-    if(S.pet && !S.place){ const r0 = S.renderer.domElement.getBoundingClientRect(); S.ptr.set(((e.clientX - r0.left)/r0.width)*2 - 1, -((e.clientY - r0.top)/r0.height)*2 + 1); S.ray.setFromCamera(S.ptr, S.cam);
-      if(S.ray.intersectObject(S.pet.wrap, true).length){ S.renderer.domElement.style.cursor = "pointer"; tip.hidden = false; tip.innerHTML = `<b>${esc(S.opts.companion.nm || "Ton compagnon")}</b><span>Clique pour lui faire faire une pirouette</span>`;
+    if(S.pet && !S.place){ const r0 = S.renderer.domElement.getBoundingClientRect();
+      if(petRay(S, e)){ S.renderer.domElement.style.cursor = "pointer"; tip.hidden = false; tip.innerHTML = `<b>${esc(S.opts.companion.nm || "Ton compagnon")}</b><span>Clique pour lui faire faire une pirouette</span>`;
         tip.style.left = (e.clientX - r0.left + 16) + "px"; tip.style.top = (e.clientY - r0.top + 12) + "px"; return; } }
     const h = pick(S, e);
     S.renderer.domElement.style.cursor = h && (h.ped.trophy || S.place) ? "pointer" : "grab";
@@ -10825,15 +10853,15 @@ window.SalleTrophees = (function(){
       vel[i*3] = Math.cos(a)*out; vel[i*3+1] = up; vel[i*3+2] = Math.sin(a)*out; const c = Math.random() < .5 ? c0 : gold; col[i*3] = c.r; col[i*3+1] = c.g; col[i*3+2] = c.b; }
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("color", new THREE.BufferAttribute(col, 3));
     const pts = new THREE.Points(g, new THREE.PointsMaterial({map: dotTex(), vertexColors: true, size: .07, transparent: true, opacity: 1, blending: THREE.AdditiveBlending, depthWrite: false}));
-    const L = new THREE.PointLight(c0.clone().lerp(gold, .6), 14, 3.5, 2); L.position.set(o.x, y0, o.z); S.scene.add(pts); S.scene.add(L);
+    const L = S.burstL; if(L){ L.color.copy(c0).lerp(gold, .6); L.position.set(o.x, y0, o.z); } S.scene.add(pts);
     S.burst = {pts, vel, L, t: 0}; snd(S, "unveil");
-    if(S.pet){ S.pet.hop = 1; S.pet.spin = 1; setTimeout(() => snd(S, "compagnon"), 450); }   // le compagnon fait la fête aussi
+    if(S.pet){ S.pet.hop = 1; S.pet.spin = 1; setTimeout(() => { if(S.alive) snd(S, "compagnon"); }, 450); }   // le compagnon fait la fête aussi
   }
   function burstTick(S, dt){
     const B = S.burst; if(!B) return; B.t += dt; const p = B.pts.geometry.attributes.position, v = B.vel;
     for(let i=0;i<p.count;i++){ v[i*3+1] -= 3.2*dt; v[i*3] *= .985; v[i*3+2] *= .985; p.setXYZ(i, p.getX(i) + v[i*3]*dt, Math.max(PIT_Y + .02, p.getY(i) + v[i*3+1]*dt), p.getZ(i) + v[i*3+2]*dt); }
-    p.needsUpdate = true; B.pts.material.opacity = Math.max(0, 1 - Math.max(0, B.t - 1.6)/1.4); B.L.intensity = Math.max(0, 14*(1 - B.t/.9));
-    if(B.t > 3.1){ S.scene.remove(B.pts); S.scene.remove(B.L); B.pts.geometry.dispose(); B.pts.material.dispose(); S.burst = null; }
+    p.needsUpdate = true; B.pts.material.opacity = Math.max(0, 1 - Math.max(0, B.t - 1.6)/1.4); if(B.L) B.L.intensity = Math.max(0, 14*(1 - B.t/.9));
+    if(B.t > 3.1){ S.scene.remove(B.pts); if(B.L) B.L.intensity = 0; B.pts.geometry.dispose(); B.pts.material.dispose(); S.burst = null; }
   }
 
   /* ---------- compagnon qui flotte à côté de nous (comme le petit familier des jeux d'aventure) ---------- */
@@ -10844,7 +10872,7 @@ window.SalleTrophees = (function(){
     try{ const pal = c.pal || {b: "#8b5d3d", belly: "#f4dfbd"}; const skin = CK.skin(pal, c.patSVG);
       g = R[id](THREE, S.K, {pal, skin, ir: c.ir || "#ffd23a", acc: c.acc || {}, CK}); CK.attach(g, c.eq || {}); CK.finish(g); S.compSkin = skin; }
     catch(e){ console.warn("compagnon", e); return; }
-    const wrap = new THREE.Group(); wrap.add(g); wrap.scale.setScalar(.74);
+    const wrap = new THREE.Group(); wrap.add(g); wrap.scale.setScalar(.74); wrap.rotation.order = "YXZ";
     const L = new THREE.PointLight(0xffe2b8, .35, 1.2, 2); L.position.set(.15, .25, .35); wrap.add(L);
     const aura = c.pal && c.pal.aura; if(aura){ const sp = new THREE.Sprite(new THREE.SpriteMaterial({map: dotTex(), color: new THREE.Color(aura), transparent: true, opacity: .55, depthWrite: false, blending: THREE.AdditiveBlending})); sp.scale.setScalar(.85); sp.position.z = -.12; wrap.add(sp); S.compAura = sp; }
     // ombre douce au sol
@@ -10865,8 +10893,10 @@ window.SalleTrophees = (function(){
     const r = Math.hypot(tg.x, tg.z); if(r > R_WALL - .5){ tg.x *= (R_WALL - .5)/r; tg.z *= (R_WALL - .5)/r; }
     tg.y = Math.max(tg.y, floorYAt(tg.x, tg.z) + .45);
     // ressort amorti (il suit avec un petit retard, comme s'il volait)
-    const k = 18, d = 7.5; C.vel.x += ((tg.x - C.pos.x)*k - C.vel.x*d)*dt; C.vel.y += ((tg.y - C.pos.y)*k - C.vel.y*d)*dt; C.vel.z += ((tg.z - C.pos.z)*k - C.vel.z*d)*dt;
-    if(C.pos.distanceTo(tg) > 6) C.pos.copy(tg); else C.pos.addScaledVector(C.vel, dt);
+    // ressort qui « vise » aussi la vitesse de sa place (sinon il traîne derrière quand on marche et sort de l'écran)
+    if(!C.prevTg) C.prevTg = tg.clone(); const ivd = 1/Math.max(dt, 1e-3), tvx = Math.max(-6, Math.min(6, (tg.x - C.prevTg.x)*ivd)), tvy = Math.max(-6, Math.min(6, (tg.y - C.prevTg.y)*ivd)), tvz = Math.max(-6, Math.min(6, (tg.z - C.prevTg.z)*ivd)); C.prevTg.copy(tg);
+    const k = 22, d = 8.5; C.vel.x += ((tg.x - C.pos.x)*k + (tvx - C.vel.x)*d)*dt; C.vel.y += ((tg.y - C.pos.y)*k + (tvy - C.vel.y)*d)*dt; C.vel.z += ((tg.z - C.pos.z)*k + (tvz - C.vel.z)*d)*dt;
+    if(C.pos.distanceTo(tg) > 6){ C.pos.copy(tg); C.vel.set(0, 0, 0); } else C.pos.addScaledVector(C.vel, dt);
     const sp = C.vel.length(); C.idle = sp < .15 ? C.idle + dt : 0;
     // petit flottement + saut quand on le touche
     C.hop = Math.max(0, C.hop - dt*1.6); const hopY = Math.sin(C.hop*Math.PI)*.18*(C.hop > 0 ? 1 : 0);
@@ -10884,10 +10914,17 @@ window.SalleTrophees = (function(){
     C.sh.position.set(C.pos.x, floorYAt(C.pos.x, C.pos.z) + .012, C.pos.z); const hgt = C.wrap.position.y - floorYAt(C.pos.x, C.pos.z); C.sh.material.opacity = Math.max(0, .3 - hgt*.12); C.sh.scale.setScalar(1 + hgt*.25);
     if(S.compAura) S.compAura.material.opacity = .45 + Math.sin(C.t*2.5)*.12;
     if(C.g.userData.tick) try{ C.g.userData.tick(C.t, dt, {move: Math.min(1, sp/1.2)}); }catch(e){}
+    if(S.sayT > 0){ S.sayT -= dt; const el = S.ui.querySelector(".st-say"); if(S.sayT <= 0 || S.inspect || !C.wrap.visible){ el.hidden = true; S.sayT = 0; }
+      else { const v = C.tmp.copy(C.wrap.position); v.y += .3; v.project(cam); const W = S.renderer.domElement.clientWidth, H = S.renderer.domElement.clientHeight;
+        if(v.z > 1){ el.hidden = true; } else { el.hidden = false; el.style.left = Math.max(70, Math.min(W - 70, (v.x*.5 + .5)*W)) + "px"; el.style.top = Math.max(60, (-v.y*.5 + .5)*H) + "px"; } } }
+  }
+  function petRay(S, e){   // vrai si la souris est sur le compagnon (et pas sur un trophée devant lui)
+    if(!S.pet || !S.pet.wrap.visible) return false; const r = S.renderer.domElement.getBoundingClientRect(); S.ptr.set(((e.clientX - r.left)/r.width)*2 - 1, -((e.clientY - r.top)/r.height)*2 + 1);
+    S.ray.setFromCamera(S.ptr, S.cam); const h = S.ray.intersectObject(S.pet.wrap, true).find(x => x.object.isMesh); if(!h) return false;
+    const hp = S.ray.intersectObjects(S.peds.map(P => P.proxy), false); return !(hp.length && hp[0].distance < h.distance);
   }
   function companionHit(S, e){
-    if(!S.pet) return false; const r = S.renderer.domElement.getBoundingClientRect(); S.ptr.set(((e.clientX - r.left)/r.width)*2 - 1, -((e.clientY - r.top)/r.height)*2 + 1);
-    S.ray.setFromCamera(S.ptr, S.cam); const h = S.ray.intersectObject(S.pet.wrap, true); if(!h.length) return false;
+    if(!petRay(S, e)) return false;
     S.pet.hop = 1; if(S.pet.spin <= 0) S.pet.spin = 1; snd(S, "compagnon"); return true;
   }
 
@@ -10935,6 +10972,7 @@ window.SalleTrophees = (function(){
   function openInspect(S, tr){
     const THREE = T(), X_ = X(); if(S.inspect) closeInspect(S, true);
     if(S.mode === "walk"){ try{ S.pl.unlock(); }catch(_){} S.walkWas = true; S.keys = {}; if(S.vel) S.vel.set(0, 0); }
+    { const tp = S.ui.querySelector(".st-tip"); if(tp) tp.hidden = true; }
     const box = document.createElement("div"); box.className = "st-insp" + (tr.got ? "" : " locked"); box.style.setProperty("--rc", tr.col);
     box.innerHTML = `<div class="st-rays"></div>
       <div class="st-card"><span class="st-rar">${tr.got ? esc(tr.rarNm) : "À gagner"}</span><h2>${tr.got ? esc(tr.nm) : "Trophée mystère"}</h2>
@@ -10964,7 +11002,9 @@ window.SalleTrophees = (function(){
     let tt = 0;
     S.inspect = {tr, box, r, resize, tick(dt, t){ tt += dt; oc.update(); const s = (tt*.45) % 2.4; sweep.intensity = s < 1 ? Math.sin(s*Math.PI)*6 : 0; sweep.position.set(Math.cos(tt*.8)*.9, ctr.y + .3, Math.sin(tt*.8)*.9 + .6);
       if(sparks){ const p = sparks.geometry.attributes.position; for(let i=0;i<p.count;i++){ let y = p.getY(i) + dt*.08; if(y > 1) y = 0; p.setY(i, y); } p.needsUpdate = true; sparks.rotation.y += dt*.2; }
-      r.render(sc, cam); }, dispose(){ oc.dispose(); try{ r.renderLists.dispose(); }catch(_){} sc.traverse(o => { if(o.geometry) o.geometry.dispose(); if(o.isLight && o.shadow && o.shadow.map) o.shadow.map.dispose(); }); if(sparks) sparks.material.dispose(); floor.material.dispose(); }};
+      r.render(sc, cam); }, dispose(){ oc.dispose(); try{ r.renderLists.dispose(); }catch(_){} const shared = new Set(Object.values(S.K.M || {}).concat([S.lockedMat]));
+        sc.traverse(o => { if(o.geometry) o.geometry.dispose(); if(o.isLight && o.shadow && o.shadow.map) o.shadow.map.dispose();
+          if(o.isMesh && o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { if(shared.has(m)) return; ["map", "normalMap", "roughnessMap", "emissiveMap", "alphaMap", "bumpMap"].forEach(k => { if(m[k] && m[k].dispose) m[k].dispose(); }); m.dispose(); }); }); if(sparks) sparks.material.dispose(); floor.material.dispose(); }};
     box.addEventListener("click", e => { const b = e.target.closest("[data-i]"); if(!b) return; snd(S, "tap");
       if(b.dataset.i === "close") closeInspect(S); else if(b.dataset.i === "place"){ S.walkWas = false; closeInspect(S); S.place = tr; if(S.mode === "walk") setMode(S, "visit"); overview(S); hint(S); } });
     resize(); requestAnimationFrame(() => box.classList.add("in")); snd(S, tr.got ? (tr.rank >= 3 ? "inspectRare" : "inspect") : "tap");
@@ -10972,6 +11012,7 @@ window.SalleTrophees = (function(){
   function closeInspect(S, quick){
     const I = S.inspect; if(!I) return; S.inspect = null; I.dispose(); I.box.remove();
     if(S.walkWas && !quick){ S.walkWas = false; if(S.mode === "walk") lockPL(S); }
+    if(S.ui) hint(S);
   }
 
   return {mount, version: "1.0"};
@@ -16150,7 +16191,7 @@ function show(name, opts={}){
   if(TRIAL && ["home","learn","parents","who"].includes(name)){ trialEnd(); if(name!=="who") name = "parents"; }
   if(current==="voix" && name!=="voix" && typeof vxStop==="function") vxStop();
   if(current==="salle" && name!=="salle" && typeof SALLE!=="undefined" && SALLE){ try{ SALLE.destroy(); }catch(e){} SALLE = null; }
-  if(current==="salle" && name!=="salle"){ try{ salleMusic(false); }catch(e){} }
+  if(current==="salle" && name!=="salle"){ try{ salleMusic(false, true); }catch(e){} }
   if(name==="salle" && current!=="salle") salleFrom = current;
   if(current==="shop" && name!=="shop" && typeof CASE!=="undefined" && CASE){ if(CASE.busy) return; CASE = null; cfullRender(); }
   if(name==="home" && D.started && !D.owlSet && !(typeof BL_SKIP!=="undefined" && BL_SKIP)) name = "welcome";
@@ -20533,9 +20574,12 @@ function salleMount(host, fb, tr, focusId){
   }catch(e){ SALLE = null; salleFallback(tr, true); }
 }
 /* petite musique de la salle (indépendante de la musique choisie dans la boutique ; coupable dans la salle) */
-function salleMusic(on){
-  if(on && D.sound!==false && D.salle.mus!==false && ensureAudio()){ endPreview(); if(MUS.track!=="salle" || !MUS.timer) musicStart("salle"); MUS.salle = true; }
-  else if(MUS.salle || MUS.track==="salle"){ MUS.salle = false; musicStop(); setTimeout(syncMusic, 450); }
+function salleMusic(on, leaving){
+  if(leaving){ if(MUS.salle || MUS.track==="salle"){ MUS.salle = false; musicStop(); setTimeout(syncMusic, 450); } return; }
+  // dans la salle : seule la musique de la salle (ou le silence si le bouton ♪ est coupé) — la musique habituelle reprend en sortant
+  endPreview(); MUS.salle = true;
+  if(on && D.sound!==false && D.salle.mus!==false && ensureAudio()){ if(MUS.track!=="salle" || !MUS.timer) musicStart("salle"); }
+  else if(MUS.timer || MUS.gain) musicStop();
 }
 function salleLeave(){ if(SALLE){ try{ SALLE.destroy(); }catch(e){} SALLE = null; } show(salleFrom && salleFrom!=="salle" ? salleFrom : "home"); }
 function salleNewPop(ids){
