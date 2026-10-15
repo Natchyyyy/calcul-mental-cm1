@@ -76,9 +76,24 @@
    "sha256": "be8c2b029d9357b716046507bbe3d9d8552a44fc2d1f60bee50d90cd6a74f2ea"
   },
   {
+   "n": "d_coffre.js",
+   "taille": 3411322,
+   "sha256": "12de00f773d49062e00894fddf8f41a86f7573709193e5bb6c2000437aa4ccdd"
+  },
+  {
+   "n": "d_fougere.js",
+   "taille": 3751099,
+   "sha256": "eaf280a696f186a993c0811398e0147537d870176a218ba15502d82ecb1b164c"
+  },
+  {
    "n": "d_globe.js",
    "taille": 3023973,
    "sha256": "af7ec3da5ff18f6d9dfde9a8a9831554a9cb1db3a22bb39e038c83d2cc45d57c"
+  },
+  {
+   "n": "d_gramo.js",
+   "taille": 2465081,
+   "sha256": "5525f929ffb28a1af6f201bcb450457523f9a4bde9f746e374b4625679c138f4"
   },
   {
    "n": "d_hibou.js",
@@ -106,9 +121,19 @@
    "sha256": "94591ff891a4ae4f55cf37c002d62b058d9ba4de73a19d68279eba0ad91e2b53"
   },
   {
+   "n": "d_pupitre.js",
+   "taille": 2824443,
+   "sha256": "6d6f146e6a0236f50ba88fba3ae46f48b464a7c35b64d4cdf3c2e37f7816a5c9"
+  },
+  {
    "n": "d_telescope.js",
    "taille": 2856889,
    "sha256": "4cae73e3bf42d2271eedadea0eec221a152cb2bafbe7cbd1209f64ea57153e1f"
+  },
+  {
+   "n": "d_vase.js",
+   "taille": 3543980,
+   "sha256": "48dd23843d1ce175824cf513cec49baca0d2c2994f13541af071106f1161e98e"
   },
   {
    "n": "dragon.js",

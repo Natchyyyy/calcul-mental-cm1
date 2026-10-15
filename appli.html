@@ -1953,6 +1953,40 @@ svg.gs-svg{display:block;margin:2px auto;width:min(440px,100%);height:auto;overf
 .st-say::after{content:"";position:absolute;left:50%;bottom:-7px;margin-left:-7px;border:7px solid transparent;border-bottom:0;border-top-color:#fffaf0}
 .st-say.in{animation:stsay .35s cubic-bezier(.2,1.6,.4,1) both}
 @keyframes stsay{from{opacity:0;transform:translate(-50%,-80%) scale(.6)}to{opacity:1;transform:translate(-50%,-100%) scale(1)}}
+/* cartel de musée (fait amusant quand on clique un objet sans compagnon) */
+.st-fact{position:absolute;left:50%;bottom:86px;transform:translateX(-50%);display:flex;flex-direction:column;gap:3px;max-width:min(440px,86vw);padding:12px 18px;border-radius:14px;background:linear-gradient(180deg,#f7ecd3,#e8d7b0);color:#3a2610;border:2px solid #b8904a;box-shadow:0 10px 30px rgba(0,0,0,.45);text-align:center;pointer-events:none}
+.st-fact b{font:800 1rem Georgia,serif;letter-spacing:.02em}
+.st-fact span{font-weight:700;font-size:.92rem;line-height:1.3}
+.st-fact.in{animation:stfact .4s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes stfact{from{opacity:0;transform:translate(-50%,14px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}
+/* oculaire du télescope */
+.st-scope{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(circle at 50% 50%,rgba(0,0,0,0) 0,rgba(0,0,0,0) 28vmin,rgba(0,0,0,.6) 30vmin,#000 33vmin)}
+.st-scope::after{content:"";position:absolute;left:50%;top:50%;width:60vmin;height:60vmin;transform:translate(-50%,-50%);border-radius:50%;box-shadow:inset 0 0 40px 10px rgba(0,0,0,.8),0 0 0 3px rgba(190,150,80,.6)}
+/* livre d'or */
+.st-book{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(8,5,3,.55);backdrop-filter:blur(3px)}
+.st-book .st-page{width:min(560px,92vw);max-height:80vh;overflow:auto;padding:26px 30px;border-radius:10px;background:linear-gradient(90deg,#efe2c2,#f8efd9 12%,#f8efd9 88%,#e9dbb8);color:#3a2610;box-shadow:0 20px 60px rgba(0,0,0,.6),inset 0 0 0 2px #c9a35b;font-family:Georgia,serif}
+.st-book h2{margin:0;text-align:center;font-size:1.6rem;color:#6b1d1d}
+.st-book .st-sub{margin:4px 0 14px;text-align:center;font:700 .95rem system-ui;color:#7a5a32}
+.st-book ol{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:6px}
+.st-book li{display:grid;grid-template-columns:14px 1fr auto;align-items:center;gap:10px;padding:6px 8px;border-bottom:1px dashed rgba(122,90,50,.35)}
+.st-book li i{width:12px;height:12px;border-radius:50%;box-shadow:0 0 6px currentColor}
+.st-book li b{font-size:1rem}
+.st-book li span{font:700 .8rem system-ui;color:#7a5a32;white-space:nowrap}
+.st-book li.none{display:block;text-align:center;font-style:italic;border:0}
+.st-book .st-pill{display:block;margin:0 auto}
+.st-book.in .st-page{animation:stbook .45s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes stbook{from{opacity:0;transform:perspective(900px) rotateX(18deg) translateY(30px)}to{opacity:1;transform:none}}
+
+/* vitesse de la souris */
+.st-sens{padding:9px 11px;gap:6px} .st-sens svg{width:17px;height:17px} .st-sens-v{display:flex;gap:2px;align-items:flex-end}
+.st-sens-v i{display:block;width:3px;border-radius:2px;background:currentColor;opacity:.28} .st-sens-v i.on{opacity:1}
+.st-sens-v i:nth-child(1){height:5px} .st-sens-v i:nth-child(2){height:7px} .st-sens-v i:nth-child(3){height:9px} .st-sens-v i:nth-child(4){height:11px} .st-sens-v i:nth-child(5){height:13px}
+.st-toast{position:absolute;left:50%;top:76px;transform:translate(-50%,-6px);padding:8px 16px;border-radius:14px;background:rgba(14,10,8,.78);backdrop-filter:blur(8px);border:1px solid rgba(255,220,170,.22);color:#f2e6d2;font-size:.9rem;font-weight:700;pointer-events:none;opacity:0;transition:opacity .25s,transform .25s;white-space:nowrap}
+.st-toast.show{opacity:1;transform:translate(-50%,0)}
+/* fenêtres étroites : rien ne passe à la ligne dans la barre du haut, l'aide tient dans l'écran */
+.st-pill,.st-title{white-space:nowrap}
+.st-hint{left:0;right:0;margin:0 auto;width:max-content;transform:none;max-width:calc(100% - 40px);white-space:normal;text-align:center;border-radius:18px;line-height:1.45}
+@media (max-width:860px){ .st-modes .st-pill span,.st-quit span{display:none} .st-modes .st-pill,.st-quit{padding:9px 12px} }
 
 /*/SALLE-CSS*/
 </style>
@@ -15818,6 +15852,143 @@ MODELS.phenix = (THREE, K, o) => {
 
 ;
 /* =====================================================================
+   SALLE DES TROPHÉES — verrière et ciel de nuit
+   window.SalleSky(S, THREE, C) : appelé par le décor.
+   - une grande coupole vitrée (armature de laiton) remplace le haut du dôme ;
+   - derrière le verre : un ciel de nuit calculé (étoiles de tailles et de couleurs
+     différentes qui scintillent, Voie lactée avec ses nuages sombres, lune et halo,
+     voiles de nuages qui passent, étoile filante de temps en temps) ;
+   - un clair de lune bleuté éclaire la salle et descend dans le puits central.
+   ===================================================================== */
+window.SalleSky = function(S, THREE, C){
+  "use strict";
+  const TAU = Math.PI*2, R = C.R_WALL, H = C.H_WALL, TH0 = .2, TH_G = S.TH_G || 1.022, YS = .42;
+  const now = () => (S.tManual != null ? S.tManual : performance.now()/1000);
+  const root = new THREE.Group(); root.name = "ciel"; S.scene.add(root);
+  const MOON = new THREE.Vector3(.38, .78, -.5).normalize();
+
+  /* ---------- le ciel (sphère vue de l'intérieur, sans brouillard) ---------- */
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false,
+    uniforms: { t: {value: 0}, moon: {value: MOON.clone()}, q: {value: S.quality == null ? 2 : S.quality} },
+    vertexShader: `varying vec3 vD; void main(){ vD = normalize(position); vec4 p = projectionMatrix*modelViewMatrix*vec4(position, 1.); gl_Position = p.xyww; }`,
+    fragmentShader: `
+      uniform float t; uniform vec3 moon; uniform float q; varying vec3 vD;
+      float h31(vec3 p){ p = fract(p*vec3(.1031, .1030, .0973)); p += dot(p, p.yxz + 33.33); return fract((p.x + p.y)*p.z); }
+      vec3 h33(vec3 p){ p = fract(p*vec3(.1031, .1030, .0973)); p += dot(p, p.yxz + 33.33); return fract((p.xxy + p.yxx)*p.zyx); }
+      float n3(vec3 p){ vec3 i = floor(p), f = fract(p); f = f*f*(3. - 2.*f);
+        return mix(mix(mix(h31(i), h31(i + vec3(1,0,0)), f.x), mix(h31(i + vec3(0,1,0)), h31(i + vec3(1,1,0)), f.x), f.y),
+                   mix(mix(h31(i + vec3(0,0,1)), h31(i + vec3(1,0,1)), f.x), mix(h31(i + vec3(0,1,1)), h31(i + vec3(1,1,1)), f.x), f.y), f.z); }
+      float fbm(vec3 p){ float a = .5, s = 0.; for(int i=0;i<5;i++){ s += a*n3(p); p = p*2.03 + 1.7; a *= .5; } return s; }
+      vec3 starTint(float k){ return k < .25 ? vec3(.72, .82, 1.) : k < .7 ? vec3(1., .97, .93) : k < .9 ? vec3(1., .86, .66) : vec3(1., .7, .55); }
+      // une couche d'étoiles : une étoile au plus par cellule, placée loin des bords
+      vec3 stars(vec3 d, float sc, float dens, float bright){
+        vec3 p = d*sc, c = floor(p), f = fract(p) - .5; float r = h31(c);
+        if(r > dens) return vec3(0.);
+        vec3 o = (h33(c + 7.1) - .5)*.6; float dd = length(f - o);
+        float mag = pow(h31(c + 3.3), 6.);                           // beaucoup de petites, peu de grosses
+        float sz = mix(.03, .1, mag);
+        float tw = .75 + .25*sin(t*(1.3 + 3.*h31(c + 1.7)) + 6.283*h31(c + 9.1));
+        float core = smoothstep(sz, 0., dd);
+        float glow = exp(-dd*dd/(sz*sz*5.))*.25*mag;
+        return starTint(h31(c + 5.5))*(core*core + glow)*(.05 + bright*(.12 + mag*3.2))*tw;
+      }
+      void main(){
+        vec3 d = normalize(vD);
+        float up = clamp(d.y, -.2, 1.);
+        // fond : bleu nuit profond, un peu plus clair vers l'horizon (lueur du ciel)
+        vec3 col = mix(vec3(.0045, .009, .024), vec3(.0007, .0013, .0045), smoothstep(.0, .9, up));
+        col += vec3(.006, .009, .016)*exp(-max(up, 0.)*5.);
+        // Voie lactée : bande inclinée, granuleuse, avec des nuages de poussière sombres
+        vec3 mwN = normalize(vec3(.42, .25, .87)); float b = dot(d, mwN);
+        float band = exp(-b*b*18.);
+        float grain = fbm(d*7.5), dust = fbm(d*4.2 + 11.);
+        float mw = band*(.35 + .9*grain)*(1. - .75*smoothstep(.45, .7, dust)*exp(-b*b*60.));
+        col += vec3(.05, .055, .08)*mw*.6 + vec3(.07, .055, .04)*exp(-b*b*70.)*grain*.2;
+        // étoiles (trois couches : rares et brillantes, moyennes, poussière d'étoiles dans la Voie lactée)
+        vec3 st = stars(d, 70., .32, 1.) + stars(d, 170., .28, .45);
+        if(q > 1.5) st += stars(d, 380., .12 + .55*band, .18);
+        // la lune et le halo autour d'elle ; près de la lune, les étoiles pâlissent
+        float md = acos(clamp(dot(d, moon), -1., 1.)), mR = .035;
+        float halo = exp(-md*5.)*.05 + exp(-md*22.)*.18;
+        st *= smoothstep(.05, .35, md);
+        col += st;
+        col += vec3(.45, .55, .8)*halo;
+        if(md < mR*1.02){
+          vec3 tz = normalize(cross(moon, vec3(0., 1., 0.))), ty = cross(tz, moon);
+          vec2 uv = vec2(dot(d - moon, tz), dot(d - moon, ty))/mR;
+          float rr = length(uv), lim = sqrt(max(0., 1. - rr*rr));
+          float mare = smoothstep(.5, .72, fbm(vec3(uv*2.2, 3.)));
+          float crat = fbm(vec3(uv*9., 7.));
+          vec3 mc = vec3(.93, .92, .88)*(1. - .32*mare)*(.85 + .3*crat)*(.55 + .45*lim);
+          col = mix(col, mc*1.05, smoothstep(1.02, .97, rr));
+        }
+        // voiles de nuages qui passent lentement, éclairés par la lune
+        vec3 cp = d/(max(d.y, .08))*1.3 + vec3(t*.012, 0., t*.006);
+        float cl = smoothstep(.55, .95, fbm(cp*1.1))*smoothstep(.05, .35, up);
+        vec3 cc = vec3(.012, .016, .026) + vec3(.35, .4, .5)*exp(-md*3.)*.12;
+        col = mix(col, cc, cl*.45);
+        // étoile filante, toutes les ~11 s (une fois sur deux)
+        float per = 11., k = floor(t/per), ft = fract(t/per)*per;
+        if(h31(vec3(k, 1., 2.)) > .5 && ft < 1.1){
+          vec3 a = normalize(vec3(h31(vec3(k, 3., 1.)) - .5, .55 + .35*h31(vec3(k, 4., 1.)), h31(vec3(k, 5., 1.)) - .5));
+          vec3 dir = normalize(cross(a, normalize(vec3(h31(vec3(k, 6., 1.)) - .5, .1, h31(vec3(k, 7., 1.)) - .5))));
+          float pr = ft/1.1, L = .32;
+          vec3 head = normalize(a + dir*pr*L);
+          vec3 e = d - head; float along = -dot(e, dir), side = length(e + dir*along);
+          float tail = smoothstep(.12, 0., along)*step(0., along)*smoothstep(.0025, 0., side);
+          col += vec3(.9, .95, 1.)*tail*(1. - pr)*1.8 + vec3(1.)*smoothstep(.006, 0., length(d - head))*(1. - pr)*2.;
+        }
+        gl_FragColor = vec4(col, 1.);
+      }`
+  });
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(60, 64, 32), skyMat); sky.renderOrder = -10; sky.frustumCulled = false; root.add(sky);
+  sky.onBeforeRender = () => { skyMat.uniforms.t.value = now(); };
+
+  /* ---------- la verrière : verre + armature de laiton ---------- */
+  const glass = new THREE.MeshPhysicalMaterial({color: 0x9fb4d0, roughness: .05, metalness: 0, transparent: true, opacity: .045, envMapIntensity: .35, side: THREE.DoubleSide, depthWrite: false, clearcoat: 1, clearcoatRoughness: .05});
+  const gl = new THREE.Mesh(new THREE.SphereGeometry(R*.985, 96, 28, 0, TAU, 0, TH_G), glass); gl.scale.y = YS; gl.position.y = H; gl.renderOrder = 2; root.add(gl);
+  const brass = new THREE.MeshStandardMaterial({color: 0xb08a3e, metalness: 1, roughness: .32, emissive: 0x1a1006, emissiveIntensity: .3});
+  const P = (a, th, f = .99) => new THREE.Vector3(Math.cos(a)*Math.sin(th)*R*f, H + Math.cos(th)*R*YS*f, Math.sin(a)*Math.sin(th)*R*f);
+  // montants (méridiens) : 24 gros + 24 fins entre eux
+  const bars = [];
+  for(let i=0;i<48;i++){ const a = i/48*TAU, big = i%2 === 0, pts = [];
+    for(let k=0;k<=14;k++) pts.push(P(a, TH0 + k/14*(TH_G - TH0)));
+    bars.push(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 28, big ? .055 : .025, 6)); }
+  // traverses (parallèles) : les vitres rectangulaires
+  for(let k=1;k<9;k++){ const th = TH0 + k/9*(TH_G - TH0), rr = Math.sin(th)*R*.99, yy = H + Math.cos(th)*R*YS*.99, tor = new THREE.TorusGeometry(rr, k%3 === 0 ? .05 : .025, 6, 160); tor.rotateX(Math.PI/2); tor.translate(0, yy, 0); bars.push(tor); }
+  // bague basse de la verrière (là où le dôme plein reprend)
+  { const rr = Math.sin(TH_G)*R*.99, yy = H + Math.cos(TH_G)*R*YS*.99, tor = new THREE.TorusGeometry(rr, .11, 10, 192); tor.rotateX(Math.PI/2); tor.translate(0, yy, 0); bars.push(tor); }
+  const merge = gs => { let n = 0; gs.forEach(g => { g = g.index ? g : g; n += (g.index ? g.index.count : g.attributes.position.count); });
+    const pos = [], nor = [], idx = []; let off = 0;
+    gs.forEach(g0 => { const g = g0.index ? g0 : g0; const p = g.attributes.position.array, nn = g.attributes.normal.array; for(let i=0;i<p.length;i++){ pos.push(p[i]); nor.push(nn[i]); }
+      if(g.index){ const ix = g.index.array; for(let i=0;i<ix.length;i++) idx.push(ix[i] + off); } else for(let i=0;i<p.length/3;i++) idx.push(i + off);
+      off += p.length/3; g0.dispose(); });
+    const out = new THREE.BufferGeometry(); out.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); out.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3)); out.setIndex(idx); out.computeBoundingSphere(); return out; };
+  const frame = new THREE.Mesh(merge(bars), brass); root.add(frame);
+
+  /* ---------- clair de lune : lumière froide venant de la lune + rayon dans le puits ---------- */
+  // la grande lumière du centre (qui donne les ombres) devient le clair de lune
+  let moonL = S.sun;
+  if(moonL){ moonL.color.set(0xc4d4ff); moonL.intensity = 1.7; moonL.position.copy(MOON).multiplyScalar(30); }
+  else { moonL = new THREE.DirectionalLight(0xa9c2ff, .55); moonL.position.copy(MOON).multiplyScalar(30); root.add(moonL); }
+  const fillL = new THREE.HemisphereLight(0x3a5285, 0x120c08, .25); root.add(fillL);
+  if(S.shaft){ S.shaft.uniforms.c.value.set(0x9fbfff); }
+  // un long rayon de lune incliné, du haut de la verrière vers le sol (faux volumétrique)
+  const beamMat = new THREE.ShaderMaterial({transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false,
+    uniforms: {t: {value: 0}},
+    vertexShader: "varying vec2 vUv; varying vec3 vN; varying vec3 vV; void main(){ vUv = uv; vec4 w = modelViewMatrix*vec4(position,1.); vN = normalize(normalMatrix*normal); vV = normalize(-w.xyz); gl_Position = projectionMatrix*w; }",
+    fragmentShader: "uniform float t; varying vec2 vUv; varying vec3 vN; varying vec3 vV; void main(){ float edge = pow(abs(dot(vN, vV)), 2.); float fall = smoothstep(0., .5, vUv.y)*(.25 + .75*vUv.y); float wob = .8 + .2*sin(vUv.x*31. + t*.3 + vUv.y*4.); gl_FragColor = vec4(vec3(.55, .68, 1.)*edge*fall*wob*.07, 1.); }"});
+  const top = new THREE.Vector3(MOON.x*3.5, H + R*YS*.8, MOON.z*3.5), bot = new THREE.Vector3(-MOON.x*2.2, C.PIT_Y, -MOON.z*2.2);
+  const len = top.distanceTo(bot), beam = new THREE.Mesh(new THREE.CylinderGeometry(1.9, 1.3, len, 48, 1, true), beamMat);
+  beam.position.copy(top).add(bot).multiplyScalar(.5); beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), top.clone().sub(bot).normalize()); root.add(beam);
+  beam.onBeforeRender = () => { beamMat.uniforms.t.value = now(); };
+  S.sky = {mat: skyMat, moonL, beam, moonDir: MOON.clone()};
+  return S.sky;
+};
+
+;
+/* =====================================================================
    SALLE DES TROPHÉES — décor supplémentaire (facultatif)
    window.SalleDecor(S, THREE, K, M, C) : appelé à la fin de buildRoom.
    Galerie de tableaux (îles de l'aventure, carte, ciel, hibou…), appliques
@@ -16175,9 +16346,12 @@ window.SalleDecor = function(S, THREE, K, M, C){
     mk(new THREE.BoxGeometry(1.9, .03, .03), gild, 0, .2, .86, g); mk(new THREE.BoxGeometry(1.9, .025, .025), gild, 0, .05, .86, g);
     for(let i=0;i<9;i++) mk(new THREE.BoxGeometry(.012, .15, .012), gild, -.92 + i*.23, .125, .86, g); }
     const L = new THREE.PointLight(0xff9a40, 5, 5.5, 2); L.castShadow = false; L.position.set(0, .7, 1.0); g.add(L);
-    fire = {fl, L};
+    fire = {fl, L, boost: 0};
+    { g.updateWorldMatrix(true, false); const wp = new THREE.Vector3(0, .5, .6).applyMatrix4(g.matrixWorld); S.ambient = S.ambient || []; S.ambient.push({k: "crackle", x: wp.x, z: wp.z, r: 5.5, every: [.18, .7], t: 0}, {k: "tick", x: wp.x, z: wp.z, r: 3.2, every: [1, 1], t: 0}); }
+    if(S.addProp) S.addProp(g, {nm: "La cheminée", hint: "Ajoute une bûche", verb: "attiser", snd: "fire", act: S2 => { fire.boost = 2.2; S2.speak("Ça crépite ! Le feu donne de la chaleur et de la lumière.", 4); }});
     fl[1].onBeforeRender = () => { const t = now(); fl.forEach((f, i) => { const s = f.userData.s, k = 1 + Math.sin(t*7.3 + i*1.9)*.12 + Math.sin(t*17.1 + i*3.7)*.07; f.scale.set(s*(1.04 - (k - 1)*.5), s*k, s*.7); f.rotation.z = Math.sin(t*5.3 + i*2.3)*.06; });
-      L.intensity = 5*(.85 + Math.sin(t*9.1)*.08 + Math.sin(t*23.7)*.05 + Math.sin(t*3.3)*.05); };
+      if(fire.boost > 0){ fire.boost = Math.max(0, fire.boost - 1/60); fl.forEach(f => f.scale.multiplyScalar(1 + fire.boost*.25)); }
+      L.intensity = 5*(.85 + Math.sin(t*9.1)*.08 + Math.sin(t*23.7)*.05 + Math.sin(t*3.3)*.05)*(1 + fire.boost*.6); };
     // garniture : pendule + deux chandeliers + miroir doré au-dessus (posés sur la tablette, à la hauteur de la figurine)
     const gGarn = new THREE.Group(), dy = topY - 1.58; gGarn.position.y = dy; g.add(gGarn); { const g = gGarn;
     mk(new THREE.BoxGeometry(.36, .42, .16), woodDark, 0, 1.79, .3, g); const face = mk(new THREE.CircleGeometry(.12, 24), ivory, 0, 1.84, .385, g); mk(new THREE.TorusGeometry(.125, .015, 6, 24), gild, 0, 1.84, .39, g); mk(new THREE.SphereGeometry(.07, 12, 8, 0, TAU, 0, Math.PI/2), gild, 0, 2.0, .3, g);
@@ -16228,11 +16402,19 @@ window.SalleDecor = function(S, THREE, K, M, C){
     const ax = new THREE.Mesh(new THREE.CylinderGeometry(.008, .008, .66, 6), brass); c.add(ax); const core = new THREE.Mesh(new THREE.SphereGeometry(.06, 16, 12), eyeGold); c.add(core);
     const outer = new THREE.Mesh(new THREE.TorusGeometry(.3, .012, 6, 48, Math.PI*1.3), woodDark); outer.position.y = y + .52; outer.rotation.set(0, Math.PI/2, -Math.PI*.15); g.add(outer);
     mer.onBeforeRender = () => { c.rotation.y = now()*.12; }; };
+  const FACTS = {
+    PYTHAGORE: ["Buste de Pythagore", "Mathématicien grec", "Pythagore a découvert que dans un triangle rectangle, a² + b² = c². Par exemple 3² + 4² = 5², car 9 + 16 = 25 !"],
+    EUCLIDE: ["Buste d'Euclide", "Le père de la géométrie", "Euclide a écrit « Les Éléments », un livre de géométrie qu'on a utilisé dans les écoles pendant plus de 2 000 ans !"],
+    "ARCHIMÈDE": ["Buste d'Archimède", "Savant grec", "Archimède a crié « Eurêka ! » dans son bain : il venait de comprendre comment mesurer le volume d'un objet avec de l'eau."],
+    "LE HIBOU SAVANT": ["Le hibou savant", "Statue de marbre", "Le hibou est le symbole de la sagesse depuis la Grèce antique. Et il peut tourner la tête de 270 degrés !"],
+    "VASE DES ÎLES": ["Amphore grecque", "Vase antique", "Les Grecs rangeaient l'huile d'olive et le vin dans des amphores. Celle-ci est décorée d'un bateau antique."]
+  };
   safe("statues", () => {
     const items = [[67.5, "bust", "PYTHAGORE"], [112.5, "bust", "EUCLIDE"], [247.5, "owl", "LE HIBOU SAVANT"], [292.5, "bust", "ARCHIMÈDE"], [202.5, "vase", "VASE DES ÎLES"], [337.5, "armillary", "SPHÈRE CÉLESTE"]];
     const GK = {PYTHAGORE: ["d_buste1", .95], EUCLIDE: ["d_buste2", .95], "ARCHIMÈDE": ["d_buste1", .95], "LE HIBOU SAVANT": ["d_hibou", .85], "VASE DES ÎLES": ["d_amphore", .95]};
     items.forEach(([d, k, nm]) => { const g = wallGroup(deg(d), R - .85, 0), gk = GK[nm], fig = gk ? fitG(gk[0], .5, gk[1]) : null;
-      if(fig){ const h = k === "vase" ? .62 : .78; plinth(g, h, .44); fig.position.y = h; if(nm === "ARCHIMÈDE") fig.rotation.y = .5; g.add(fig); engr(g, nm, .36, .055, 0, h*.62, .224); obst(g.position.x, g.position.z, .36); return; }
+      if(fig){ const h = k === "vase" ? .62 : .78; plinth(g, h, .44); fig.position.y = h; if(nm === "ARCHIMÈDE") fig.rotation.y = .5; g.add(fig); engr(g, nm, .36, .055, 0, h*.62, .224); obst(g.position.x, g.position.z, .36);
+        const F = FACTS[nm]; if(F && S.addProp) S.addProp(g, {nm: F[0], hint: F[1], verb: "écouter", act: S2 => S2.speak(F[2], 6)}); return; }
       const h = k === "vase" || k === "armillary" ? .85 : 1.05; plinth(g, h, .44); ({bust, owl: owlStatue, vase, armillary})[k](g, h);
       engr(g, nm, .36, .055, 0, h*.62, .224); obst(g.position.x, g.position.z, .36); });
   });
@@ -16242,7 +16424,8 @@ window.SalleDecor = function(S, THREE, K, M, C){
      ===================================================================== */
   safe("telescope", () => {
     const [x, z] = pol(deg(157.5), R - 1.25), g = new THREE.Group(); g.position.set(x, 0, z); g.lookAt(0, 0, 0); root.add(g);
-    const tf = fitG("d_telescope", 1.1, 1.65); if(tf){ tf.rotation.y = 2.2; g.add(tf); obst(x, z, .5); return; }
+    const tf = fitG("d_telescope", 1.1, 1.65); if(tf){ tf.rotation.y = 2.2; g.add(tf); obst(x, z, .5);
+      if(S.addProp) S.addProp(g, {nm: "Le télescope", hint: "Regarde la Lune !", verb: "regarder dans", snd: "scope", act: S2 => { if(S2.sky && S2.startScope) S2.startScope(S2.sky.moonDir); setTimeout(() => S2.alive && S2.speak("La Lune est à environ 384 000 km. La lumière met à peine plus d'une seconde pour venir jusqu'ici !", 6), 1300); }}); return; }
     const legGeo = new THREE.CylinderGeometry(.02, .03, 1.12, 8);
     for(let i=0;i<3;i++){ const a = i/3*TAU, l = mk(legGeo, woodDark, Math.cos(a)*.24, .52, Math.sin(a)*.24, g); l.rotation.set(-Math.sin(a)*.42, 0, Math.cos(a)*.42); }
     mk(new THREE.CylinderGeometry(.06, .06, .08, 16), brass, 0, 1.06, 0, g);
@@ -16255,7 +16438,8 @@ window.SalleDecor = function(S, THREE, K, M, C){
   });
   safe("globe", () => {
     const [x, z] = pol(deg(22.5), R - 1.25), g = new THREE.Group(); g.position.set(x, 0, z); g.lookAt(0, 0, 0); root.add(g);
-    const gf = fitG("d_globe", .95, 1.3); if(gf){ g.add(gf); obst(x, z, .5); return; }
+    const gf = fitG("d_globe", .95, 1.3); if(gf){ g.add(gf); obst(x, z, .5);
+      if(S.addProp) S.addProp(g, {nm: "Globe terrestre", hint: "Clique pour un fait sur la Terre", verb: "écouter", act: S2 => S2.speak(["Le tour de la Terre mesure environ 40 000 km. À pied, il faudrait presque un an sans s'arrêter !", "La Terre tourne sur elle-même en 24 heures : c'est ce qui fait le jour et la nuit.", "Les océans couvrent environ 70 % de la surface de la Terre."][Math.floor(Math.random()*3)], 6)}); return; }
     const st = K.lathe([[0,0],[.26,0],[.26,.04],[.12,.08],[.06,.14],[.05,.4],[.08,.46],[.06,.52],[.04,.6],[0,.6]], woodDark, 24); st.castShadow = false; g.add(st);
     const hz = mk(new THREE.TorusGeometry(.4, .025, 8, 48), woodDark, 0, .98, 0, g); hz.rotation.x = Math.PI/2;
     for(let i=0;i<4;i++){ const a = i/4*TAU + Math.PI/4, l = mk(new THREE.CylinderGeometry(.015, .015, .5, 6), woodDark, Math.cos(a)*.22, .775, Math.sin(a)*.22, g); l.rotation.set(Math.sin(a)*.69, 0, -Math.cos(a)*.69); }
@@ -16271,30 +16455,61 @@ window.SalleDecor = function(S, THREE, K, M, C){
 
   safe("armures", () => {
     for(const sx of [-1, 1]){ const f = fitG("d_armure", .8, 2.05); if(!f) return; const a = deg(90 + sx*13.5), g = wallGroup(a, R - .75, 0);
-      const base = mk(new THREE.BoxGeometry(.7, .12, .7), marbleB, 0, .06, 0, g); f.position.y = .12; f.rotation.y = -sx*.25; g.add(f); obst(g.position.x, g.position.z, .42); }
+      const base = mk(new THREE.BoxGeometry(.7, .12, .7), marbleB, 0, .06, 0, g); f.position.y = .12; f.rotation.y = -sx*.25; g.add(f); obst(g.position.x, g.position.z, .42);
+      if(S.addProp) S.addProp(f, {nm: "Armure de chevalier", hint: "Gardienne de la salle", verb: "saluer", snd: "clank", act: S2 => S2.speak(["Une armure complète pouvait peser jusqu'à 25 kilos !", "Halte ! Seuls les champions de calcul entrent ici.", "Les chevaliers s'entraînaient tous les jours… comme toi !"][Math.floor(Math.random()*3)], 5)}); }
   });
   safe("banc", () => { const f = fitG("d_banc", 1.9, .6, "wide"); if(!f) return; const g = wallGroup(deg(270), R - 2.1, 0); g.add(f); obst(g.position.x, g.position.z, .5);
     const [x1, z1] = toWorld(g, -.65, 0), [x2, z2] = toWorld(g, .65, 0); obst(x1, z1, .4); obst(x2, z2, .4); });
 
   /* =====================================================================
+     9 bis) OBJETS À DÉCOUVRIR : gramophone (musique), livre d'or, coffre, fleurs, fougères
+     ===================================================================== */
+  safe("objets", () => {
+    const at = (deg_, r) => wallGroup(deg(deg_), r, 0);
+    const table = (g, h) => { const t = K.lathe([[0,0],[.22,0],[.22,.03],[.06,.06],[.045,h - .08],[.08,h - .05],[.3,h - .04],[.3,h],[0,h]], woodDark, 24); t.castShadow = false; g.add(t); return h; };
+    const marble = (g, h, w) => { mk(new THREE.BoxGeometry(w + .08, .08, w + .08), marbleB, 0, .04, 0, g); mk(new THREE.BoxGeometry(w, h - .16, w), marbleW, 0, h/2, 0, g); mk(new THREE.BoxGeometry(w + .08, .08, w + .08), marbleB, 0, h - .04, 0, g); return h; };
+    // gramophone sur un guéridon, près du salon : on clique pour la musique
+    { const f = fitG("d_gramo", .62, .78); if(f){ const g = at(30, R - 1.2), h = table(g, .72); f.position.y = h; f.rotation.y = -.5; g.add(f); obst(g.position.x, g.position.z, .42);
+      const notes = new THREE.Group(); notes.userData.keep = true; g.add(notes); const nTex = cv(64, 64, (c) => { c.fillStyle = "#ffe6a8"; c.font = "bold 52px serif"; c.textAlign = "center"; c.textBaseline = "middle"; c.fillText("♪", 32, 34); });
+      const nMat = new THREE.SpriteMaterial({map: nTex, transparent: true, depthWrite: false, opacity: 0}); const ns = []; for(let i=0;i<5;i++){ const sp = new THREE.Sprite(nMat.clone()); sp.scale.setScalar(.14); notes.add(sp); ns.push({sp, o: i/5}); }
+      f.traverse(c => { if(c.isMesh && !c.userData.noteHook){ c.userData.noteHook = true; c.onBeforeRender = () => { const t = now(), on = !!S.opts.music; ns.forEach(n => { const k = (t*.35 + n.o) % 1; n.sp.position.set(-.12 + Math.sin(k*9 + n.o*6)*.12, h + .55 + k*.9, .1); n.sp.material.opacity = on ? Math.sin(k*Math.PI)*.9 : 0; }); }; } });
+      if(S.addProp) S.addProp(f, {nm: "Le gramophone", hint: "Clique pour la musique", verb: "musique", snd: "music", act: S2 => { const on = S2.toggleMusic && S2.toggleMusic(); S2.speak(on ? "En avant la musique !" : "Chut… on écoute le silence.", 2.5); }}); } }
+    // livre d'or sur son pupitre, devant la grande carte
+    { const f = fitG("d_pupitre", .75, 1.35); if(f){ const g = at(277, R - 1.2); g.add(f); obst(g.position.x, g.position.z, .45);
+      if(S.addProp) S.addProp(f, {nm: "Le livre d'or", hint: "Tous tes trophées et leurs dates", verb: "lire", snd: "page", act: S2 => S2.openBook && S2.openBook()}); } }
+    // coffre au trésor
+    { const f = fitG("d_coffre", .95, .72); if(f){ const g = at(263, R - 1.05); f.rotation.y = .35; g.add(f); obst(g.position.x, g.position.z, .55);
+      if(S.addProp) S.addProp(f, {nm: "Le coffre au trésor", hint: "Qu'y a-t-il dedans ?", verb: "ouvrir", snd: "coins", act: S2 => { const n = S2.opts.trophies.filter(t => t.got).length; S2.speak(n ? `Ton vrai trésor, ce sont tes ${n} trophée${n > 1 ? "s" : ""} ! Mais quelques pièces d'or, ça ne fait pas de mal.` : "Il est presque vide… gagne ton premier trophée pour le remplir !", 5); }}); } }
+    // bouquets de fleurs sur colonnes de marbre
+    for(const d of [210.75, 329.25]){ const f = fitG("d_vase", .48, .9); if(!f) break; const g = at(d, R - 1.2), h = marble(g, .78, .4); f.position.y = h; g.add(f); obst(g.position.x, g.position.z, .34); }
+    // fougères sur leurs colonnes
+    for(const d of [120, 150, 240, 300]){ const f = fitG("d_fougere", .85, 1.35); if(!f) break; const g = at(d, R - 1.25); g.add(f); obst(g.position.x, g.position.z, .4); }
+  });
+
+  /* =====================================================================
      10) PLAFOND : voûte étoilée bleu nuit + rosaces dorées dans les caissons
      ===================================================================== */
   safe("plafond", () => {
-    const H = C.H_WALL, th0 = .2, th1 = Math.PI/2;
-    const starTex = cv(512, 256, (c, w, h) => { c.fillStyle = grad(c, 0, 0, 0, h, [[0,"#0d1430"],[1,"#1d2338"]]); c.fillRect(0,0,w,h);
-      c.fillStyle = "#f0cf7a"; for(let k=0;k<420;k++){ const x = rnd()*w, y = rnd()*h, r = rnd() < .1 ? 1.6 : .7; c.globalAlpha = .35 + rnd()*.65; c.beginPath(); if(r > 1){ for(let i=0;i<8;i++){ const a = i*Math.PI/4, rr = i%2 ? r*.5 : r*2.2; c.lineTo(x + Math.cos(a)*rr, y + Math.sin(a)*rr); } } else c.arc(x, y, r, 0, TAU); c.fill(); } c.globalAlpha = 1; });
-    starTex.wrapS = THREE.RepeatWrapping; starTex.repeat.set(3, 1);
-    const vault = new THREE.Mesh(new THREE.SphereGeometry(R*.997, 64, 20, 0, TAU, th0, th1 - th0), new THREE.MeshStandardMaterial({map: starTex, roughness: .8, side: THREE.BackSide, emissive: 0xffffff, emissiveMap: starTex, emissiveIntensity: .35}));
+    const H = C.H_WALL, th0 = S.TH_G || .2, th1 = Math.PI/2;
+    // le bas du dôme : caissons sombres filetés d'or (le haut est la verrière, voir sky.js)
+    const cof = cv(512, 128, (c, w, h) => { c.fillStyle = "#3b2c22"; c.fillRect(0,0,w,h);
+      for(let i=0;i<8;i++){ const x = i*w/8; c.fillStyle = "#2a1e17"; c.fillRect(x + 6, 10, w/8 - 12, h - 20);
+        const g = c.createLinearGradient(x, 0, x + w/8, h); g.addColorStop(0, "#54402f"); g.addColorStop(1, "#33251b"); c.fillStyle = g; c.fillRect(x + 14, 18, w/8 - 28, h - 36);
+        c.strokeStyle = "#b8904a"; c.lineWidth = 2; c.strokeRect(x + 14, 18, w/8 - 28, h - 36); }
+      c.fillStyle = "#c79c52"; c.fillRect(0, 0, w, 4); c.fillRect(0, h - 4, w, 4); });
+    cof.wrapS = THREE.RepeatWrapping; cof.repeat.set(3, 1);
+    const vault = new THREE.Mesh(new THREE.SphereGeometry(R*.997, 64, 8, 0, TAU, th0, th1 - th0), new THREE.MeshStandardMaterial({map: cof, roughness: .7, metalness: .1, side: THREE.BackSide}));
     vault.scale.y = .42; vault.position.y = H; root.add(vault);
+    try{ if(window.SalleSky) window.SalleSky(S, THREE, C); }catch(e){ console.warn("ciel", e); }
     // rosaces : entre les 24 nervures, dans les 4 bandeaux inférieurs
     const rs = new THREE.Shape(); for(let i=0;i<16;i++){ const a = i/16*TAU, r = i%2 ? .45 : 1; rs[i ? "lineTo" : "moveTo"](Math.cos(a)*r, Math.sin(a)*r); } rs.closePath();
     const rg = new THREE.ExtrudeGeometry(rs, {depth: .07, bevelEnabled: false, curveSegments: 1});
     const boss = new THREE.ConeGeometry(.36, .22, 8, 1); boss.rotateX(Math.PI/2); boss.translate(0, 0, .18);
-    const list = []; for(let k=1;k<5;k++){ const th = th0 + (k + .5)/5*(th1 - th0); for(let i=0;i<24;i++){ const a = (i + .5)/24*TAU; list.push([th, a, k]); } }
+    const list = []; for(let k=0;k<2;k++){ const th = th0 + (k + .5)/2*(th1 - th0); for(let i=0;i<24;i++){ const a = (i + .5)/24*TAU; list.push([th, a, k]); } }
     const ros = new THREE.InstancedMesh(rg, gild, list.length), bos = new THREE.InstancedMesh(boss, gild, list.length), m = new THREE.Matrix4(), o = new THREE.Object3D();
     list.forEach(([th, a, k], i) => { const f = .985, x = Math.cos(a)*Math.sin(th)*R*f, y = H + Math.cos(th)*R*.42*f, z = Math.sin(a)*Math.sin(th)*R*f;
       const n = new THREE.Vector3(x/(R*R), (y - H)/(R*.42*R*.42), z/(R*R)).normalize(); o.position.set(x, y, z); o.lookAt(x - n.x, y - n.y, z - n.z);
-      const rr = Math.sin(th)*R, wid = TAU*rr/24, hgt = Math.hypot(R*Math.cos(th), .42*R*Math.sin(th))*(th1 - th0)/5, s = Math.min(wid, hgt)*.2; o.scale.set(s, s, s); o.updateMatrix(); ros.setMatrixAt(i, o.matrix); bos.setMatrixAt(i, o.matrix); });
+      const rr = Math.sin(th)*R, wid = TAU*rr/24, hgt = Math.hypot(R*Math.cos(th), .42*R*Math.sin(th))*(th1 - th0)/2, s = Math.min(wid, hgt)*.2; o.scale.set(s, s, s); o.updateMatrix(); ros.setMatrixAt(i, o.matrix); bos.setMatrixAt(i, o.matrix); });
     root.add(ros); root.add(bos);
   });
 
@@ -16334,7 +16549,7 @@ window.SalleDecor = function(S, THREE, K, M, C){
   G.cache = G.cache || {}; G.data = G.data || {}; G.miss = {};
   if(!G.base) G.base = "modeles/";
   G.TROPHIES = ["crabe", "sanglier", "pieuvre", "yeti", "scorpion", "dragon", "chevalier", "sphinx", "tables", "flamme", "bouclier", "millier", "oscar", "micro", "reparateur", "collection", "savoir"];
-  G.DECOR = ["d_buis", "d_palmier", "d_canape", "d_poteau", "d_buste1", "d_buste2", "d_hibou", "d_amphore", "d_lustre", "d_biblio", "d_armure", "d_globe", "d_telescope", "d_cheminee", "d_applique", "d_candelabre", "d_porte", "d_banc"];
+  G.DECOR = ["d_buis", "d_palmier", "d_canape", "d_poteau", "d_buste1", "d_buste2", "d_hibou", "d_amphore", "d_lustre", "d_biblio", "d_armure", "d_globe", "d_telescope", "d_cheminee", "d_applique", "d_candelabre", "d_porte", "d_banc", "d_gramo", "d_pupitre", "d_vase", "d_fougere", "d_coffre"];
   G.LIST = G.TROPHIES.concat(G.DECOR, ["hibou"]);
   window.SALLE_GLB_ADD = (k, b64) => { G.data[k] = b64; };
 
@@ -16431,7 +16646,7 @@ window.SalleDecor = function(S, THREE, K, M, C){
     const g = brown ? G.fit("hibou", .40, .40, "center") : null;
     if(!g) return procOwl ? procOwl(THREE, K, o) : new THREE.Group();
     // la figurine est trop claire sous les lumières de la salle : un peu plus mate et plus sombre
-    g.traverse(c => { if(c.isMesh){ const m = c.material; if(!m.userData.petTuned){ m.userData.petTuned = true; if(m.color) m.color.multiplyScalar(.7); m.metalness = 0; m.metalnessMap = null; m.roughness = .72; if(m.envMapIntensity !== undefined) m.envMapIntensity = .5; m.needsUpdate = true; } } });
+    g.traverse(c => { if(c.isMesh){ const m = c.material; if(!m.userData.petTuned){ m.userData.petTuned = true; if(m.color) m.color.setScalar(.56); m.metalness = 0; m.metalnessMap = null; m.roughness = .72; if(m.envMapIntensity !== undefined) m.envMapIntensity = .5; m.needsUpdate = true; } } });
     const S = g.userData.size, hw = S.x/2, top = S.y/2, front = S.z/2;
     g.userData.anchors = {
       head: {pos: [0, top*.80, -front*.05], s: hw*.62},
@@ -16458,6 +16673,8 @@ window.SalleTrophees = (function(){
   const TAU = Math.PI * 2;
   const R_WALL = 12, H_WALL = 7.2, R_PIT = 5, R_STEP_OUT = 6.05, PIT_Y = -0.6, R_DAIS = 1.7, DAIS_Y = -0.3, R_BALC = 10.4, BALC_Y = 3.7;
   const EYE = 1.6, WALK = 1.35, RUN = 2.3;
+  // vitesse de la souris en promenade (radians par pixel × niveau) ; le niveau est gardé dans le navigateur
+  const LOOK = .0008, SENS = [{v: .35, nm: "très lente"}, {v: .6, nm: "lente"}, {v: 1, nm: "normale"}, {v: 1.5, nm: "rapide"}, {v: 2.2, nm: "très rapide"}];
 
   /* ---------- textures procédurales ---------- */
   function canvasTex(w, h, draw, srgb=true, rep){
@@ -16576,14 +16793,14 @@ window.SalleTrophees = (function(){
       add(col, x, 0, z); S.columns.push([x, z, .32]); }
 
     // dôme à caissons + oculus
-    const dome = new THREE.Mesh(new THREE.SphereGeometry(R_WALL, 96, 48, 0, TAU, .2, Math.PI/2 - .2), M.ceil); dome.scale.y = .42; dome.position.y = H_WALL; scene.add(dome);
-    const ribs = new THREE.Group(); for(let i=0;i<24;i++){ const a = i/24*TAU, curve = new THREE.CatmullRomCurve3(Array.from({length:12}, (_,k) => { const th = .2 + k/11*(Math.PI/2 - .2); return new THREE.Vector3(Math.cos(a)*Math.cos(Math.PI/2-th)*R_WALL*.995, H_WALL + Math.sin(Math.PI/2-th)*R_WALL*.42*.995, Math.sin(a)*Math.cos(Math.PI/2-th)*R_WALL*.995); }));
-      ribs.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 40, .07, 6), M.woodDark)); }
-    for(let k=1;k<5;k++){ const th = .2 + k/5*(Math.PI/2-.2), rr = Math.cos(Math.PI/2-th)*R_WALL*.993, yy = H_WALL + Math.sin(Math.PI/2-th)*R_WALL*.42*.993; const t = new THREE.Mesh(new THREE.TorusGeometry(rr, .06, 6, 128), M.woodDark); t.rotation.x = Math.PI/2; t.position.y = yy; ribs.add(t); }
+    const TH_G = S.TH_G = 1.022; // au-dessus : la verrière (voir sky.js) ; en dessous : le dôme plein
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(R_WALL, 96, 24, 0, TAU, TH_G, Math.PI/2 - TH_G), M.ceil); dome.scale.y = .42; dome.position.y = H_WALL; scene.add(dome);
+    const ribs = new THREE.Group(); for(let i=0;i<24;i++){ const a = i/24*TAU, curve = new THREE.CatmullRomCurve3(Array.from({length:12}, (_,k) => { const th = TH_G + k/11*(Math.PI/2 - TH_G); return new THREE.Vector3(Math.cos(a)*Math.cos(Math.PI/2-th)*R_WALL*.995, H_WALL + Math.sin(Math.PI/2-th)*R_WALL*.42*.995, Math.sin(a)*Math.cos(Math.PI/2-th)*R_WALL*.995); }));
+      ribs.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 16, .07, 6), M.woodDark)); }
+    for(let k=1;k<3;k++){ const th = TH_G + k/3*(Math.PI/2-TH_G), rr = Math.cos(Math.PI/2-th)*R_WALL*.993, yy = H_WALL + Math.sin(Math.PI/2-th)*R_WALL*.42*.993; const t = new THREE.Mesh(new THREE.TorusGeometry(rr, .06, 6, 128), M.woodDark); t.rotation.x = Math.PI/2; t.position.y = yy; ribs.add(t); }
     scene.add(ribs);
     const ocR = Math.cos(Math.PI/2 - .2)*R_WALL, ocY = H_WALL + Math.sin(Math.PI/2 - .2)*R_WALL*.42;
     const ocRing = new THREE.Mesh(new THREE.TorusGeometry(ocR, .14, 12, 96), M.brass); ocRing.rotation.x = Math.PI/2; ocRing.position.y = ocY; scene.add(ocRing);
-    const sky = new THREE.Mesh(new THREE.CircleGeometry(ocR, 64), new THREE.MeshBasicMaterial({color: 0xfff1d6})); sky.rotation.x = Math.PI/2; sky.position.y = ocY + .4; scene.add(sky);
     const cornice = new THREE.Mesh(new THREE.TorusGeometry(R_WALL-.1, .16, 10, 160), M.woodDark); cornice.rotation.x = Math.PI/2; cornice.position.y = H_WALL; scene.add(cornice);
     const glowStrip = new THREE.Mesh(new THREE.TorusGeometry(R_WALL-.32, .03, 6, 160), new THREE.MeshStandardMaterial({color: 0xffd9a0, emissive: 0xffc77a, emissiveIntensity: 2.2})); glowStrip.rotation.x = Math.PI/2; glowStrip.position.y = H_WALL - .18; scene.add(glowStrip);
     S.oculus = {r: ocR, y: ocY};
@@ -16620,19 +16837,20 @@ window.SalleTrophees = (function(){
     const wallItem = (ang, build) => { const g = new THREE.Group(); build(g); g.position.set(Math.cos(ang)*(R_WALL-.35), 0, Math.sin(ang)*(R_WALL-.35)); g.lookAt(0, 0, 0); scene.add(g); return g; };
     const cabinet = (g, title) => { // grand meuble vitré rétro-éclairé
       const back = new THREE.Mesh(new THREE.BoxGeometry(3.6, 2.6, .5), M.woodDark); back.position.set(0, 1.55, -.1); g.add(back);
-      const inner = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 2.25), new THREE.MeshStandardMaterial({color: 0x241a14, emissive: 0x3a2412, emissiveIntensity: .6, roughness: .9})); inner.position.set(0, 1.58, .16); g.add(inner);
+      const inner = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 2.25), new THREE.MeshStandardMaterial({color: 0x3a1218, emissive: 0x1c0708, emissiveIntensity: .5, roughness: 1, metalness: 0, envMapIntensity: .15})); inner.position.set(0, 1.58, .16); g.add(inner);
       const top = new THREE.Mesh(new THREE.BoxGeometry(3.8, .14, .62), M.brass); top.position.set(0, 2.9, -.06); g.add(top);
       const strip = new THREE.Mesh(new THREE.BoxGeometry(3.2, .03, .03), new THREE.MeshStandardMaterial({color: 0xfff1d0, emissive: 0xffe2b0, emissiveIntensity: 3})); strip.position.set(0, 2.66, .1); g.add(strip);
-      const glass = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.4), new THREE.MeshPhysicalMaterial({color: 0xffffff, roughness: .02, metalness: 0, transparent: true, opacity: .08, envMapIntensity: 1.4})); glass.position.set(0, 1.56, .2); g.add(glass);
+      const glass = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 2.4), new THREE.MeshPhysicalMaterial({color: 0xffffff, roughness: .02, metalness: 0, transparent: true, opacity: .06, envMapIntensity: .7})); glass.position.set(0, 1.56, .2); g.add(glass);
       const t = new THREE.Mesh(new THREE.PlaneGeometry(1.8, .36), new THREE.MeshStandardMaterial({map: labelTex(title), metalness: .5, roughness: .4})); t.position.set(0, 3.15, .25); g.add(t);
-      const l = new THREE.PointLight(0xffd9a8, 6, 4, 2); l.position.set(0, 2.3, .6); g.add(l);
+      const l = new THREE.PointLight(0xffd9a8, 2.6, 3.5, 2); l.position.set(0, 2.4, .9); g.add(l);
     };
     wallItem(Math.PI*.25 + Math.PI, g => { cabinet(g, "MUR DES LAMES"); const ks = (S.opts.knives || []).slice(0, 15);
       ks.forEach((svg, i) => { const c = i % 5, r = Math.floor(i/5); const p = new THREE.Mesh(new THREE.PlaneGeometry(.58, .58), new THREE.MeshStandardMaterial({map: svgToTexture(svg, 256, 256), transparent: true, roughness: .4, metalness: .2})); p.position.set(-1.3 + c*.65, 2.3 - r*.68, .18); g.add(p); });
       if(!ks.length){ const p = new THREE.Mesh(new THREE.PlaneGeometry(2.6, .4), new THREE.MeshBasicMaterial({map: labelTex("Gagne des lames", "dans la caisse Lames"), transparent: true, opacity: .55})); p.position.set(0, 1.6, .18); g.add(p); } });
     wallItem(Math.PI*.75 + Math.PI, g => { cabinet(g, "MES CRÉATURES"); const cs = (S.opts.creatures || []).slice(0, 8);
       cs.forEach((cr, i) => { const c = i % 4, r = Math.floor(i/4), fr = new THREE.Mesh(new THREE.BoxGeometry(.7, .78, .05), M.brass); fr.position.set(-1.17 + c*.78, 2.15 - r*.9, .17); g.add(fr);
-        const p = new THREE.Mesh(new THREE.PlaneGeometry(.6, .68), new THREE.MeshStandardMaterial({map: svgToTexture(cr.svg, 256, 290), color: 0xffffff, roughness: .6})); p.position.set(fr.position.x, fr.position.y, .2); g.add(p); }); });
+        const p = new THREE.Mesh(new THREE.PlaneGeometry(.6, .68), new THREE.MeshStandardMaterial({map: svgToTexture(cr.svg, 256, 290), color: 0xffffff, roughness: .6})); p.position.set(fr.position.x, fr.position.y, .2); g.add(p); });
+      if(!cs.length){ const p = new THREE.Mesh(new THREE.PlaneGeometry(2.6, .4), new THREE.MeshBasicMaterial({map: labelTex("Tes créatures", "viendront s'installer ici"), transparent: true, opacity: .55})); p.position.set(0, 1.6, .18); g.add(p); } });
     for(const a of [Math.PI*.25, Math.PI*.75]) wallItem(a + Math.PI*0, g => { // bibliothèques décoratives
       const bf = [fitG("d_biblio", 1.6, 2.95, "wide"), fitG("d_biblio", 1.6, 2.95, "wide")];
       if(bf[0]){ bf.forEach((b, i) => { b.position.set((i ? 1 : -1)*.81, 0, -.2); g.add(b); }); const l = new THREE.PointLight(0xffd9a8, 3, 3.5, 2); l.position.set(0, 2.6, .7); g.add(l); return; }
@@ -16678,6 +16896,10 @@ window.SalleTrophees = (function(){
     return M;
   }
 
+  let _ring = null; // halo doux au sol autour des socles (au lieu d'un anneau plein)
+  function ringTex(){ if(_ring) return _ring; const c = document.createElement("canvas"); c.width = c.height = 128; const g = c.getContext("2d"), gr = g.createRadialGradient(64,64,0,64,64,64);
+    gr.addColorStop(0, "rgba(255,255,255,0)"); gr.addColorStop(.52, "rgba(255,255,255,0)"); gr.addColorStop(.66, "rgba(255,255,255,.9)"); gr.addColorStop(.74, "rgba(255,255,255,.55)"); gr.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = gr; g.fillRect(0,0,128,128); _ring = new (T().CanvasTexture)(c); _ring.colorSpace = T().SRGBColorSpace; return _ring; }
   let _dot = null;
   function dotTex(){ if(_dot) return _dot; const c = document.createElement("canvas"); c.width = c.height = 64; const g = c.getContext("2d"), gr = g.createRadialGradient(32,32,0,32,32,32);
     gr.addColorStop(0, "rgba(255,255,255,1)"); gr.addColorStop(.35, "rgba(255,255,255,.55)"); gr.addColorStop(1, "rgba(255,255,255,0)"); g.fillStyle = gr; g.fillRect(0,0,64,64);
@@ -16707,9 +16929,9 @@ window.SalleTrophees = (function(){
     const body = K.lathe([[0,0],[.5,0],[.5,.06],[.44,.1],[.36,.16],[.31,.2],[.29,H-.2],[.33,H-.14],[.42,H-.08],[.45,H-.02],[.45,H],[0,H]], hero ? K.M.marbleB : S.M.pedMarble, 64); g.add(body);
     for(const y of [.1, H-.08]){ const r = K.torus(y<.5 ? .42 : .435, .012, S.M.brass); r.rotation.x = Math.PI/2; r.position.y = y; g.add(r); }
     const glowMat = new THREE.MeshStandardMaterial({color: 0x222222, emissive: 0x000000, emissiveIntensity: 1.3}), glow = new THREE.Mesh(new THREE.TorusGeometry(.455, .01, 6, 96), glowMat); glow.rotation.x = Math.PI/2; glow.position.y = H + .002; g.add(glow);
-    const floorGlow = new THREE.Mesh(new THREE.RingGeometry(.56, .72, 64), new THREE.MeshBasicMaterial({color: 0x000000, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending})); floorGlow.rotation.x = -Math.PI/2; floorGlow.position.y = .01; g.add(floorGlow);
+    const floorGlow = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.4), new THREE.MeshBasicMaterial({map: ringTex(), color: 0x000000, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending})); floorGlow.rotation.x = -Math.PI/2; floorGlow.position.y = .01; g.add(floorGlow);
     // cloche de verre
-    const cl = new THREE.Group(), clm = new THREE.MeshPhysicalMaterial({color: 0xffffff, roughness: .02, metalness: 0, transparent: true, opacity: .03, envMapIntensity: .22, specularIntensity: .35, side: THREE.DoubleSide, depthWrite: false});
+    const cl = new THREE.Group(), clm = new THREE.MeshPhysicalMaterial({color: 0xffffff, roughness: .02, metalness: 0, transparent: true, opacity: .018, envMapIntensity: .14, specularIntensity: .3, side: THREE.DoubleSide, depthWrite: false});
     const side = new THREE.Mesh(new THREE.CylinderGeometry(.4, .4, 1.0, 64, 1, true), clm); side.position.y = .5; cl.add(side);
     const cap = new THREE.Mesh(new THREE.SphereGeometry(.4, 64, 16, 0, TAU, 0, Math.PI/2), clm); cap.position.y = 1.0; cap.scale.y = .55; cl.add(cap);
     const knob = new THREE.Mesh(new THREE.SphereGeometry(.035, 16, 12), S.M.brass); knob.position.y = 1.24; cl.add(knob);
@@ -16720,7 +16942,7 @@ window.SalleTrophees = (function(){
     // spot au-dessus
     const proxy = new THREE.Mesh(new THREE.CylinderGeometry(.46, .5, H + 1.35, 12), new THREE.MeshBasicMaterial({visible: false})); proxy.position.y = (H + 1.35)/2; g.add(proxy);
     if(S.quality < 1){ S.scene.add(g); g.position.set(slot.x, slot.y, slot.z); g.rotation.y = Math.atan2(slot.x, slot.z) + (hero ? 0 : slot.y < 0 ? 0 : Math.PI); g.rotation.y = hero ? 0 : g.rotation.y; return {g, H, glowMat, floorGlow, plate, cloche: cl, slot, idx, hero, trophy: null, holder: new THREE.Group(), proxy}; }
-    const sp = new THREE.SpotLight(0xfff0dc, hero ? 190 : 150, 7, hero ? .3 : .25, .5, 2); sp.position.set(0, H + 3.4, .35); sp.target.position.set(0, H + .35, 0); g.add(sp); g.add(sp.target);
+    const sp = new THREE.SpotLight(0xfff0dc, hero ? 160 : 120, 7, hero ? .3 : .25, .5, 2); sp.position.set(0, H + 3.4, .35); sp.target.position.set(0, H + .35, 0); g.add(sp); g.add(sp.target);
     sp.castShadow = S.quality > 1 && (hero || idx % 2 === 0); sp.shadow.mapSize.set(512, 512); sp.shadow.bias = -.0004;
     g.position.set(slot.x, slot.y, slot.z); g.rotation.y = Math.atan2(slot.x, slot.z);   // la plaque regarde le centre… puis on la retourne vers l'extérieur
     if(!hero) g.rotation.y += slot.y < 0 ? 0 : Math.PI;   // fosse : plaque vers l'extérieur ; couronne : vers le centre
@@ -16736,7 +16958,7 @@ window.SalleTrophees = (function(){
     if(P.holder.parent !== P.g){ P.g.add(P.holder); P.holder.position.y = P.H; }
     const col = tr ? new THREE.Color(tr.col) : new THREE.Color(0x3a4256);
     P.glowMat.color.set(tr && tr.got ? col : 0x222222); P.glowMat.emissive.set(tr && tr.got ? col : 0x000000);
-    P.floorGlow.material.color.set(col); P.floorGlow.material.opacity = tr && tr.got ? .35 : 0;
+    P.floorGlow.material.color.set(col); P.floorGlow.material.opacity = tr && tr.got ? .5 : 0;
     P.plate.material.map = labelTex(tr ? (tr.got ? tr.nm : "???") : "Socle libre", tr ? (tr.got ? tr.rarNm : (tr.hint ? "À gagner" : "")) : "", tr && tr.got ? tr.col : "#5b3a0a"); P.plate.material.needsUpdate = true;
     if(!tr) return;
     const model = makeModel(S, tr, !tr.got); if(!model) return;
@@ -16755,6 +16977,14 @@ window.SalleTrophees = (function(){
   function mount(host, opts){
     const THREE = T(), X_ = X(); if(!THREE || !X_) throw new Error("three.js absent");
     const S = {opts, host, quality: opts.quality || 2, K: TrophyKit(THREE), mode: "visit", keys: {}, t0: performance.now(), raf: 0, peds: [], focus: null, inspect: null, place: null, alive: true};
+    // objets du décor qu'on peut viser / cliquer (gramophone, livre d'or, télescope, statues…)
+    S.props = []; S.propMat = new THREE.MeshBasicMaterial({visible: false});
+    S.addProp = (obj, info) => { try{ obj.updateWorldMatrix(true, true); const b = new THREE.Box3().setFromObject(obj); if(b.isEmpty()) return null;
+      const sz = b.getSize(new THREE.Vector3()), c = b.getCenter(new THREE.Vector3()), px = new THREE.Mesh(new THREE.BoxGeometry(Math.max(sz.x, .35), Math.max(sz.y, .35), Math.max(sz.z, .35)), S.propMat);
+      px.position.copy(c); px.userData.prop = info; info.obj = obj; S.scene.add(px); S.props.push(px); return px; }catch(e){ return null; } };
+    S.speak = (text, sec) => speakText(S, text, sec);
+    S.openBook = () => openBook(S); S.startScope = d => startScope(S, d); S.sound = k => snd(S, k);
+    S.toggleMusic = () => { const b = S.ui && S.ui.querySelector('[data-a=music]'); if(b) b.click(); return !!S.opts.music; };
     host.innerHTML = ""; host.classList.add("st-host");
     const canvas = document.createElement("canvas"); canvas.className = "st-canvas"; host.appendChild(canvas);
     const ui = document.createElement("div"); ui.className = "st-ui"; host.appendChild(ui); S.ui = ui;
@@ -16768,7 +16998,7 @@ window.SalleTrophees = (function(){
     S.M = buildRoom(S);
     // lumières générales
     scene.add(new THREE.HemisphereLight(0xffe6c8, 0x2a1a10, .3));
-    const sun = new THREE.DirectionalLight(0xfff0d8, 2.4); sun.position.set(1.2, 30, .8); sun.target.position.set(0, 0, 0); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); const sc = sun.shadow.camera; sc.left = sc.bottom = -4; sc.right = sc.top = 4; sc.near = 10; sc.far = 40; sun.shadow.bias = -.0003; scene.add(sun); scene.add(sun.target);
+    const sun = new THREE.DirectionalLight(0xfff0d8, 2.4); S.sun = sun; sun.position.set(1.2, 30, .8); sun.target.position.set(0, 0, 0); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); const sc = sun.shadow.camera; sc.left = sc.bottom = -4; sc.right = sc.top = 4; sc.near = 10; sc.far = 40; sun.shadow.bias = -.0003; scene.add(sun); scene.add(sun.target);
     if(S.quality < 1) scene.add(new THREE.AmbientLight(0xffe6c8, .9));
     for(let i=0;i<(S.quality < 1 ? 0 : 8);i++){ const a = i/8*TAU, l = new THREE.PointLight(0xffc98a, 14, 9, 2); l.position.set(Math.cos(a)*9.6, 3.1, Math.sin(a)*9.6); scene.add(l); }
     // reflets : on « photographie » la salle elle-même (reflets chauds et sombres, pas un studio blanc)
@@ -16780,13 +17010,19 @@ window.SalleTrophees = (function(){
     // contrôles « visite »
     const oc = new X_.OrbitControls(cam, canvas); S.orbit = oc; oc.target.set(0, .5, 0); oc.enableDamping = true; oc.dampingFactor = .07; oc.enablePan = false; oc.minDistance = 1.2; oc.maxDistance = 10.5; oc.maxPolarAngle = Math.PI*.49; oc.rotateSpeed = .6; oc.zoomSpeed = .8; oc.update();
     // contrôles « promenade »
-    const pl = new X_.PointerLockControls(cam, canvas); S.pl = pl;
+    const pl = new X_.PointerLockControls(cam, canvas); S.pl = pl; pl.pointerSpeed = 0; // on fait tourner la vue nous-mêmes (plus doux, réglable)
+    S.sensI = 2; try{ const v = +localStorage.getItem("salle-souris"); if(v >= 0 && v < SENS.length && localStorage.getItem("salle-souris") !== null) S.sensI = v; }catch(_){}
+    S.onLook = e => { if(!pl.isLocked || S.mode !== "walk" || S.scope || S.inspect || S.book) return;
+      // les pointeurs envoient parfois un saut énorme d'un coup : on l'écrête
+      const mx = Math.max(-80, Math.min(80, e.movementX || 0)), my = Math.max(-80, Math.min(80, e.movementY || 0)), k = LOOK*SENS[S.sensI].v;
+      S.yaw -= mx*k; S.pitch = Math.max(-1.3, Math.min(1.3, S.pitch - my*k)); applyLook(S); };
+    document.addEventListener("mousemove", S.onLook);
     pl.addEventListener("lock", () => hint(S));
     pl.addEventListener("unlock", () => { if(S.alive) setTimeout(() => S.alive && hint(S), 0); if(S.alive && S.mode === "walk" && !S.dragLook && !S.inspect) setMode(S, "visit"); });
     // rendu final : bloom + vignette
     const comp = new X_.EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, {type: THREE.HalfFloatType, samples: S.quality > 1 ? 4 : 0})); S.comp = comp;
     comp.addPass(new X_.RenderPass(scene, cam));
-    S.bloom = new X_.UnrealBloomPass(new THREE.Vector2(1, 1), .38, .5, .9); comp.addPass(S.bloom);
+    S.bloom = new X_.UnrealBloomPass(new THREE.Vector2(1, 1), .32, .45, .96); comp.addPass(S.bloom);
     const vig = new X_.ShaderPass({uniforms: {tDiffuse: {value: null}, amt: {value: .55}, t: {value: 0}},
       vertexShader: "varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.); }",
       fragmentShader: "uniform sampler2D tDiffuse; uniform float amt; uniform float t; varying vec2 vUv; float h(vec2 p){ return fract(sin(dot(p, vec2(12.9898,78.233)) + t)*43758.5453); } void main(){ vec4 c = texture2D(tDiffuse, vUv); vec2 d = vUv - .5; c.rgb *= 1. - amt*dot(d,d)*1.6; c.rgb += (h(vUv*800.) - .5)*.012; gl_FragColor = c; }"});
@@ -16802,18 +17038,19 @@ window.SalleTrophees = (function(){
     S.onResize = onResize; window.addEventListener("resize", onResize); onResize();
     S.onKey = e => { const k = e.code, kk = (e.key||"").toLowerCase(); if(e.type === "keydown"){ S.keys[k] = true; S.keys["k:"+kk] = true; } else { S.keys[k] = false; S.keys["k:"+kk] = false; }
       if(e.type !== "keydown") return;
-      if(k === "Escape"){ if(S.inspect){ closeInspect(S); e.preventDefault(); } else if(S.place){ S.place = null; hint(S); } else if(S.mode === "walk") setMode(S, "visit"); else if(S.focus){ overview(S); } else if(opts.onClose) opts.onClose(); }
-      if((k === "KeyE" || k === "Enter") && S.mode === "walk" && !S.inspect){ e.preventDefault(); const tr = aimed(S); if(tr) openInspect(S, tr); }
+      if(k === "Escape"){ if(S.book){ closeBook(S); e.preventDefault(); return; } if(S.scope){ S.scope.cancel = true; e.preventDefault(); return; } if(S.inspect){ closeInspect(S); e.preventDefault(); } else if(S.place){ S.place = null; hint(S); } else if(S.mode === "walk") setMode(S, "visit"); else if(S.focus){ overview(S); } else if(opts.onClose) opts.onClose(); }
+      if((k === "KeyE" || k === "Enter") && S.mode === "walk" && !S.inspect && !S.book){ e.preventDefault(); if(S.scope){ S.scope.cancel = true; return; } const tr = aimed(S); if(tr) openInspect(S, tr); else runProp(S, aimedProp(S)); }
+      if(S.mode === "walk" && (["+", "-", "=", "_"].includes(e.key) || k === "NumpadAdd" || k === "NumpadSubtract")){ e.preventDefault(); setSens(S, S.sensI + (e.key === "+" || e.key === "=" || k === "NumpadAdd" ? 1 : -1)); }
       if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Space"].includes(k) && S.mode === "walk") e.preventDefault(); };
     window.addEventListener("keydown", S.onKey); window.addEventListener("keyup", S.onKey);
     S.onBlur = () => { S.keys = {}; }; window.addEventListener("blur", S.onBlur);
     let down = null;
     canvas.addEventListener("pointerdown", e => { down = {x: e.clientX, y: e.clientY, t: performance.now()}; if(S.mode === "walk" && !pl.isLocked){ S.dragLook = {x: e.clientX, y: e.clientY}; canvas.setPointerCapture(e.pointerId); } });
     canvas.addEventListener("pointerleave", () => { const tp = S.ui.querySelector(".st-tip"); if(tp) tp.hidden = true; });
-    canvas.addEventListener("pointermove", e => { if(S.dragLook && S.mode === "walk" && !pl.isLocked){ const dx = e.clientX - S.dragLook.x, dy = e.clientY - S.dragLook.y; S.dragLook = {x: e.clientX, y: e.clientY}; S.yaw -= dx*.004; S.pitch = Math.max(-1.3, Math.min(1.3, S.pitch - dy*.004)); applyLook(S); }
+    canvas.addEventListener("pointermove", e => { if(S.dragLook && S.mode === "walk" && !pl.isLocked){ const dx = e.clientX - S.dragLook.x, dy = e.clientY - S.dragLook.y; S.dragLook = {x: e.clientX, y: e.clientY}; const k = LOOK*1.8*SENS[S.sensI].v; S.yaw -= dx*k; S.pitch = Math.max(-1.3, Math.min(1.3, S.pitch - dy*k)); applyLook(S); }
       hover(S, e); });
     canvas.addEventListener("pointerup", e => { S.dragLook = null; if(!down) return; const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y); down = null; if(moved > 6) return;
-      if(S.mode === "walk"){ if(!pl.isLocked && !S.opts.manual){ lockPL(S); return; } const tr = aimed(S); if(tr) openInspect(S, tr); return; }
+      if(S.mode === "walk"){ if(!pl.isLocked && !S.opts.manual){ lockPL(S); return; } const tr = aimed(S); if(tr) openInspect(S, tr); else runProp(S, aimedProp(S)); return; }
       click(S, e); });
     canvas.addEventListener("dblclick", e => { if(S.mode === "visit" && !petRay(S, e)){ const hit = pick(S, e); if(hit && hit.ped.trophy) openInspect(S, hit.ped.trophy); } });
     // boucle
@@ -16830,7 +17067,7 @@ window.SalleTrophees = (function(){
       focusTrophy(id, fete){ const P = S.peds.find(p => p.trophy && p.trophy.id === id); if(!P) return; flyTo(S, P); if(fete) S.burstAt = {P, t: 1.3}; },
       inspect(id){ const tr = S.opts.trophies.find(t => t.id === id); if(tr) openInspect(S, tr); },
       setMode(m){ setMode(S, m); }, step(n=1, dt=1/30){ for(let i=0;i<n;i++){ S.tManual = (S.tManual||0) + dt; tick(S, dt, S.tManual); } }, state: () => ({mode: S.mode, focus: S.focus && S.focus.idx, inspect: S.inspect && S.inspect.tr.id, pos: S.cam.position.toArray().map(v => +v.toFixed(2)), place: !!S.place}),
-      destroy(){ if(!S.alive) return; S.alive = false; cancelAnimationFrame(S.raf); window.removeEventListener("resize", onResize); window.removeEventListener("keydown", S.onKey); window.removeEventListener("keyup", S.onKey); window.removeEventListener("keydown", S.act); window.removeEventListener("blur", S.onBlur); clearTimeout(S._ar);
+      destroy(){ if(!S.alive) return; S.alive = false; cancelAnimationFrame(S.raf); window.removeEventListener("resize", onResize); window.removeEventListener("keydown", S.onKey); window.removeEventListener("keyup", S.onKey); window.removeEventListener("keydown", S.act); window.removeEventListener("blur", S.onBlur); document.removeEventListener("mousemove", S.onLook); clearTimeout(S._ar);
         try{ pl.unlock(); }catch(_){} try{ pl.dispose(); }catch(_){} try{ S.orbit.dispose(); }catch(_){} if(S.inspect) closeInspect(S, true);
         if(S.insR){ try{ if(S.insEnv) S.insEnv.dispose(); S.insR.dispose(); S.insR.forceContextLoss(); }catch(_){} S.insR = null; }
         try{ comp.dispose(); pm.dispose(); if(S.env) S.env.dispose(); if(S.studioEnv) S.studioEnv.dispose(); }catch(_){}
@@ -16859,6 +17096,7 @@ window.SalleTrophees = (function(){
     cup: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 14v4M8 21h8M9 18h6"/></svg>',
     move: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l-3 3 3 3M9 5l3-3 3 3M15 19l-3 3-3-3M19 9l3 3-3 3M2 12h20M12 2v20"/></svg>',
     x: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    mouse: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 7v4"/></svg>',
     note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>'
   };
   function buildUI(S){
@@ -16867,22 +17105,32 @@ window.SalleTrophees = (function(){
       <div class="st-top"><button class="st-pill st-quit" data-a="quit">${ICON.back}<span>Quitter</span></button>
         <div class="st-title">${ICON.cup}<b>Salle des trophées</b><span class="st-count">${n} / ${S.opts.trophies.length}</span></div>
         <div class="st-modes"><button class="st-pill on" data-a="visit">${ICON.eye}<span>Visite</span></button><button class="st-pill" data-a="walk">${ICON.walk}<span>Se promener</span></button></div>
+        <button class="st-pill st-sens" data-a="sens" title="Vitesse de la souris en promenade" aria-label="Vitesse de la souris">${ICON.mouse}<span class="st-sens-v"></span></button>
         <button class="st-pill st-mus ${S.opts.music ? "on" : ""}" data-a="music" title="Musique" aria-label="Musique" aria-pressed="${!!S.opts.music}">${ICON.note}</button></div>
       <div class="st-cross" hidden></div><div class="st-aim" hidden></div>
       <div class="st-tip" hidden></div>
-      <div class="st-hint"></div><div class="st-lvl"></div><div class="st-say" hidden></div>
+      <div class="st-hint"></div><div class="st-lvl"></div><div class="st-say" hidden></div><div class="st-fact" hidden></div><div class="st-scope" hidden></div><div class="st-book" hidden></div><div class="st-toast"></div>
       <button class="st-pill st-over" data-a="over" hidden>${ICON.eye}<span>Vue d'ensemble</span></button>`;
     u.addEventListener("click", e => { const b = e.target.closest("[data-a]"); if(!b) return; const a = b.dataset.a; snd(S, "tap"); try{ b.blur(); }catch(_){}
       if(a === "quit"){ if(S.opts.onClose) S.opts.onClose(); }
       else if(a === "music"){ S.opts.music = !S.opts.music; b.classList.toggle("on", S.opts.music); b.setAttribute("aria-pressed", S.opts.music); if(S.opts.onMusic) S.opts.onMusic(S.opts.music); }
-      else if(a === "visit") setMode(S, "visit"); else if(a === "walk") setMode(S, "walk"); else if(a === "over") overview(S); });
+      else if(a === "visit") setMode(S, "visit"); else if(a === "walk") setMode(S, "walk"); else if(a === "over") overview(S); else if(a === "sens") setSens(S, (S.sensI + 1) % SENS.length, true); });
+    setSens(S, S.sensI, false, true);
     hint(S);
+  }
+  /* vitesse de la souris : bouton (fait le tour des niveaux) ou touches + / − en promenade */
+  function setSens(S, i, cycle, quiet){
+    if(!(i >= 0)) i = i < 0 ? 0 : 2; i = Math.min(SENS.length - 1, i); S.sensI = i; try{ localStorage.setItem("salle-souris", String(i)); }catch(_){}
+    const b = S.ui.querySelector(".st-sens"); if(b){ b.querySelector(".st-sens-v").innerHTML = SENS.map((_, j) => `<i class="${j <= i ? "on" : ""}"></i>`).join(""); b.title = "Vitesse de la souris : " + SENS[i].nm; }
+    if(quiet) return; const f = S.ui.querySelector(".st-toast"); if(!f) return;
+    f.textContent = "Souris : " + SENS[i].nm + (S.mode === "walk" ? "  (touches + et −)" : ""); f.classList.remove("show"); void f.offsetWidth; f.classList.add("show");
+    clearTimeout(S.sensT); S.sensT = setTimeout(() => f.classList.remove("show"), 1600);
   }
   function updateCount(S){ const c = S.ui.querySelector(".st-count"); if(c) c.textContent = `${S.opts.trophies.filter(t => t.got).length} / ${S.opts.trophies.length}`; }
   function hint(S){ const h = S.ui.querySelector(".st-hint"); if(!h) return;
     h.innerHTML = S.place ? `Choisis un socle pour <b>${esc(S.place.nm)}</b> (Échap pour annuler)`
       : S.mode === "walk" && !S.opts.manual && S.pl && !S.pl.isLocked ? `<b>Clique dans la salle</b> pour reprendre la promenade (ou fais glisser la souris pour regarder) · <b>Z Q S D</b> pour marcher · <b>Échap</b> pour arrêter`
-      : S.mode === "walk" ? `<b>Z Q S D</b> ou les flèches pour marcher · la souris pour regarder · <b>Maj</b> pour aller plus vite · <b>E</b> ou clic pour inspecter · <b>Échap</b> pour arrêter`
+      : S.mode === "walk" ? `<b>Z Q S D</b> ou les flèches pour marcher · la souris pour regarder (<b>+</b> / <b>−</b> : vitesse) · <b>Maj</b> pour aller plus vite · <b>E</b> ou clic pour inspecter · <b>Échap</b> pour arrêter`
       : S.focus ? `Clique sur le trophée pour l'inspecter · fais tourner avec la souris`
       : `Clique sur un socle pour t'approcher · glisse pour tourner autour · molette pour zoomer`; }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -16961,7 +17209,9 @@ window.SalleTrophees = (function(){
     if(S.pet && !S.place){ const r0 = S.renderer.domElement.getBoundingClientRect();
       if(petRay(S, e)){ S.renderer.domElement.style.cursor = "pointer"; tip.hidden = false; tip.innerHTML = `<b>${esc(S.opts.companion.nm || "Ton compagnon")}</b><span>Clique pour lui faire faire une pirouette</span>`;
         tip.style.left = (e.clientX - r0.left + 16) + "px"; tip.style.top = (e.clientY - r0.top + 12) + "px"; return; } }
-    const h = pick(S, e);
+    const h = pick(S, e), ph = S.place ? null : propAtEvent(S, e);
+    if(ph && (!h || ph.d < h.d)){ S.renderer.domElement.style.cursor = "pointer"; tip.hidden = false; tip.innerHTML = `<b>${esc(ph.info.nm)}</b><span>${esc(ph.info.hint || "")}</span>`;
+      const r = S.renderer.domElement.getBoundingClientRect(); tip.style.left = (e.clientX - r.left + 16) + "px"; tip.style.top = (e.clientY - r.top + 12) + "px"; return; }
     S.renderer.domElement.style.cursor = h && (h.ped.trophy || S.place) ? "pointer" : "grab";
     if(h && h.ped.trophy){ const t = h.ped.trophy; tip.hidden = false; tip.innerHTML = t.got ? `<b>${esc(t.nm)}</b><span style="color:${t.col}">${esc(t.rarNm)}</span>` : `<b>Trophée à gagner</b><span>${esc(t.hint || "")}</span>`;
       const r = S.renderer.domElement.getBoundingClientRect(); tip.style.left = (e.clientX - r.left + 16) + "px"; tip.style.top = (e.clientY - r.top + 12) + "px"; }
@@ -16969,7 +17219,9 @@ window.SalleTrophees = (function(){
   }
   function click(S, e){
     if(!S.place && companionHit(S, e)) return;
-    const h = pick(S, e); if(!h) return;
+    const h = pick(S, e), ph = S.place ? null : propAtEvent(S, e);
+    if(ph && (!h || ph.d < h.d)){ runProp(S, ph.info); return; }
+    if(!h) return;
     if(S.place){ const P = h.ped, src = S.place; S.place = null;
       const from = S.peds.find(p => p.trophy && p.trophy.id === src.id); if(P === from){ hint(S); return; }
       if(P.trophy && P.trophy.got){ P.trophy.slot = from ? from.idx : null; }
@@ -17008,7 +17260,7 @@ window.SalleTrophees = (function(){
       g = R[id](THREE, S.K, {pal, skin, ir: c.ir || "#ffd23a", acc: c.acc || {}, CK}); CK.attach(g, c.eq || {}); CK.finish(g); S.compSkin = skin; }
     catch(e){ console.warn("compagnon", e); return; }
     const wrap = new THREE.Group(); wrap.add(g); wrap.scale.setScalar(.74); wrap.rotation.order = "YXZ";
-    const L = new THREE.PointLight(0xffe2b8, .35, 1.2, 2); L.position.set(.15, .25, .35); wrap.add(L);
+    const L = new THREE.PointLight(0xffe2b8, .08, 1.2, 2); L.position.set(.15, .25, .45); wrap.add(L);
     const aura = c.pal && c.pal.aura; if(aura){ const sp = new THREE.Sprite(new THREE.SpriteMaterial({map: dotTex(), color: new THREE.Color(aura), transparent: true, opacity: .55, depthWrite: false, blending: THREE.AdditiveBlending})); sp.scale.setScalar(.85); sp.position.z = -.12; wrap.add(sp); S.compAura = sp; }
     // ombre douce au sol
     const sh = new THREE.Mesh(new THREE.CircleGeometry(.16, 24), new THREE.MeshBasicMaterial({color: 0x000000, transparent: true, opacity: .28, depthWrite: false})); sh.rotation.x = -Math.PI/2; S.scene.add(sh);
@@ -17053,6 +17305,37 @@ window.SalleTrophees = (function(){
       else { const v = C.tmp.copy(C.wrap.position); v.y += .3; v.project(cam); const W = S.renderer.domElement.clientWidth, H = S.renderer.domElement.clientHeight;
         if(v.z > 1){ el.hidden = true; } else { el.hidden = false; el.style.left = Math.max(70, Math.min(W - 70, (v.x*.5 + .5)*W)) + "px"; el.style.top = Math.max(60, (-v.y*.5 + .5)*H) + "px"; } } }
   }
+  /* ---------- objets interactifs du décor ---------- */
+  function propRay(S, ndc){ if(!S.props.length) return null; S.ray.setFromCamera(ndc, S.cam); const h = S.ray.intersectObjects(S.props, false); return h.length ? {info: h[0].object.userData.prop, d: h[0].distance} : null; }
+  function propAtEvent(S, e){ const r = S.renderer.domElement.getBoundingClientRect(); return propRay(S, new (T().Vector2)(((e.clientX - r.left)/r.width)*2 - 1, -((e.clientY - r.top)/r.height)*2 + 1)); }
+  function aimedProp(S){ const h = propRay(S, new (T().Vector2)(0, 0)); return h && h.d < 3.4 ? h.info : null; }
+  function runProp(S, info){ if(!info) return; S.lastAct = performance.now(); S.orbit.autoRotate = false; snd(S, info.snd || "tap"); try{ info.act && info.act(S); }catch(e){ console.warn("objet", e); } }
+  function speakText(S, text, sec){
+    const el = S.ui && S.ui.querySelector(".st-say");
+    if(S.pet && el && S.pet.wrap.visible){ el.textContent = text; el.hidden = false; el.classList.remove("in"); void el.offsetWidth; el.classList.add("in"); S.sayT = sec || 4.5; return; }
+    factCard(S, "", text);
+  }
+  function factCard(S, title, text){ const el = S.ui && S.ui.querySelector(".st-fact"); if(!el) return; el.innerHTML = (title ? `<b>${esc(title)}</b>` : "") + `<span>${esc(text)}</span>`;
+    el.hidden = false; el.classList.remove("in"); void el.offsetWidth; el.classList.add("in"); clearTimeout(S._fact); S._fact = setTimeout(() => { if(S.alive) el.hidden = true; }, 5200); }
+  // regarder dans le télescope : la caméra vise la lune, avec un cache rond
+  function startScope(S, dir){ if(S.scope || S.inspect) return; const THREE = T(); const cam = S.cam;
+    const q1 = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(cam.position, cam.position.clone().add(dir), new THREE.Vector3(0, 1, 0)));
+    S.scope = {t: 0, dur: 7, q0: cam.quaternion.clone(), q1, fov0: cam.fov}; if(S.pl) { S.scope.ps = S.pl.pointerSpeed; S.pl.pointerSpeed = 0; }
+    const el = S.ui.querySelector(".st-scope"); el.hidden = false; el.classList.remove("on"); void el.offsetWidth; el.classList.add("on"); }
+  function scopeTick(S, dt){ const sc = S.scope, cam = S.cam; sc.t += dt; const end = sc.cancel ? Math.min(sc.dur, sc.t + .01) : sc.dur;
+    if(sc.cancel && !sc.out){ sc.out = sc.t; } const tin = Math.min(1, sc.t/1.1), tout = sc.out != null ? Math.min(1, (sc.t - sc.out)/.7) : (sc.t > sc.dur ? Math.min(1, (sc.t - sc.dur)/.7) : 0);
+    const k = Math.max(0, tin - tout), e = k*k*(3 - 2*k);
+    cam.quaternion.copy(sc.q0).slerp(sc.q1, e); cam.fov = sc.fov0 + (6 - sc.fov0)*e; cam.updateProjectionMatrix();
+    const el = S.ui.querySelector(".st-scope"); el.style.opacity = Math.min(1, e*1.4);
+    if(tout >= 1){ cam.quaternion.copy(sc.q0); cam.fov = sc.fov0; cam.updateProjectionMatrix(); el.hidden = true; el.classList.remove("on"); if(S.pl && sc.ps != null) S.pl.pointerSpeed = sc.ps; S.scope = null; } }
+  // le livre d'or : la liste des trophées gagnés, avec leur date
+  function openBook(S){ const box = S.ui.querySelector(".st-book"); const tr = S.opts.trophies, got = tr.filter(t => t.got);
+    const rows = got.slice().sort((a, b) => (b.rank || 0) - (a.rank || 0)).map(t => `<li><i style="background:${t.col}"></i><b>${esc(t.nm)}</b><span>${esc(t.rarNm || "")}${t.date ? " · " + esc(t.date) : ""}</span></li>`).join("");
+    box.innerHTML = `<div class="st-page"><h2>Livre d'or${S.opts.name ? " de " + esc(S.opts.name) : ""}</h2><p class="st-sub">${got.length} trophée${got.length > 1 ? "s" : ""} sur ${tr.length}${got.length < tr.length ? " · encore " + (tr.length - got.length) + " à gagner" : " · collection complète !"}</p>
+      <ol>${rows || "<li class='none'>Ton premier trophée t'attend…</li>"}</ol><button class="st-pill on" data-b="close">Fermer le livre</button></div>`;
+    box.hidden = false; box.classList.remove("in"); void box.offsetWidth; box.classList.add("in"); S.book = true; if(S.pl && S.pl.isLocked) try{ S.pl.unlock(); }catch(e){}
+    box.querySelector("[data-b=close]").onclick = () => closeBook(S); }
+  function closeBook(S){ const box = S.ui.querySelector(".st-book"); box.hidden = true; S.book = false; }
   function petRay(S, e){   // vrai si la souris est sur le compagnon (et pas sur un trophée devant lui)
     if(!S.pet || !S.pet.wrap.visible) return false; const r = S.renderer.domElement.getBoundingClientRect(); S.ptr.set(((e.clientX - r.left)/r.width)*2 - 1, -((e.clientY - r.top)/r.height)*2 + 1);
     S.ray.setFromCamera(S.ptr, S.cam); const h = S.ray.intersectObject(S.pet.wrap, true).find(x => x.object.isMesh); if(!h) return false;
@@ -17069,14 +17352,17 @@ window.SalleTrophees = (function(){
     if(S.shaft) S.shaft.uniforms.t.value = t; if(S.vig) S.vig.uniforms.t.value = t % 10;
     if(S.dust){ const p = S.dust.geometry.attributes.position; for(let i=0;i<p.count;i++){ let y = p.getY(i) + dt*.03; if(y > S.oculus.y) y = PIT_Y; p.setY(i, y); } p.needsUpdate = true; S.dust.rotation.y += dt*.01; }
     // trophées : légère rotation lente + reflet des cloches
-    S.peds.forEach((P, i) => { const want = S.focus === P && S.mode === "visit" ? 1 : 0, u = P.cloche.userData; if(u.lift !== want){ u.lift += Math.sign(want - u.lift)*Math.min(Math.abs(want - u.lift), dt*1.6); const e = u.lift*u.lift*(3 - 2*u.lift); P.cloche.position.y = u.base + e*1.5; u.mat.opacity = .03*(1 - e); P.cloche.visible = e < .99; }
-      if(P.model) P.model.rotation.y = Math.sin(t*.25 + i)*.35; if(P.trophy && P.trophy.got && P.trophy.rank >= 3) P.floorGlow.material.opacity = .28 + Math.sin(t*2 + i)*.08; });
+    S.peds.forEach((P, i) => { const want = S.focus === P && S.mode === "visit" ? 1 : 0, u = P.cloche.userData; if(u.lift !== want){ u.lift += Math.sign(want - u.lift)*Math.min(Math.abs(want - u.lift), dt*1.6); const e = u.lift*u.lift*(3 - 2*u.lift); P.cloche.position.y = u.base + e*1.5; u.mat.opacity = .018*(1 - e); P.cloche.visible = e < .99; }
+      if(P.model) P.model.rotation.y = Math.sin(t*.25 + i)*.35; if(P.trophy && P.trophy.got && P.trophy.rank >= 3) P.floorGlow.material.opacity = .4 + Math.sin(t*2 + i)*.1; });
     if(S.fly){ const f = S.fly; f.t = Math.min(1, f.t + dt/f.d); const k = f.t < .5 ? 4*f.t*f.t*f.t : 1 - Math.pow(-2*f.t + 2, 3)/2;
       S.cam.position.lerpVectors(f.from, f.to, k); S.orbit.target.lerpVectors(f.tf, f.tt, k); if(f.t >= 1) S.fly = null; }
     if(S.mode === "visit" && !S.focus && !S.fly && !S.inspect && performance.now() - (S.lastAct||0) > 25000){ S.orbit.autoRotate = true; S.orbit.autoRotateSpeed = .35; }
-    if(S.mode === "visit"){ S.orbit.update(); const p = S.cam.position, r = Math.hypot(p.x, p.z); if(r > R_WALL - .6){ p.x *= (R_WALL-.6)/r; p.z *= (R_WALL-.6)/r; } p.y = Math.max(p.y, floorY(p.x, p.z) + .35); p.y = Math.min(p.y, H_WALL + 2); }
+    if(S.scope) scopeTick(S, dt);
+    else if(S.mode === "visit"){ S.orbit.update(); const p = S.cam.position, r = Math.hypot(p.x, p.z); if(r > R_WALL - .6){ p.x *= (R_WALL-.6)/r; p.z *= (R_WALL-.6)/r; } p.y = Math.max(p.y, floorY(p.x, p.z) + .35); p.y = Math.min(p.y, H_WALL + 2); }
     else if(S.mode === "walk" && !S.inspect) walkStep(S, dt, t);
-    if(S.mode === "walk"){ const a = S.ui.querySelector(".st-aim"), tr = S.inspect ? null : aimed(S); a.hidden = !tr; if(tr) a.innerHTML = tr.got ? `<b>${esc(tr.nm)}</b> · <kbd>E</kbd> inspecter` : `Trophée à gagner · <kbd>E</kbd> voir`; }
+    if(S.ambient && S.mode === "walk" && !S.inspect) ambientTick(S, dt);
+    if(S.mode === "walk"){ const a = S.ui.querySelector(".st-aim"), tr = S.inspect || S.scope || S.book ? null : aimed(S), pr = tr || S.inspect || S.scope || S.book ? null : aimedProp(S); a.hidden = !tr && !pr;
+      if(tr) a.innerHTML = tr.got ? `<b>${esc(tr.nm)}</b> · <kbd>E</kbd> inspecter` : `Trophée à gagner · <kbd>E</kbd> voir`; else if(pr) a.innerHTML = `<b>${esc(pr.nm)}</b> · <kbd>E</kbd> ${esc(pr.verb || "regarder")}`; }
     if(S.burstAt){ S.burstAt.t -= dt; if(S.burstAt.t <= 0){ const P = S.burstAt.P; S.burstAt = null; if(S.burst) S.burst.t = 99, burstTick(S, 0); burst(S, P); } }
     burstTick(S, dt); companionTick(S, dt, t);
     if(S.inspect) S.inspect.tick(dt, t);
@@ -17084,9 +17370,16 @@ window.SalleTrophees = (function(){
     // si l'ordinateur peine (moins de 30 images/s pendant 4 s), on allège une fois l'image
     if(!S.opts.manual && !S.lite){ S.perf = S.perf || {n: 0, s: 0}; S.perf.n++; S.perf.s += dt; if(S.perf.n >= 120){ if(S.perf.s/S.perf.n > 1/30){ S.lite = true; S.renderer.setPixelRatio(1); S.onResize(); } S.perf = {n: 0, s: 0}; } }
   }
+  /* sons d'ambiance qui viennent d'un endroit (feu qui crépite, pendule) : plus forts quand on s'approche, à gauche ou à droite */
+  function ambientTick(S, dt){
+    const p = S.cam.position;
+    for(const A of S.ambient){ const d = Math.hypot(p.x - A.x, p.z - A.z); if(d > A.r){ A.t = 0; continue; }
+      A.t -= dt; if(A.t > 0) continue; A.t = A.every[0] + Math.random()*(A.every[1] - A.every[0]);
+      const v = Math.pow(1 - d/A.r, 1.5), pan = d < .01 ? 0 : Math.max(-1, Math.min(1, ((A.x - p.x)*Math.cos(S.yaw) - (A.z - p.z)*Math.sin(S.yaw))/d));
+      snd(S, A.k, {v, pan}); }
+  }
   function walkStep(S, dt, t){
     const THREE = T(), K = S.keys, fw = (K.KeyW || K.ArrowUp || K["k:z"] ? 1 : 0) - (K.KeyS || K.ArrowDown || K["k:s"] ? 1 : 0), st = (K.KeyD || K.ArrowRight || K["k:d"] ? 1 : 0) - (K.KeyA || K.ArrowLeft || K["k:q"] ? 1 : 0);
-    if(S.pl.isLocked){ const e = new THREE.Euler().setFromQuaternion(S.cam.quaternion, "YXZ"); S.yaw = e.y; S.pitch = e.x; }
     const sp = (K.ShiftLeft || K.ShiftRight ? RUN : WALK), mv = Math.hypot(fw, st);
     S.vel = S.vel || new THREE.Vector2(); const tx = mv ? (fw*-Math.sin(S.yaw) + st*Math.cos(S.yaw))/mv*sp : 0, tz = mv ? (fw*-Math.cos(S.yaw) - st*Math.sin(S.yaw))/mv*sp : 0;
     const a = 1 - Math.exp(-dt*9); S.vel.x += (tx - S.vel.x)*a; S.vel.y += (tz - S.vel.y)*a;
@@ -17100,7 +17393,7 @@ window.SalleTrophees = (function(){
     if(Math.floor((S.bob - HEEL)/TAU) > Math.floor((prevB - HEEL)/TAU) && speed > .2){ S.side = -S.side; snd(S, "pas", {side: S.side, run, v: Math.min(1, speed/WALK)}); }
     const amp = Math.min(1.25, speed/WALK), bob = Math.sin(S.bob)*(run ? .036 : .028)*amp, sway = Math.sin(S.bob*.5)*.013*amp;
     S.cam.position.set(S.pos.x + sway*Math.cos(S.yaw), S.vy + EYE + bob, S.pos.z - sway*Math.sin(S.yaw));
-    if(!S.pl.isLocked) applyLook(S);
+    applyLook(S);
   }
 
   /* ---------- inspection (comme les objets rares qu'on fait tourner) ---------- */
@@ -26668,6 +26961,17 @@ function salleSound(k, a){
     else if(k==="inspectRare"){ [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => blip(f, f, .2, "triangle", .06, i*.08)); for(let i=0;i<6;i++) blip(2400 + 200*i, 2600 + 200*i, .06, "sine", .025, .4 + i*.05); }
     else if(k==="place") blip(220, 110, .2, "square", .04);
     else if(k==="salle"){ [196, 246.94, 293.66].forEach((f, i) => blip(f, f, 1.6, "sine", .03, i*.12)); }
+    else if(k==="scope"){ blip(380, 620, .45, "triangle", .028); blip(1250, 1900, .6, "sine", .012, .25); }
+    else if(k==="clank"){ blip(310, 290, .3, "square", .018); blip(1580, 1520, .55, "triangle", .028); blip(2370, 2330, .4, "sine", .018, .01); noise(.07, .05, 0, "bandpass", 3200); }
+    else if(k==="fire"){ const R = Math.random; noise(.6, .025, 0, "lowpass", 600); for(let i=0;i<8;i++) noise(.02 + R()*.04, .03 + R()*.05, i*.06 + R()*.05, "bandpass", 1400 + R()*2600); }
+    else if(k==="music"){ blip(784, 784, .16, "triangle", .04); blip(1174.66, 1174.66, .22, "triangle", .035, .09); }
+    else if(k==="page"){ noise(.2, .05, 0, "bandpass", 2400); noise(.15, .035, .13, "highpass", 4200); }
+    else if(k==="crackle" || k==="tick"){ const v = Math.max(0, Math.min(1, (a && a.v) || 0)), pan = (a && a.pan) || 0; if(v < .02) return;
+      const t = ac.currentTime + .005, bus = ac.createGain(); bus.gain.value = v; let out = bus; if(ac.createStereoPanner){ const pn = ac.createStereoPanner(); pn.pan.value = pan*.8; bus.connect(pn); out = pn; } out.connect(master);
+      if(k==="tick"){ const o = ac.createOscillator(), g = ac.createGain(); o.type = "square"; o.frequency.value = 3100; g.gain.setValueAtTime(.012, t); g.gain.exponentialRampToValueAtTime(.0004, t + .025); o.connect(g).connect(bus); o.start(t); o.stop(t + .03); }
+      else if(noiseBuf){ const R = Math.random, n = 1 + (R()*3|0); for(let i=0;i<n;i++){ const at = t + i*(.015 + R()*.05), s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = noiseBuf; s.playbackRate.value = .7 + R()*.8; f.type = "bandpass"; f.frequency.value = 1200 + R()*3000; f.Q.value = 1.2; g.gain.setValueAtTime(.05 + R()*.06, at); g.gain.exponentialRampToValueAtTime(.0005, at + .02 + R()*.05); s.connect(f).connect(g).connect(bus); s.start(at, R()*.35); s.stop(at + .1); } }
+      setTimeout(() => { try{ out.disconnect(); if(out !== bus) bus.disconnect(); }catch(e){} }, 400); }
+    else if(k==="coins"){ const R = Math.random; for(let i=0;i<6;i++){ const f = 2100 + R()*900; blip(f, f*.98, .14, "triangle", .028, i*.055 + R()*.02); blip(f*1.5, f*1.48, .1, "sine", .012, i*.055 + .01); } }
   }catch(e){}
 }
 function renderSalle(focusId){
