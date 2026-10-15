@@ -1,7 +1,8 @@
 {
-  "appli": "2026-10-15.1939",
-  "gardien": 10,
+  "appli": "2026-10-15.2159",
+  "gardien": 11,
   "stats": "https://script.google.com/macros/s/AKfycbyo8sr1D9yx_O-tZmefIVF9rvf3GwZMlxpTOuGm6S2MfcPgsmRhmx6TW1UNN2RUEsTg/exec",
   "heureVerrou": 0,
-  "lectureSoir": 20.75
+  "lectureSoir": 20.75,
+  "modeles": "2026-10-15.1"
 }

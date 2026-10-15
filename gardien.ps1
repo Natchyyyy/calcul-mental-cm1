@@ -19,11 +19,13 @@
 #  - v4 : après le déblocage, reste discrètement en arrière-plan et REBLOQUE le lendemain (v5 : à partir de 16 h, réglable : "heureVerrou" ;
 #    v10 : "heureVerrou": 0 = verrou toute la journée, dès minuit ; réglable aussi à distance par version.json, qui l'emporte sur config.json),
 #    même si la session n'a jamais été fermée (PC en veille ou allumé toute la nuit).
+#  - v11 : télécharge aussi les figurines 3D de la salle des trophées (dossier « modeles », liste.json + empreintes SHA-256),
+#    dans un petit processus à part et sans fenêtre : l'appli s'ouvre tout de suite, les figurines arrivent pendant ce temps.
 #  En cas de problème, le gardien s'arrête (il ne bloque jamais l'enfant par erreur).
 #  Compatible Windows PowerShell 5.1 (Windows 10 / 11).
 # ============================================================================
 param([switch]$Test, [switch]$Ouvrir)
-$GardienVersion = 10
+$GardienVersion = 11
 
 $ErrorActionPreference = 'Stop'
 $Self = $MyInvocation.MyCommand.Path
@@ -153,6 +155,51 @@ function Get-LocalVer { try { return Get-Content -Path $LocalVer -Raw -Encoding 
 $script:RemoteLock = $null
 $script:Soir = ''   # heure de la lecture du soir réglée à distance (version.json « lectureSoir », ex. 20.75 = 20 h 45), passée à l'appli
 try { $lv1 = Get-LocalVer; if ($lv1.PSObject.Properties.Name -contains 'lectureSoir') { $script:Soir = [string]$lv1.lectureSoir } } catch { }
+# --- v11 : figurines 3D de la salle des trophées (modeles\*.js), téléchargées à côté de l'appli, en arrière-plan ---
+function Start-ModelSync([string]$repo, [string]$ver) {
+  try {
+    if (-not $ver -or $ver -notmatch '^[0-9A-Za-z.\-]{1,40}$') { return }
+    $md = Join-Path $Dir 'modeles'
+    $vf = Join-Path $md 'version.txt'
+    if ((Test-Path $vf) -and ((Get-Content -Path $vf -Raw -ErrorAction SilentlyContinue) -replace '\s', '') -eq $ver) { return }
+    $lock = Join-Path $md 'sync.lock'
+    if ((Test-Path $lock) -and ((Get-Date) - (Get-Item $lock).LastWriteTime).TotalMinutes -lt 20) { return }
+    $code = @'
+$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue'
+$repo = '__REPO__'; $md = '__MD__'; $ver = '__VER__'; $log = '__LOG__'
+function L([string]$m) { try { Add-Content -Path $log -Value ("{0}  {1}" -f (Get-Date).ToString('yyyy-MM-dd HH:mm:ss'), $m) -Encoding UTF8 } catch { } }
+if (-not (Test-Path $md)) { New-Item -ItemType Directory -Path $md -Force | Out-Null }
+$lock = Join-Path $md 'sync.lock'
+Set-Content -Path $lock -Value 'x'
+try {
+  [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+  $stamp = [DateTime]::UtcNow.Ticks
+  $list = (Invoke-WebRequest -Uri "$repo/modeles/liste.json?t=$stamp" -UseBasicParsing -TimeoutSec 30).Content | ConvertFrom-Json
+  $ok = $true; $n = 0
+  foreach ($f in @($list.fichiers)) {
+    $name = [string]$f.n; if ($name -notmatch '^[a-z0-9_]+\.js$') { continue }
+    $dst = Join-Path $md $name
+    if ((Test-Path $dst) -and ((Get-FileHash -Algorithm SHA256 -Path $dst).Hash -ieq [string]$f.sha256)) { continue }
+    $tmp = "$dst.tmp"
+    try {
+      Invoke-WebRequest -Uri "$repo/modeles/$($name)?t=$stamp" -UseBasicParsing -TimeoutSec 300 -OutFile $tmp
+      if ((Get-FileHash -Algorithm SHA256 -Path $tmp).Hash -ieq [string]$f.sha256) { Move-Item -Force $tmp $dst; $n++ } else { Remove-Item -Force $tmp; $ok = $false }
+      Set-Content -Path $lock -Value 'x'
+    } catch { Remove-Item -Force $tmp -ErrorAction SilentlyContinue; $ok = $false }
+  }
+  if ($ok) { Set-Content -Path (Join-Path $md 'version.txt') -Value $ver -Encoding ASCII }
+  L ("Figurines 3D : $n fichier(s) téléchargé(s)" + $(if ($ok) { ', tout est à jour (version ' + $ver + ').' } else { ', il en manque : on réessaiera au prochain démarrage.' }))
+} catch { L ('Figurines 3D non téléchargées : ' + $_.Exception.Message) }
+finally { Remove-Item -Force $lock -ErrorAction SilentlyContinue }
+'@
+    $q = { param($v) ([string]$v) -replace "'", "''" }
+    $code = $code.Replace('__REPO__', (& $q $repo)).Replace('__MD__', (& $q $md)).Replace('__VER__', (& $q $ver)).Replace('__LOG__', (& $q $LogFile))
+    $enc = [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes($code))
+    $ps = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    Start-Process -FilePath $ps -ArgumentList @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-WindowStyle', 'Hidden', '-EncodedCommand', $enc) -WindowStyle Hidden -WorkingDirectory $Dir | Out-Null
+    Write-Log ("Figurines 3D : mise à jour lancée en arrière-plan (version " + $ver + ").")
+  } catch { Write-Log ('Figurines 3D : ' + $_.Exception.Message) }
+}
 function Update-App([switch]$Quiet) {
   $repo = [string]$Cfg.depot
   if (-not $repo) { $repo = 'https://raw.githubusercontent.com/Natchyyyy/calcul-mental-cm1/main' }
@@ -204,6 +251,7 @@ function Update-App([switch]$Quiet) {
       if ($bom -and $errs.Count -eq 0 -and $code.Contains('Get-DayCode')) { Copy-Item -Force $gt (Join-Path $Dir 'gardien.ps1'); Write-Log ("Gardien mis à jour : version " + $rv.gardien + " (au prochain démarrage)") }
       Remove-Item -Force $gt -ErrorAction SilentlyContinue
     }
+    if ($rv.PSObject.Properties.Name -contains 'modeles') { Start-ModelSync $repo ([string]$rv.modeles) }
     $appVer = if ($newApp) { [string]$rv.appli } else { [string]$lv.appli }
     $lvo = [ordered]@{ appli = $appVer; stats = $script:StatsUrl }
     if ($null -ne $script:RemoteLock) { $lvo.heureVerrou = $script:RemoteLock }
