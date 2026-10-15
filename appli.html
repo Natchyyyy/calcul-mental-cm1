@@ -1957,6 +1957,16 @@ svg.gs-svg{display:block;margin:2px auto;width:min(440px,100%);height:auto;overf
 /*/SALLE-CSS*/
 </style>
 
+<script>/* filet de sécurité du démarrage : en cas d'erreur, montrer le message (au lieu d'un écran vide) */
+(function(){ var errs = []; window.addEventListener("error", function(e){ try{ errs.push(String(e.message || e.error || "erreur") + (e.lineno ? " (ligne " + e.lineno + ")" : "")); }catch(_){} });
+  setTimeout(function(){ try{ var vis = [].some.call(document.querySelectorAll(".screen"), function(x){ return !x.hidden; }); if(vis) return;
+    var b = document.createElement("div"); b.id = "boot-err";
+    b.setAttribute("style", "position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(10,20,50,.55);font:18px system-ui,sans-serif");
+    b.innerHTML = '<div style="max-width:620px;background:#fff;color:#1b2545;border-radius:22px;padding:26px 28px;box-shadow:0 20px 60px rgba(0,0,0,.35)"><h2 style="margin:0 0 10px;font-size:24px">Oups, l\'appli n\'a pas réussi à démarrer</h2><p style="margin:0 0 12px">Montre ce message à un parent (une photo suffit).</p><pre style="white-space:pre-wrap;background:#f1f4fb;border-radius:12px;padding:12px;font-size:14px;max-height:180px;overflow:auto"></pre><button style="margin-top:14px;font:700 18px system-ui;padding:12px 22px;border:0;border-radius:14px;background:#e8711a;color:#fff;cursor:pointer">Réessayer</button></div>';
+    b.querySelector("pre").textContent = errs.length ? errs.join("\n") : "Aucun message d'erreur (démarrage trop long ?)";
+    b.querySelector("button").onclick = function(){ location.reload(); };
+    document.body.appendChild(b); }catch(_){} }, 8000);
+})();</script>
 <div class="sky" id="sky" data-bg="ciel" aria-hidden="true"></div>
 <canvas id="fx" hidden></canvas>
 
@@ -14046,6 +14056,9 @@ const DEF = () => ({schema:SCHEMA, name:"", owl:"Pythagore", owlSet:false, gardi
   totals:{correct:0,answered:0,games:0,chests:0}});
 const isObj = v => !!v && typeof v==="object" && !Array.isArray(v);
 const num = (v,d,min=0,max=Infinity) => (typeof v==="number" && isFinite(v)) ? Math.min(max,Math.max(min,v)) : d;
+/* couteaux : au démarrage, la liste des couteaux (KNIFE_BY) n'existe pas encore quand la sauvegarde est lue → on garde,
+   et on vérifie juste après sa création (sinon : erreur au démarrage et écran vide pour un enfant qui a des couteaux) */
+function knifeKnown(id){ try{ return !!KNIFE_BY[id]; }catch(e){ return id.length < 40; } }
 function migrate(d){
   const base = DEF();
   /* Même une sauvegarde vide passe par toute la normalisation (paliers de toutes les catégories, etc.) */
@@ -14230,7 +14243,7 @@ function migrate(d){
   });
   Object.keys(eq).forEach(k => { if(!SLOTS.includes(k)) delete eq[k]; });
   out.equip = eq;
-  { const kn = isObj(d.knife) ? d.knife : {}, have = Array.isArray(kn.have) ? [...new Set(kn.have.filter(x=>typeof x==="string" && KNIFE_BY[x]))] : [];
+  { const kn = isObj(d.knife) ? d.knife : {}, have = Array.isArray(kn.have) ? [...new Set(kn.have.filter(x=>typeof x==="string" && knifeKnown(x)))] : [];
     out.knife = {have, cur: typeof kn.cur==="string" && have.includes(kn.cur) ? kn.cur : null, pity: Math.round(num(kn.pity,0,0,99)), n: Math.round(num(kn.n,0,0,99999)), duels: Math.round(num(kn.duels,0,0,99999)), wins: Math.round(num(kn.wins,0,0,99999)), trades: Math.round(num(kn.trades,0,0,99999))}; }
   { const fx = isObj(d.fix) ? d.fix : {}, k = {};   // « Je répare mes erreurs » : genres de questions ratées (cat:palier)
     if(isObj(fx.k)) Object.entries(fx.k).slice(0,40).forEach(([key, v]) => { const [c, p] = String(key).split(":"); if(LADDER[c] && LADDER[c][+p-1] && isObj(v)) k[`${c}:${+p}`] = {m: Math.round(num(v.m,1,1,99)), d: Math.round(num(v.d,0,0,1e6))}; });
@@ -20926,6 +20939,7 @@ if (typeof module !== "undefined") module.exports = { caseArt };
 const KNIFE_PRICE = 150;   /* en plumes : la caisse Lames remplace le coffre surprise */
 const KNIFES = KNIFE_MODELS.flatMap(m=>KNIFE_FINISHES.map(f=>({id:`${m.id}_${f.id}`, m:m.id, f:f.id, r:f.r, nm:`${m.nm} · ${f.nm}`})));
 const KNIFE_BY = Object.fromEntries(KNIFES.map(k=>[k.id,k]));
+try{ if(D && D.knife){ D.knife.have = D.knife.have.filter(id => KNIFE_BY[id]); if(D.knife.cur && !KNIFE_BY[D.knife.cur]) D.knife.cur = null; } }catch(e){}
 const knivesLeft = () => KNIFES.filter(k=>!D.knife.have.includes(k.id));
 /* la lame équipée, tenue à droite du personnage */
 function knifeOn(eq){ let id = null; try{ id = eq && eq.knife!==undefined ? eq.knife : (D && D.knife ? D.knife.cur : null); }catch(e){ return ""; } const k = id && KNIFE_BY[id]; if(!k) return "";
