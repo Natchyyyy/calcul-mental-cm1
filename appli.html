@@ -1872,6 +1872,7 @@ svg.gs-svg{display:block;margin:2px auto;width:min(440px,100%);height:auto;overf
 .salle-load{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:radial-gradient(ellipse at 50% 60%,#2a1c10 0%,#0b0806 70%);color:#f2e3c6;transition:opacity .6s}
 .salle-load.out{opacity:0;pointer-events:none}
 .salle-load b{font-size:1.15rem;letter-spacing:.02em} .salle-load small{color:#b39d7c}
+.sl-bar{width:min(260px,60vw);height:6px;border-radius:99px;background:rgba(242,196,106,.15);overflow:hidden;margin-top:4px} .sl-bar i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#c9953e,#f2c46a);box-shadow:0 0 12px rgba(242,196,106,.5);transition:width .25s}
 .sl-ring{width:64px;height:64px;border-radius:50%;border:3px solid rgba(242,196,106,.18);border-top-color:#f2c46a;animation:slspin 1s linear infinite;box-shadow:0 0 30px rgba(242,196,106,.25)}
 @keyframes slspin{to{transform:rotate(360deg)}}
 .salle-fb{position:absolute;inset:0;overflow:auto;padding:24px 16px;display:grid;place-items:start center;background:var(--sky-top)}
@@ -2712,7 +2713,7 @@ svg.gs-svg{display:block;margin:2px auto;width:min(440px,100%);height:auto;overf
 
 <section class="screen salle-screen" id="s-salle" hidden aria-label="Salle des trophées">
   <div class="salle-host" id="salle-host"></div>
-  <div class="salle-load" id="salle-load" hidden><div class="sl-ring"></div><b>Ouverture de la salle des trophées…</b><small>Les projecteurs s'allument</small></div>
+  <div class="salle-load" id="salle-load" hidden><div class="sl-ring"></div><b>Ouverture de la salle des trophées…</b><small>Les projecteurs s'allument</small><div class="sl-bar" hidden><i></i></div></div>
   <div class="salle-fb" id="salle-fallback" hidden><div class="card"><div class="rowline"><h2>Salle des trophées</h2><span class="muted" id="salle-fb-count"></span></div>
     <p class="muted" style="margin:0">La salle en 3D ne peut pas s'afficher ici : voici tes trophées.</p><div class="sfb-list" id="salle-fb-list"></div>
     <button class="btn" id="salle-fb-back">Retour</button></div></div>
@@ -15866,14 +15867,19 @@ window.SalleSky = function(S, THREE, C){
   const now = () => (S.tManual != null ? S.tManual : performance.now()/1000);
   const root = new THREE.Group(); root.name = "ciel"; S.scene.add(root);
   const MOON = new THREE.Vector3(.38, .78, -.5).normalize();
+  // la Grande Ourse (la « casserole ») : 7 étoiles brillantes, à l'opposé de la Lune, bien visibles à travers la verrière
+  const DIP = (() => { const c = new THREE.Vector3().setFromSphericalCoords(1, deg2(25), deg2(328)), e = new THREE.Vector3(0, 1, 0).cross(c).normalize(), n = c.clone().cross(e).normalize();
+    // positions approchées (degrés) : Dubhe, Merak, Phecda, Megrez, Alioth, Mizar, Alkaid ; éclat relatif
+    return [[13, 3, 1], [12.4, -2.4, .85], [5, -4, .8], [3.6, .6, .6], [-2.2, 1.6, .95], [-7.6, 2.6, .9], [-13.4, -1.2, .92]].map(([x, y, m]) => { const v = c.clone().addScaledVector(e, Math.tan(deg2(x*1.3))).addScaledVector(n, Math.tan(deg2(y*1.3))).normalize(); return new THREE.Vector4(v.x, v.y, v.z, m); }); })();
+  function deg2(a){ return a*Math.PI/180; }
 
   /* ---------- le ciel (sphère vue de l'intérieur, sans brouillard) ---------- */
   const skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false,
-    uniforms: { t: {value: 0}, moon: {value: MOON.clone()}, q: {value: S.quality == null ? 2 : S.quality}, zm: {value: 0} },
+    uniforms: { t: {value: 0}, moon: {value: MOON.clone()}, q: {value: S.quality == null ? 2 : S.quality}, zm: {value: 0}, dip: {value: DIP} },
     vertexShader: `varying vec3 vD; void main(){ vD = normalize(position); vec4 p = projectionMatrix*modelViewMatrix*vec4(position, 1.); gl_Position = p.xyww; }`,
     fragmentShader: `
-      uniform float t; uniform vec3 moon; uniform float q; uniform float zm; varying vec3 vD;
+      uniform float t; uniform vec3 moon; uniform float q; uniform float zm; uniform vec4 dip[7]; varying vec3 vD;
       float h31(vec3 p){ p = fract(p*vec3(.1031, .1030, .0973)); p += dot(p, p.yxz + 33.33); return fract((p.x + p.y)*p.z); }
       vec3 h33(vec3 p){ p = fract(p*vec3(.1031, .1030, .0973)); p += dot(p, p.yxz + 33.33); return fract((p.xxy + p.yxx)*p.zyx); }
       float n3(vec3 p){ vec3 i = floor(p), f = fract(p); f = f*f*(3. - 2.*f);
@@ -15907,6 +15913,8 @@ window.SalleSky = function(S, THREE, C){
         col += vec3(.05, .055, .08)*mw*.6 + vec3(.07, .055, .04)*exp(-b*b*70.)*grain*.2;
         // étoiles (trois couches : rares et brillantes, moyennes, poussière d'étoiles dans la Voie lactée)
         vec3 st = stars(d, 70., .32, 1.) + stars(d, 170., .28, .45);
+        for(int i=0;i<7;i++){ float a = acos(clamp(dot(d, dip[i].xyz), -1., 1.)); float tw = .85 + .15*sin(t*(1.7 + float(i)*.37) + float(i)*2.1);
+          st += vec3(1., .97, .92)*dip[i].w*tw*(1. + zm)*(smoothstep(.0028, 0., a)*1.6 + exp(-a*a/(.0045*.0045))*.5 + exp(-a*a/(.012*.012))*.06); }
         if(q > 1.5) st += stars(d, 380., .12 + .55*band, .18);
         // la lune et le halo autour d'elle ; près de la lune, les étoiles pâlissent
         float md = acos(clamp(dot(d, moon), -1., 1.)), mR = .035;
@@ -15989,7 +15997,7 @@ window.SalleSky = function(S, THREE, C){
   const len = top.distanceTo(bot), beam = new THREE.Mesh(new THREE.CylinderGeometry(1.9, 1.3, len, 48, 1, true), beamMat);
   beam.position.copy(top).add(bot).multiplyScalar(.5); beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), top.clone().sub(bot).normalize()); root.add(beam);
   beam.onBeforeRender = () => { beamMat.uniforms.t.value = now(); };
-  S.sky = {mat: skyMat, moonL, beam, moonDir: MOON.clone(), frame, glass: gl};
+  S.sky = {mat: skyMat, moonL, beam, moonDir: MOON.clone(), dipDir: DIP.reduce((v, p) => v.add(new THREE.Vector3(p.x, p.y, p.z)), new THREE.Vector3()).normalize(), frame, glass: gl};
   return S.sky;
 };
 
@@ -16431,7 +16439,9 @@ window.SalleDecor = function(S, THREE, K, M, C){
   safe("telescope", () => {
     const [x, z] = pol(deg(157.5), R - 1.25), g = new THREE.Group(); g.position.set(x, 0, z); g.lookAt(0, 0, 0); root.add(g);
     const tf = fitG("d_telescope", 1.1, 1.65); if(tf){ tf.rotation.y = 2.2; g.add(tf); obst(x, z, .5);
-      if(S.addProp) S.addProp(g, {nm: "Le télescope", hint: "Regarde la Lune !", verb: "regarder dans", snd: "scope", act: S2 => { if(S2.sky && S2.startScope) S2.startScope(S2.sky.moonDir); setTimeout(() => S2.alive && S2.speak("La Lune est à environ 384 000 km. La lumière met à peine plus d'une seconde pour venir jusqu'ici !", 6), 1300); }}); return; }
+      if(S.addProp) S.addProp(g, {nm: "Le télescope", hint: "Regarde le ciel !", verb: "regarder dans", snd: "scope", act: S2 => { const n = S2.scopeN = (S2.scopeN || 0) + 1, star = n % 2 === 0 && S2.sky && S2.sky.dipDir;
+        if(S2.sky && S2.startScope) S2.startScope(star ? S2.sky.dipDir : S2.sky.moonDir, star ? 58 : 6);
+        setTimeout(() => S2.alive && S2.speak(star ? "Sept étoiles en forme de casserole : c'est la Grande Ourse ! Elle aide à trouver l'étoile Polaire, qui indique le nord." : "La Lune est à environ 384 000 km. La lumière met à peine plus d'une seconde pour venir jusqu'ici !", 6), 1300); }}); return; }
     const legGeo = new THREE.CylinderGeometry(.02, .03, 1.12, 8);
     for(let i=0;i<3;i++){ const a = i/3*TAU, l = mk(legGeo, woodDark, Math.cos(a)*.24, .52, Math.sin(a)*.24, g); l.rotation.set(-Math.sin(a)*.42, 0, Math.cos(a)*.42); }
     mk(new THREE.CylinderGeometry(.06, .06, .08, 16), brass, 0, 1.06, 0, g);
@@ -17024,7 +17034,7 @@ window.SalleTrophees = (function(){
       const sz = b.getSize(new THREE.Vector3()), c = b.getCenter(new THREE.Vector3()), px = new THREE.Mesh(new THREE.BoxGeometry(Math.max(sz.x, .35), Math.max(sz.y, .35), Math.max(sz.z, .35)), S.propMat);
       px.position.copy(c); px.userData.prop = info; info.obj = obj; S.scene.add(px); S.props.push(px); return px; }catch(e){ return null; } };
     S.speak = (text, sec) => speakText(S, text, sec);
-    S.openBook = () => openBook(S); S.startScope = d => startScope(S, d); S.sound = k => snd(S, k);
+    S.openBook = () => openBook(S); S.startScope = (d, f) => startScope(S, d, f); S.sound = k => snd(S, k);
     S.toggleMusic = () => { const b = S.ui && S.ui.querySelector('[data-a=music]'); if(b) b.click(); return !!S.opts.music; };
     host.innerHTML = ""; host.classList.add("st-host");
     const canvas = document.createElement("canvas"); canvas.className = "st-canvas"; host.appendChild(canvas);
@@ -17059,7 +17069,7 @@ window.SalleTrophees = (function(){
       S.yaw -= mx*k; S.pitch = Math.max(-1.3, Math.min(1.3, S.pitch - my*k)); applyLook(S); };
     document.addEventListener("mousemove", S.onLook);
     pl.addEventListener("lock", () => hint(S));
-    pl.addEventListener("unlock", () => { if(S.alive) setTimeout(() => S.alive && hint(S), 0); if(S.alive && S.mode === "walk" && !S.dragLook && !S.inspect) setMode(S, "visit"); });
+    pl.addEventListener("unlock", () => { if(S.alive) setTimeout(() => S.alive && hint(S), 0); if(S.alive && S.mode === "walk" && !S.dragLook && !S.inspect && !S.book) setMode(S, "visit"); });
     // rendu final : bloom + vignette
     const comp = new X_.EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, {type: THREE.HalfFloatType, samples: S.quality > 1 ? 4 : 0})); S.comp = comp;
     comp.addPass(new X_.RenderPass(scene, cam));
@@ -17359,19 +17369,19 @@ window.SalleTrophees = (function(){
   function factCard(S, title, text){ const el = S.ui && S.ui.querySelector(".st-fact"); if(!el) return; el.innerHTML = (title ? `<b>${esc(title)}</b>` : "") + `<span>${esc(text)}</span>`;
     el.hidden = false; el.classList.remove("in"); void el.offsetWidth; el.classList.add("in"); clearTimeout(S._fact); S._fact = setTimeout(() => { if(S.alive) el.hidden = true; }, 5200); }
   // regarder dans le télescope : la caméra vise la lune, avec un cache rond
-  function startScope(S, dir){ if(S.scope || S.inspect) return; const THREE = T(); const cam = S.cam;
+  function startScope(S, dir, fov){ if(S.scope || S.inspect) return; const THREE = T(); const cam = S.cam;
     const q1 = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().lookAt(cam.position, cam.position.clone().add(dir), new THREE.Vector3(0, 1, 0)));
-    S.scope = {t: 0, dur: 7, q0: cam.quaternion.clone(), q1, fov0: cam.fov}; if(S.pl) { S.scope.ps = S.pl.pointerSpeed; S.pl.pointerSpeed = 0; }
+    S.scope = {t: 0, dur: 7, q0: cam.quaternion.clone(), q1, fov0: cam.fov, fov1: fov || 6}; if(S.pl) { S.scope.ps = S.pl.pointerSpeed; S.pl.pointerSpeed = 0; }
     const el = S.ui.querySelector(".st-scope"); el.hidden = false; el.classList.remove("on"); void el.offsetWidth; el.classList.add("on"); }
   function scopeTick(S, dt){ const sc = S.scope, cam = S.cam; sc.t += dt; const end = sc.cancel ? Math.min(sc.dur, sc.t + .01) : sc.dur;
     if(sc.cancel && !sc.out){ sc.out = sc.t; } const tin = Math.min(1, sc.t/1.1), tout = sc.out != null ? Math.min(1, (sc.t - sc.out)/.7) : (sc.t > sc.dur ? Math.min(1, (sc.t - sc.dur)/.7) : 0);
     const k = Math.max(0, tin - tout), e = k*k*(3 - 2*k);
-    cam.quaternion.copy(sc.q0).slerp(sc.q1, e); cam.fov = sc.fov0 + (6 - sc.fov0)*e; cam.updateProjectionMatrix();
+    cam.quaternion.copy(sc.q0).slerp(sc.q1, e); cam.fov = sc.fov0 + (sc.fov1 - sc.fov0)*e; cam.updateProjectionMatrix();
     const el = S.ui.querySelector(".st-scope"); el.style.opacity = Math.min(1, e*1.4);
     // dans la lunette : plus d'armature de verrière devant la Lune, plus de détails, moins d'éblouissement
-    const sk = S.sky; if(sk){ const inn = e > .55; if(sk.frame) sk.frame.visible = !inn; if(sk.glass) sk.glass.visible = !inn; if(sk.mat && sk.mat.uniforms.zm) sk.mat.uniforms.zm.value = e; }
+    const sk = S.sky; if(sk){ const inn = e > .55; if(sk.frame) sk.frame.visible = !inn; if(sk.glass) sk.glass.visible = !inn; if(S.dust) S.dust.visible = !inn; if(sk.mat && sk.mat.uniforms.zm) sk.mat.uniforms.zm.value = e; }
     if(S.bloom){ if(sc.bl == null) sc.bl = S.bloom.strength; S.bloom.strength = sc.bl*(1 - .75*e); }
-    if(tout >= 1){ if(sk){ if(sk.frame) sk.frame.visible = true; if(sk.glass) sk.glass.visible = true; if(sk.mat && sk.mat.uniforms.zm) sk.mat.uniforms.zm.value = 0; } if(S.bloom && sc.bl != null) S.bloom.strength = sc.bl; cam.quaternion.copy(sc.q0); cam.fov = sc.fov0; cam.updateProjectionMatrix(); el.hidden = true; el.classList.remove("on"); if(S.pl && sc.ps != null) S.pl.pointerSpeed = sc.ps; S.scope = null; } }
+    if(tout >= 1){ if(sk){ if(sk.frame) sk.frame.visible = true; if(sk.glass) sk.glass.visible = true; if(S.dust) S.dust.visible = true; if(sk.mat && sk.mat.uniforms.zm) sk.mat.uniforms.zm.value = 0; } if(S.bloom && sc.bl != null) S.bloom.strength = sc.bl; cam.quaternion.copy(sc.q0); cam.fov = sc.fov0; cam.updateProjectionMatrix(); el.hidden = true; el.classList.remove("on"); if(S.pl && sc.ps != null) S.pl.pointerSpeed = sc.ps; S.scope = null; } }
   // le livre d'or : la liste des trophées gagnés, avec leur date
   function openBook(S){ const box = S.ui.querySelector(".st-book"); const tr = S.opts.trophies, got = tr.filter(t => t.got);
     const rows = got.slice().sort((a, b) => (b.rank || 0) - (a.rank || 0)).map(t => `<li><i style="background:${t.col}"></i><b>${esc(t.nm)}</b><span>${esc(t.rarNm || "")}${t.date ? " · " + esc(t.date) : ""}</span></li>`).join("");
@@ -17379,7 +17389,7 @@ window.SalleTrophees = (function(){
       <ol>${rows || "<li class='none'>Ton premier trophée t'attend…</li>"}</ol><button class="st-pill on" data-b="close">Fermer le livre</button></div>`;
     box.hidden = false; box.classList.remove("in"); void box.offsetWidth; box.classList.add("in"); S.book = true; if(S.pl && S.pl.isLocked) try{ S.pl.unlock(); }catch(e){}
     box.querySelector("[data-b=close]").onclick = () => closeBook(S); }
-  function closeBook(S){ const box = S.ui.querySelector(".st-book"); box.hidden = true; S.book = false; }
+  function closeBook(S){ const box = S.ui.querySelector(".st-book"); box.hidden = true; S.book = false; if(S.mode === "walk"){ lockPL(S); hint(S); } }
   function petRay(S, e){   // vrai si la souris est sur le compagnon (et pas sur un trophée devant lui)
     if(!S.pet || !S.pet.wrap.visible) return false; const r = S.renderer.domElement.getBoundingClientRect(); S.ptr.set(((e.clientX - r.left)/r.width)*2 - 1, -((e.clientY - r.top)/r.height)*2 + 1);
     S.ray.setFromCamera(S.ptr, S.cam); const h = S.ray.intersectObject(S.pet.wrap, true).find(x => x.object.isMesh); if(!h) return false;
@@ -17405,6 +17415,8 @@ window.SalleTrophees = (function(){
     else if(S.mode === "visit"){ S.orbit.update(); const p = S.cam.position, r = Math.hypot(p.x, p.z); if(r > R_WALL - .6){ p.x *= (R_WALL-.6)/r; p.z *= (R_WALL-.6)/r; } p.y = Math.max(p.y, floorY(p.x, p.z) + .35); p.y = Math.min(p.y, H_WALL + 2); }
     else if(S.mode === "walk" && !S.inspect) walkStep(S, dt, t);
     if(S.ambient && S.mode === "walk" && !S.inspect) ambientTick(S, dt);
+    // la nuit, de temps en temps, une chouette au loin (derrière la verrière)
+    if(!S.inspect){ S.hootT = (S.hootT == null ? 30 : S.hootT) - dt; if(S.hootT <= 0){ S.hootT = 45 + Math.random()*45; snd(S, "hoot", {pan: Math.random()*1.4 - .7}); } }
     if(S.mode === "walk"){ const a = S.ui.querySelector(".st-aim"), tr = S.inspect || S.scope || S.book ? null : aimed(S), pr = tr || S.inspect || S.scope || S.book ? null : aimedProp(S); a.hidden = !tr && !pr;
       if(tr) a.innerHTML = tr.got ? `<b>${esc(tr.nm)}</b> · <kbd>E</kbd> inspecter` : `Trophée à gagner · <kbd>E</kbd> voir`; else if(pr) a.innerHTML = `<b>${esc(pr.nm)}</b> · <kbd>E</kbd> ${esc(pr.verb || "regarder")}`; }
     if(S.burstAt){ S.burstAt.t -= dt; if(S.burstAt.t <= 0){ const P = S.burstAt.P; S.burstAt = null; if(S.burst) S.burst.t = 99, burstTick(S, 0); burst(S, P); } }
@@ -27024,6 +27036,11 @@ function salleSound(k, a){
       if(k==="tick"){ const o = ac.createOscillator(), g = ac.createGain(); o.type = "square"; o.frequency.value = 3100; g.gain.setValueAtTime(.012, t); g.gain.exponentialRampToValueAtTime(.0004, t + .025); o.connect(g).connect(bus); o.start(t); o.stop(t + .03); }
       else if(noiseBuf){ const R = Math.random, n = 1 + (R()*3|0); for(let i=0;i<n;i++){ const at = t + i*(.015 + R()*.05), s = ac.createBufferSource(), f = ac.createBiquadFilter(), g = ac.createGain(); s.buffer = noiseBuf; s.playbackRate.value = .7 + R()*.8; f.type = "bandpass"; f.frequency.value = 1200 + R()*3000; f.Q.value = 1.2; g.gain.setValueAtTime(.05 + R()*.06, at); g.gain.exponentialRampToValueAtTime(.0005, at + .02 + R()*.05); s.connect(f).connect(g).connect(bus); s.start(at, R()*.35); s.stop(at + .1); } }
       setTimeout(() => { try{ out.disconnect(); if(out !== bus) bus.disconnect(); }catch(e){} }, 400); }
+    else if(k==="hoot"){ const pan = (a && a.pan) || 0, t = ac.currentTime + .01, bus = ac.createGain(); bus.gain.value = .5; let out = bus; if(ac.createStereoPanner){ const pn = ac.createStereoPanner(); pn.pan.value = pan; bus.connect(pn); out = pn; } out.connect(master);
+      const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 900; lp.connect(bus);
+      [[0, .32, 410, 380], [.5, .75, 400, 350]].forEach(([d, dur, f1, f2]) => { const o = ac.createOscillator(), g = ac.createGain(), lfo = ac.createOscillator(), lg = ac.createGain(); o.type = "sine"; o.frequency.setValueAtTime(f1, t + d); o.frequency.exponentialRampToValueAtTime(f2, t + d + dur);
+        lfo.frequency.value = 7; lg.gain.value = 6; lfo.connect(lg).connect(o.frequency); g.gain.setValueAtTime(0, t + d); g.gain.linearRampToValueAtTime(.05, t + d + .06); g.gain.exponentialRampToValueAtTime(.0005, t + d + dur); o.connect(g).connect(lp); o.start(t + d); lfo.start(t + d); o.stop(t + d + dur + .05); lfo.stop(t + d + dur + .05); });
+      setTimeout(() => { try{ out.disconnect(); if(out !== bus) bus.disconnect(); }catch(e){} }, 1600); }
     else if(k==="coins"){ const R = Math.random; for(let i=0;i<6;i++){ const f = 2100 + R()*900; blip(f, f*.98, .14, "triangle", .028, i*.055 + R()*.02); blip(f*1.5, f*1.48, .1, "sine", .012, i*.055 + .01); } }
   }catch(e){}
 }
@@ -27043,10 +27060,10 @@ function renderSalle(focusId){
     requestAnimationFrame(() => requestAnimationFrame(() => { ld.classList.add("out"); setTimeout(() => { ld.hidden = true; ld.classList.remove("out"); }, 700); })); };
     /* les figurines 3D (fichiers modeles/*.js à côté de l'appli) se chargent d'abord ; au pire on ouvre sans elles au bout de 40 s */
     let done = false; const once = () => { if(!done){ done = true; go(); } };
-    const sm = ld.querySelector("small"), sm0 = sm ? sm.textContent : "";
-    const prog = (k, n) => { if(sm && n > 4) sm.textContent = `Les figurines arrivent… ${Math.round(k/n*100)} %`; };
+    const sm = ld.querySelector("small"), sm0 = sm ? sm.textContent : "", bar = ld.querySelector(".sl-bar"); if(bar){ bar.hidden = true; bar.firstChild.style.width = "0"; }
+    const prog = (k, n) => { if(sm && n > 4){ sm.textContent = `Les figurines arrivent… ${Math.round(k/n*100)} %`; if(bar){ bar.hidden = false; bar.firstChild.style.width = Math.round(k/n*100) + "%"; } } };
     try{ (window.SALLE_GLB && SALLE_GLB.ready ? SALLE_GLB.ready(prog) : Promise.resolve()).then(once, once); }catch(e){ once(); }
-    setTimeout(once, 40000); setTimeout(() => { if(sm) sm.textContent = sm0; }, 41000); }, 80);
+    setTimeout(once, 40000); setTimeout(() => { if(sm) sm.textContent = sm0; if(bar){ bar.hidden = true; bar.firstChild.style.width = "0"; } }, 41000); }, 80);
 }
 function salleFallback(tr, failed){
   const fb = $("salle-fallback"), host = $("salle-host"), n = tr.filter(t => t.got).length; fb.hidden = false; host.hidden = true; host.innerHTML = ""; $("salle-load").hidden = true;
