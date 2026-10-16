@@ -143,8 +143,10 @@ def traiter(chemin, nom, typ="objet", sortie=".", tailles=None, fond="auto", mar
             # la couleur réellement rendue (JPEG, « vert » de Gemini ≈ (8,246,3)) diffère un peu de la couleur demandée :
             # si la bordure est unie et proche, on prend la couleur mesurée, sinon tout le fond garde un voile d'alpha
             # (Gemini sort parfois un vert bien plus sombre, (9,180,26) : on accepte toute couleur de même famille,
-            #  c'est-à-dire mêmes canaux dominant et minoritaire, à moins de 130 de distance)
-            if Km is not None and np.linalg.norm(Km - K) < 130 and np.argmax(Km) == np.argmax(K) and np.argmin(Km) == np.argmin(K): K = Km
+            #  c'est-à-dire même canal dominant, à moins de 130 de distance ; pour le magenta, le canal dominant est
+            #  rouge ou bleu : on compare le canal minoritaire à la place)
+            meme_famille = (np.argmin(Km) == np.argmin(K)) if (K.max() == K.min() or np.sort(K)[1] == K.max()) else (np.argmax(Km) == np.argmax(K))
+            if Km is not None and np.linalg.norm(Km - K) < 130 and meme_famille: K = Km
         if K is None:
             detoure = False; info["avertissement"] = "fond non uni : pas de détourage (redemander l'image sur un fond uni, ou --fond #RRGGBB)"
     if detoure:
