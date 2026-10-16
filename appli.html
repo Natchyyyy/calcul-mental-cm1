@@ -20932,7 +20932,9 @@ function ensureAudio(){
   if(ac){ if(ac.state==="suspended") ac.resume().catch(()=>{}); return true; }
   try{
     ac = new (window.AudioContext||window.webkitAudioContext)();
-    master = ac.createGain(); master.gain.value = 1; master.connect(ac.destination);
+    master = ac.createGain(); master.gain.value = 1;
+    // limiteur de sécurité : quand plusieurs sons et la musique s'additionnent, pas de saturation (son « sale »)
+    try{ const lim = ac.createDynamicsCompressor(); lim.threshold.value = -3; lim.knee.value = 3; lim.ratio.value = 20; lim.attack.value = .001; lim.release.value = .12; master.connect(lim).connect(ac.destination); }catch(e){ master.connect(ac.destination); }
     noiseBuf = ac.createBuffer(1, Math.floor(ac.sampleRate*0.5), ac.sampleRate);
     const ch = noiseBuf.getChannelData(0); for(let i=0;i<ch.length;i++) ch[i]=Math.random()*2-1;
     sampLoad();
