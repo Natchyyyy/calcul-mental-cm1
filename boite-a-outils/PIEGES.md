@@ -71,3 +71,13 @@
   (`fmin`). Et un enregistrement fait dans une pièce qui résonne se compare à la synthèse **avec** sa pièce.
 - Sur béton, la dalle ne vibre presque pas : ce qu'on entend, c'est la chaussure et le choc. Ne pas forcer un modèle de
   planches : changer de modèle physique quand la matière change.
+
+## Images générées par IA (visuels/images)
+- Le conteneur ne joint pas l'API de Gemini : passer par le navigateur où l'utilisateur est connecté (Gemini refuse de
+  créer des images sans compte). Ne jamais saisir de mot de passe : c'est l'utilisateur qui se connecte.
+- Les images d'une page ne se lisent pas par JavaScript (protection du navigateur, adresses à jetons masquées) :
+  utiliser le bouton de téléchargement du site, puis le dossier Téléchargements via l'ordinateur relié.
+- Toujours demander un fond **uni** (vert pur, ou magenta si le sujet est vert) : c'est ce qui permet un détourage propre.
+- Estimer le bruit du fond sur les seuls pixels de fond (un buste touche souvent le bord de l'image).
+- Pixel art : calculer la palette sur les pixels visibles seulement (sinon le fond enlevé « teinte » le sujet).
+- Ne pas lancer de génération (ni dépenser de crédits Meshy) sans que l'utilisateur l'ait demandé.

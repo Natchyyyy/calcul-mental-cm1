@@ -1,0 +1,7 @@
+{
+ "nom": "Pixel art 16 bits",
+ "style": "16-bit pixel art style, crisp hard pixel edges, no anti-aliasing",
+ "palette": "limited 24-color palette",
+ "eclairage": "simple top-left light",
+ "ajouts": "readable silhouette at 32x32"
+}
