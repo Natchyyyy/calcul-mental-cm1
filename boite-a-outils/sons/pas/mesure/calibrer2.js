@@ -1,6 +1,7 @@
 // Calibration conjointe (sep-CMA-ES) : les constantes du moteur sont communes, chaque cible a ses propres réglages.
 // usage : node calibrer2.js config.json sortie.json [generations]
-// config : { globales: {NOM: [min, max], …}, cibles: [{ cible, preset, cles: [...], depart: {…} }, …], depart_globales: {…} }
+// config : { globales: {NOM: [min, max], …}, cibles: [{ cible, preset, base: {…}, cles: [...], depart: {…}, piece: bool }, …], depart_globales: {…} }
+//   piece: true = la synthèse est entendue avec sa pièce (pour un enregistrement fait dans une pièce qui résonne)
 const fs = require("fs"), Pas = require(process.env.PASJS || require("path").join(__dirname, "..", "pas.js")), { mesurerGroupe, ecart } = require("./calibrer.js");
 const [cfgF, outF, genS] = process.argv.slice(2), cfg = JSON.parse(fs.readFileSync(cfgF)), GEN = +(genS || 150);
 const info = Object.fromEntries(Pas.PARAMS.map(p => [p[0], p]));
@@ -18,7 +19,7 @@ const decode = u => { const G = {}, Ps = cfg.cibles.map(c => Object.assign({}, c
 function f(u) {
   const { G, Ps } = decode(u); Pas._calib(G); let tot = 0, pen = 0;
   for (let j = 0; j < n; j++) { if (u[j] < 0) pen += u[j] * u[j] * 50; if (u[j] > 1) pen += (u[j] - 1) ** 2 * 50; }
-  const parts = cfg.cibles.map((c, i) => ecart(mesurerGroupe(Ps[i], c.n || 6), c.T)); for (const p of parts) tot += p;
+  const parts = cfg.cibles.map((c, i) => ecart(mesurerGroupe(Ps[i], c.n || 6, 100, !!c.piece), c.T)); for (const p of parts) tot += p;
   return { f: tot / parts.length + pen, parts };
 }
 // départ

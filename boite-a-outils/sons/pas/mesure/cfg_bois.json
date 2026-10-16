@@ -1,5 +1,5 @@
 {
- "_note": "Calibration conjointe du moteur sur 3 groupes de vrais pas sur bois. Depuis ce dossier : node calibrer2.js cfg_bois.json sortie.json 150, puis python3 reglages_bois.py sortie.json, puis node ../tests/test_pas.js. Le départ est l'état actuel du moteur (constantes) et des réglages calés (presets).",
+ "_note": "Calibration conjointe du moteur sur 3 groupes de vrais pas sur bois. Depuis ce dossier : node calibrer2.js cfg_bois.json sortie.json 150, puis python3 reglages.py --bois sortie.json, puis node ../tests/test_pas.js. Le départ est l'état actuel du moteur (constantes) et des réglages calés (presets).",
  "globales": {
   "TILT": [
    0,

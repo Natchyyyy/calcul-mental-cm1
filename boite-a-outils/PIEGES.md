@@ -66,3 +66,8 @@
   diffusion à chaque rebond (gain et signe aléatoires, petit décalage).
 - Dans un jeu, calculer les pas dans un **Worker** (`Pas.__fabrique.toString()` dans un Blob) et garder une réserve de
   variantes, avec un secours synchrone si la réserve est vide (sinon le premier pas de course est muet).
+- Un vrai enregistrement peut contenir un **grondement de micro** (vent, manipulation) sous 100 Hz qui fausse tout,
+  jusqu'au repérage du début du pas : regarder la forme d'onde, filtrer (`mesures.py --passe-haut 90`), ignorer ces bandes
+  (`fmin`). Et un enregistrement fait dans une pièce qui résonne se compare à la synthèse **avec** sa pièce.
+- Sur béton, la dalle ne vibre presque pas : ce qu'on entend, c'est la chaussure et le choc. Ne pas forcer un modèle de
+  planches : changer de modèle physique quand la matière change.

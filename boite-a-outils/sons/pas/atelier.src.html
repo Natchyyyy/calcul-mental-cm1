@@ -14,6 +14,7 @@
   --accent: #0b6e66;     /* vert-bleu de vernis à l'huile */
   --accent-ink: #f4f5f1;
   --wood-a: #b98a57; --wood-b: #9c6c3d; --wood-gap: #4a3420;
+  --beton-a: #a9a8a1; --beton-b: #8f8e87; --beton-joint: #6e6d67;
   --spec0: #f4f5f1; --spec1: #9fc9c2; --spec2: #0b6e66; --spec3: #23201b;
   --wave: #23201b;
   --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
@@ -24,12 +25,14 @@
   --bg: #161a18; --panel: #1f2421; --ink: #e8e6df; --mute: #a3a69c; --line: #343a36;
   --accent: #5cc4b5; --accent-ink: #10201d;
   --wood-a: #8a6440; --wood-b: #6d4b2c; --wood-gap: #1a120b;
+  --beton-a: #5e5d58; --beton-b: #4c4b47; --beton-joint: #2e2d2a;
   --spec0: #1f2421; --spec1: #1d5a52; --spec2: #5cc4b5; --spec3: #f6f1d9; --wave: #e8e6df;
   color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #161a18; --panel: #1f2421; --ink: #e8e6df; --mute: #a3a69c; --line: #343a36;
   --accent: #5cc4b5; --accent-ink: #10201d;
   --wood-a: #8a6440; --wood-b: #6d4b2c; --wood-gap: #1a120b;
+  --beton-a: #5e5d58; --beton-b: #4c4b47; --beton-joint: #2e2d2a;
   --spec0: #1f2421; --spec1: #1d5a52; --spec2: #5cc4b5; --spec3: #f6f1d9; --wave: #e8e6df;
   color-scheme: dark }
 * { box-sizing: border-box }
@@ -94,6 +97,8 @@ details .sliders { display: grid; gap: 14px; padding: 0 14px 16px }
 .sl input { grid-column: 1 / -1; width: 100%; accent-color: var(--accent) }
 .sl .aide { grid-column: 1 / -1; color: var(--mute); font-size: .8rem; line-height: 1.35 }
 .sl.change label::after { content: " •"; color: var(--accent) }
+.choix { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap }
+.choix button { padding: 8px 14px; font-size: .88rem }
 
 textarea { width: 100%; min-height: 84px; resize: vertical; font: .78rem/1.4 var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px }
 .toast { color: var(--accent); font-size: .85rem; min-height: 1.2em }
@@ -102,7 +107,7 @@ textarea { width: 100%; min-height: 84px; resize: vertical; font: .78rem/1.4 var
 
 <div class="wrap">
   <header>
-    <h1>Atelier de pas<small>Des bruits de pas fabriqués de zéro par un modèle physique : le talon qui écrase le sol, les planches qui vibrent, la pièce qui répond. Les réglages marqués « calé » ont été ajustés automatiquement sur de vrais enregistrements.</small></h1>
+    <h1>Atelier de pas<small>Des bruits de pas fabriqués de zéro par un modèle physique : le talon qui écrase le sol, les planches qui vibrent, la pièce qui répond. Bois et béton. Les réglages marqués « calé » ont été ajustés automatiquement sur de vrais enregistrements.</small></h1>
   </header>
 
   <div class="cols">
@@ -133,12 +138,14 @@ textarea { width: 100%; min-height: 84px; resize: vertical; font: .78rem/1.4 var
 
       <section class="box" aria-label="Vrai ou synthèse">
         <span class="label">Vrai ou synthèse ?</span>
-        <p class="hint">Compare à l'oreille un vrai pas enregistré et le réglage calé dessus (joué sans écho, comme l'enregistrement). Enregistrements libres de droits (CC0) : kretopi sur Freesound et Kenney.</p>
+        <p class="hint">Compare à l'oreille un vrai pas enregistré et le réglage calé dessus (joué sans écho, comme l'enregistrement). Enregistrements libres : kretopi (Freesound, CC0), Kenney (CC0), et « Footsteps, Concrete, A » d'InspectorJ (www.jshaw.co.uk, Freesound, CC BY 4.0), filtré sous 90 Hz. La cave en béton est jouée avec son écho, car l'enregistrement en a un.</p>
         <div class="vs">
           <span>Vieux plancher massif</span>
           <button type="button" data-vrai="kretopi">Vrai pas</button><button type="button" data-synth="Vieux plancher massif">Synthèse</button>
           <span>Parquet fin, semelles souples</span>
           <button type="button" data-vrai="kenney">Vrai pas</button><button type="button" data-synth="Parquet fin, semelles souples">Synthèse</button>
+          <span>Cave en béton, talons</span>
+          <button type="button" data-vrai="inspectorj">Vrai pas</button><button type="button" data-synth="Cave en béton, talons" data-piece="1">Synthèse</button>
         </div>
       </section>
 
@@ -238,8 +245,16 @@ function arreter() { if (walk) { clearInterval(walk.timer); walk = null; } $("bB
 // ---------- le plancher dessiné ----------
 const cv = $("plancher"), cx = cv.getContext("2d"); let grain = null, ripples = [];
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-function grainCanvas(w, h) {   // veinage : quelques lignes ondulées par planche, graine fixe
+function grainCanvas(w, h) {   // veinage : quelques lignes ondulées par planche, graine fixe (ou une dalle de béton mouchetée)
   const c = document.createElement("canvas"); c.width = w; c.height = h; const g = c.getContext("2d"), r = Pas.rng(7);
+  if (P.matiere >= 0.5) {
+    g.fillStyle = css("--beton-a"); g.fillRect(0, 0, w, h);
+    for (let i = 0; i < w * h / 60; i++) { g.fillStyle = r() < 0.5 ? css("--beton-b") : css("--beton-joint"); g.globalAlpha = 0.25 + 0.5 * r(); const q = 1 + 2 * r(); g.fillRect(r() * w, r() * h, q, q); }
+    g.globalAlpha = 1; g.fillStyle = css("--beton-joint"); const t = Math.max(2, h / 120);
+    for (let k = 1; k < 5; k++) g.fillRect(0, k * h / 5 - t / 2, w, t);          // joints de dalle
+    for (let k = 1; k < 3; k++) g.fillRect(k * w / 3, 0, t, h);
+    return c;
+  }
   const n = 5, ph = h / n;
   for (let k = 0; k < n; k++) {
     const y0 = k * ph; g.fillStyle = k % 2 ? css("--wood-b") : css("--wood-a"); g.fillRect(0, y0, w, ph);
@@ -324,7 +339,7 @@ function dessiner(y, sr) {
 
 // ---------- curseurs ----------
 const sliders = {};
-function fmt(p, v) { const step = p[5]; const d = step >= 1 ? 0 : step >= 0.05 ? 2 : 2; return (+v).toFixed(d).replace(".", ",") + (p[7] ? " " + p[7] : ""); }
+function fmt(p, v) { if (p[9]) return p[9][Math.round(+v)] || ""; const step = p[5]; const d = step >= 1 ? 0 : 2; return (+v).toFixed(d).replace(".", ",") + (p[7] ? " " + p[7] : ""); }
 function construire() {
   const R = $("reglages");
   for (const [g, titre] of Object.entries(Pas.GROUPES)) {
@@ -333,6 +348,11 @@ function construire() {
     const S = d.querySelector(".sliders");
     for (const p of Pas.PARAMS.filter(p => p[1] === g)) {
       const el = document.createElement("div"); el.className = "sl"; const id = "p-" + p[0];
+      if (p[9]) {   // réglage à choix (ex. bois / béton) : des boutons plutôt qu'un curseur
+        el.innerHTML = `<label for="${id}"></label><output for="${id}"></output><input id="${id}" type="range" min="${p[3]}" max="${p[4]}" step="${p[5]}" hidden><div class="choix" role="group"></div><span class="aide"></span>`;
+        p[9].forEach((nom, v) => { const b = document.createElement("button"); b.type = "button"; b.textContent = nom; b.dataset.v = v;
+          b.addEventListener("click", () => { const inp = el.querySelector("input"); inp.value = v; inp.dispatchEvent(new Event("input")); }); el.querySelector(".choix").appendChild(b); });
+      } else
       el.innerHTML = `<label for="${id}"></label><output for="${id}"></output><input id="${id}" type="range" min="${p[3]}" max="${p[4]}" step="${p[5]}">${p[8] ? '<span class="aide"></span>' : ""}`;
       el.querySelector("label").textContent = p[2]; if (p[8]) el.querySelector(".aide").textContent = p[8];
       const inp = el.querySelector("input"), out = el.querySelector("output");
@@ -343,13 +363,19 @@ function construire() {
   }
 }
 function majSliders() { for (const [k, s] of Object.entries(sliders)) { s.inp.value = P[k]; s.out.textContent = fmt(s.p, P[k]); } majEtat(); }
+function majMatiere() {   // en béton, les curseurs propres aux planches n'ont pas de sens : on les cache
+  const b = P.matiere >= 0.5; for (const k of Pas.BOIS_SEULEMENT) if (sliders[k]) sliders[k].el.hidden = b;
+  if (majMatiere.b !== b) { majMatiere.b = b; grain = null; taille(); }
+  const c = sliders.matiere; if (c) c.el.querySelectorAll(".choix button").forEach(x => x.setAttribute("aria-pressed", String(+x.dataset.v === Math.round(P.matiere)))); }
 function differences() { const base = Pas.preset(presetNom), d = {}; for (const p of Pas.PARAMS) if (Math.abs(P[p[0]] - base[p[0]]) > 1e-9) d[p[0]] = +(+P[p[0]]).toFixed(4); return d; }
 function majEtat() {
   const base = Pas.preset(presetNom), d = differences();
   for (const [k, s] of Object.entries(sliders)) s.el.classList.toggle("change", Math.abs(P[k] - base[k]) > 1e-9);
+  majMatiere();
   $("json").value = JSON.stringify({ moteur: "Pas.js " + Pas.version, depart: presetNom, changements: d });
   clearTimeout(majEtat.t); majEtat.t = setTimeout(() => {   // fiche physique (un peu de calcul : on attend que le curseur s'arrête)
-    const f = Pas.fiche(P); $("fiche").innerHTML = `Contact du talon <b>${f.contactMs.toFixed(1).replace(".", ",")} ms</b> · planche <b>${Math.round(f.planchHz)} Hz</b> · écho de la pièce <b>${f.echoS.toFixed(2).replace(".", ",")} s</b>`;
+    const f = Pas.fiche(P), res = f.matiere === "béton" ? `chaussure <b>${Math.round(f.chaussureHz)} Hz</b>` : `planche <b>${Math.round(f.planchHz)} Hz</b>`;
+    $("fiche").innerHTML = `Contact du talon <b>${f.contactMs.toFixed(1).replace(".", ",")} ms</b> · ${res} · écho de la pièce <b>${f.echoS.toFixed(2).replace(".", ",")} s</b>`;
   }, 120);
   store.set("preset", presetNom); store.set("reglages", P);
   for (const b of $("presets").children) b.setAttribute("aria-pressed", b.dataset.nom === presetNom ? "true" : "false");
@@ -380,7 +406,7 @@ async function jouerVrai(k) {
   dessiner(vraisBuf[id].getChannelData(0), vraisBuf[id].sampleRate);
 }
 document.querySelectorAll("[data-vrai]").forEach(b => b.addEventListener("click", () => jouerVrai(b.dataset.vrai)));
-document.querySelectorAll("[data-synth]").forEach(b => b.addEventListener("click", () => { audio(); jouerPas(Pas.preset(b.dataset.synth), ac.currentTime + 0.01, { seed: ++seedCount, force: 1, sec: true }); }));
+document.querySelectorAll("[data-synth]").forEach(b => b.addEventListener("click", () => { audio(); jouerPas(Pas.preset(b.dataset.synth), ac.currentTime + 0.01, { seed: ++seedCount, force: 1, sec: !b.dataset.piece }); }));
 
 // boutons
 $("bUn").addEventListener("click", () => { audio(); jouerPas(P, ac.currentTime + 0.01, { seed: ++seedCount, force: 1 }); });

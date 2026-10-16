@@ -1,0 +1,34 @@
+{
+ "cibles/beton_ij.json": {
+  "matiere": 1,
+  "durete": 1,
+  "claque": 0.4021,
+  "talonF": 818.6,
+  "appui": 0.2789,
+  "pointe": 0.2545,
+  "amorti": 0.9157,
+  "frottement": 0.8768,
+  "poussiere": 0.5407,
+  "longueur": 23.7,
+  "largeur": 7,
+  "hauteur": 2.4,
+  "absorption": 0.6229,
+  "clarte": 0.4817,
+  "mix": 1,
+  "lache": 0,
+  "grince": 0
+ },
+ "cibles/beton_mt.json": {
+  "matiere": 1,
+  "durete": 0.6986,
+  "claque": 0.3143,
+  "talonF": 1392,
+  "appui": 0.9374,
+  "pointe": 0,
+  "amorti": 0,
+  "frottement": 0.7177,
+  "poussiere": 0.2553,
+  "lache": 0,
+  "grince": 0
+ }
+}

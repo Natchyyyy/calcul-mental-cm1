@@ -7,17 +7,17 @@
 /* Une maison vue de dessus : on marche, le sol et l'écho changent selon la pièce ; quelqu'un fait les cent pas dans la taverne. */
 :root {
   --bg: #e6e8e3; --panel: #f4f5f1; --ink: #23201b; --mute: #5f6158; --line: #c9ccc2; --accent: #0b6e66; --accent-ink: #f4f5f1;
-  --z-salon: #c99b68; --z-escalier: #a97d50; --z-taverne: #b58a5c; --z-ponton: #8f7a5c; --eau: #9fb9b6; --mur: #3a3128; --perso: #b8452f;
+  --z-salon: #c99b68; --z-escalier: #a97d50; --z-taverne: #b58a5c; --z-ponton: #8f7a5c; --z-cave: #a9a8a1; --eau: #9fb9b6; --mur: #3a3128; --perso: #b8452f;
   --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
   --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
   --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #161a18; --panel: #1f2421; --ink: #e8e6df; --mute: #a3a69c; --line: #343a36; --accent: #5cc4b5; --accent-ink: #10201d;
-  --z-salon: #7e5f3f; --z-escalier: #664a2e; --z-taverne: #745536; --z-ponton: #5d4f3b; --eau: #2b4744; --mur: #0c0a08; --perso: #e2765f; color-scheme: dark } }
+  --z-salon: #7e5f3f; --z-escalier: #664a2e; --z-taverne: #745536; --z-ponton: #5d4f3b; --z-cave: #5e5d58; --eau: #2b4744; --mur: #0c0a08; --perso: #e2765f; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #161a18; --panel: #1f2421; --ink: #e8e6df; --mute: #a3a69c; --line: #343a36; --accent: #5cc4b5; --accent-ink: #10201d;
-  --z-salon: #7e5f3f; --z-escalier: #664a2e; --z-taverne: #745536; --z-ponton: #5d4f3b; --eau: #2b4744; --mur: #0c0a08; --perso: #e2765f; color-scheme: dark }
+  --z-salon: #7e5f3f; --z-escalier: #664a2e; --z-taverne: #745536; --z-ponton: #5d4f3b; --z-cave: #5e5d58; --eau: #2b4744; --mur: #0c0a08; --perso: #e2765f; color-scheme: dark }
 * { box-sizing: border-box }
 body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--f-body); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px }
 .wrap { max-width: 1000px; margin: 0 auto; display: grid; gap: 14px }
@@ -37,7 +37,7 @@ kbd { font: .8rem var(--f-mono); border: 1px solid var(--line); border-bottom-wi
 
 <div class="wrap">
   <h1>Promenade sonore</h1>
-  <p>Déplace-toi avec <kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd>, <kbd>W</kbd><kbd>A</kbd> ou les flèches (<kbd>Maj</kbd> pour courir), ou garde le doigt / la souris appuyé sur la carte pour marcher vers ce point. Chaque pièce a son sol et son écho. Dans la taverne, quelqu'un en bottes fait les cent pas : écoute-le s'approcher et s'éloigner.</p>
+  <p>Déplace-toi avec <kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd>, <kbd>W</kbd><kbd>A</kbd> ou les flèches (<kbd>Maj</kbd> pour courir), ou garde le doigt / la souris appuyé sur la carte pour marcher vers ce point. Chaque pièce a son sol et son écho : parquet, escalier, taverne, ponton dehors, et une cave en béton sous la taverne (porte en bas). Dans la taverne, quelqu'un en bottes fait les cent pas : écoute-le s'approcher et s'éloigner.</p>
   <div class="row"><button type="button" class="main" id="bSon">Activer le son</button><button type="button" id="bPnj" aria-pressed="true">Le marcheur de la taverne</button></div>
   <canvas id="carte" tabindex="0" aria-label="Carte de la maison"></canvas>
   <div class="hud" role="status"><span><b style="color:var(--accent)">●</b> toi · <b style="color:var(--perso)">●</b> le marcheur</span><span>Pièce : <b id="hZone">—</b></span><span>Sol : <b id="hSol">—</b></span><span>Écho : <b id="hEcho">—</b></span><span>Pas joués : <b id="hPas">0</b></span></div>
@@ -77,6 +77,7 @@ kbd { font: .8rem var(--f-mono); border: 1px solid var(--line); border-bottom-wi
 
   // ---------- les réglages : [clé, groupe, libellé, min, max, pas, défaut, unité, aide] ----------
   const PARAMS = [
+    ["matiere", "sol", "Matière du sol", 0, 1, 1, 0, "", "Bois (planches qui vibrent) ou béton / pierre (dalle rigide : on entend surtout la chaussure)", ["Bois", "Béton"]],
     ["essence", "sol", "Essence du bois", 0, 1, 0.01, 0.75, "", "0 = pin ou sapin (tendre, sourd), 0,75 = chêne, 1 = bois exotique très dur"],
     ["epaisseur", "sol", "Épaisseur des planches", 10, 45, 1, 22, "mm", "Parquet fin ≈ 14 mm, plancher ancien ≈ 25 à 30 mm"],
     ["portee", "sol", "Écart entre les solives", 25, 90, 1, 45, "cm", "Les poutres qui portent les planches : plus elles sont loin, plus c'est grave"],
@@ -105,6 +106,7 @@ kbd { font: .8rem var(--f-mono); border: 1px solid var(--line); border-bottom-wi
     ["mix", "piece", "Quantité d'écho", 0, 2, 0.01, 1, "", "1 = la quantité réelle d'après la pièce et la distance"],
     ["distance", "piece", "Distance", 0, 1, 0.01, 0, "", "0 = tes propres pas (oreilles à 1,6 m), 1 = quelqu'un à l'autre bout de la pièce"],
   ];
+  const BOIS_SEULEMENT = ["essence", "epaisseur", "portee", "support", "lache", "grince", "grinceForce", "grinceHauteur"];
   const GROUPES = { sol: "Le sol", chaussure: "La chaussure", demarche: "La démarche", piece: "La pièce" };
   const DEFAUT = Object.fromEntries(PARAMS.map(p => [p[0], p[6]]));
   let PRESETS = {};   // remplis plus bas
@@ -190,6 +192,8 @@ kbd { font: .8rem var(--f-mono); border: 1px solid var(--line); border-bottom-wi
   // constantes de calibration (ajustées pour coller aux mesures de vrais pas : voir calibrer.js)
   // valeurs trouvées par calibration conjointe sur 13 vrais pas sur bois (3 sources) : voir calibrer2.js, cfg_bois.json
   let TILT = 1.199, CLAQUE = 1.573, BASCULE = 0.5628, CRAQUE = 2.58, CRAQUE_F = 9000, PEAU = 8;   // PEAU : claquement de peau réglé entre bois sec et carrelage mouillé (vrais pas pieds nus : −26 dB à 1–4 kHz)
+  // béton (calées sur de vrais pas sur béton : InspectorJ, Minetest)
+  let BETON_SOL = 1.315, BETON_CORPS = 2.29, BETON_F = 494.1, CRAQUE_B = 4.78, CRAQUE_FB = 3752;
 
   // ---------- un pas ----------
   // o : { force, sr, planche (0…5), pos (0…1), couches (diagnostic) }
@@ -235,11 +239,22 @@ kbd { font: .8rem var(--f-mono); border: 1px solid var(--line); border-bottom-wi
     let F2 = null;
     if (vToe > 0.01) { F2 = contact(m * 0.6, k * 0.5, mu * 1.3, vToe, sr); }
     // 2.+3. réponse du plancher (talon et pointe tombent sur deux points différents)
-    const floor = new Float32Array(N);
-    modal(floor, exc, floorModes(P, plank, xs, ys, sr), sr);
-    if (F2) { const e2 = new Float32Array(N); add(e2, F2, tt, 1); modal(floor, e2, floorModes(P, plank, clamp(xs + 0.22, 0.05, 0.95), clamp(ys + 0.1 * (r() - 0.5), 0.05, 0.95), sr), sr); }
+    const floor = new Float32Array(N), beton = P.matiere >= 0.5;
+    if (beton) {
+      // dalle de béton : ~1000 fois plus lourde par mode qu'une planche, elle ne vibre presque pas (≈ −60 dB).
+      // On entend (a) le choc rayonné par la surface rigide (∝ variation de la force) et (b) le corps de la chaussure
+      // (semelle + tige, quelques résonances 300–2000 Hz très amorties), excité par la force du talon puis de la pointe.
+      const e2 = new Float32Array(N); if (F2) add(e2, F2, tt, 1);
+      for (const e of [exc, e2]) for (let i = 1; i < N; i++) floor[i] += (e[i] - e[i - 1]) * sr * 1e-4 * BETON_SOL;
+      const rr = rng(911 + plank), fb = BETON_F * lerp(0.75, 1.3, P.durete) * (1 + 0.06 * (r() * 2 - 1)), am = lerp(1.6, 0.6, P.amorti);
+      const corps = [[1, 1, 0.024], [1.47, 0.6, 0.016], [2.13, 0.38, 0.011], [3.05, 0.22, 0.008], [4.4, 0.12, 0.005]].map(([k, a, t]) => [fb * k * (1 + 0.04 * (rr() * 2 - 1)), a * BETON_CORPS, t / am]);
+      modal(floor, exc, corps, sr); if (F2) modal(floor, e2, corps.map(q => [q[0] * 1.08, q[1] * 0.8, q[2]]), sr);
+    } else {
+      modal(floor, exc, floorModes(P, plank, xs, ys, sr), sr);
+      if (F2) { const e2 = new Float32Array(N); add(e2, F2, tt, 1); modal(floor, e2, floorModes(P, plank, clamp(xs + 0.22, 0.05, 0.95), clamp(ys + 0.1 * (r() - 0.5), 0.05, 0.95), sr), sr); }
+    }
     // 6a. planche mal fixée : elle retape une ou deux fois juste après
-    if (P.lache > 0 && chance(Math.min(1, P.lache * 1.3), rL)) {
+    if (!beton && P.lache > 0 && chance(Math.min(1, P.lache * 1.3), rL)) {
       const e3 = new Float32Array(N), n3 = chance(P.lache, rL) ? 2 : 1; let t = t0;
       for (let i = 0; i < n3; i++) { t += Math.round((0.006 + 0.02 * rL()) * sr); add(e3, contact(0.4, 2e9, 0.2, vHeel * P.lache * 1.6 * (0.5 + 0.5 * rL()) / (i + 1), sr), t, 1); }
       const rap = new Float32Array(N); modal(rap, e3, floorModes(P, (plank + 3) % 6, rL(), rL(), sr).map(q => [q[0] * 1.35, q[1], q[2] * 0.5]), sr);
@@ -259,9 +274,11 @@ kbd { font: .8rem var(--f-mono); border: 1px solid var(--line); border-bottom-wi
       if (!F || gain <= 0) return; const n = F.length + Math.round(0.004 * sr), b = new Float32Array(n); let mx = 0;
       for (let i = 1; i < F.length; i++) { const d = Math.abs(F[i] - F[i - 1]); b[i] = d; if (d > mx) mx = d; }
       const env = biquad(b, "lp", 1500, 0.7, sr), nz = noise(n, rN); for (let i = 0; i < n; i++) nz[i] *= Math.max(0, env[i]);
-      add(base, biquad(biquad(biquad(nz, "hp", 700, 0.7, sr), "lp", CRAQUE_F * lerp(0.55, 1.15, P.durete), 0.7, sr), "lp", CRAQUE_F * lerp(0.55, 1.15, P.durete) * 1.6, 0.7, sr), at, gain * sr * 1e-4);
+      const fC = (P.matiere >= 0.5 ? CRAQUE_FB : CRAQUE_F) * lerp(0.55, 1.15, P.durete);
+      add(base, biquad(biquad(biquad(nz, "hp", 700, 0.7, sr), "lp", fC, 0.7, sr), "lp", fC * 1.6, 0.7, sr), at, gain * sr * 1e-4);
     };
-    craque(F1, t0, CRAQUE * Math.pow(P.durete, 0.7)); craque(F1b, tb, CRAQUE * Math.pow(P.durete, 0.7));
+    const kC = beton ? CRAQUE_B : CRAQUE;
+    craque(F1, t0, kC * Math.pow(P.durete, 0.7)); craque(F1b, tb, kC * Math.pow(P.durete, 0.7));
     // 4d. pied nu : la peau claque sur le bois vernis (petite bouffée médium, un peu d'air chassé)
     const peau = Math.pow(Math.max(0, 1 - P.durete / 0.3), 1.5);
     if (peau > 0) for (const [F, at, g] of [[F1, t0, 1], [F2, tt, 0.8]]) {
@@ -270,7 +287,7 @@ kbd { font: .8rem var(--f-mono); border: 1px solid var(--line); border-bottom-wi
       const sl = biquad(biquad(b, "bp", lerp(900, 1600, rN()), 0.8, sr), "lp", 4000, 0.7, sr);
       let fm = 0; for (const f of F) fm = Math.max(fm, f); add(base, sl, at + Math.round(0.002 * sr), peau * g * fm * PEAU);
     }
-    if (F2) craque(F2, tt, CRAQUE * 0.6 * Math.pow(P.durete, 0.7));
+    if (F2) craque(F2, tt, kC * 0.6 * Math.pow(P.durete, 0.7));
     if (o.couches) o.couches.raw = { sol: peakOf(floor) };
     const pb = peakOf(base) || 1e-9;
 
@@ -305,7 +322,7 @@ kbd { font: .8rem var(--f-mono); border: 1px solid var(--line); border-bottom-wi
       add(extra, biquad(s, "bp", fa * 1.5, 0.7, sr), tt + Math.round(lerp(0.03, 0.1, rC()) * sr), 0.16 * Math.sqrt(P.crissement));
     }
     // 6b. grincement : frottement collé-glissé entre deux planches (ou sur un clou), filtré par le bois
-    if (P.grince > 0 && chance(P.grince * (0.5 + 0.5 * Math.min(1, P.poids)), rK)) {
+    if (!beton && P.grince > 0 && chance(P.grince * (0.5 + 0.5 * Math.min(1, P.poids)), rK)) {
       const d = lerp(0.12, 0.5, rK()) * (0.6 + 0.6 * P.grinceForce), n = Math.round(d * sr);
       const fa = P.grinceHauteur * lerp(0.75, 1.25, rK()), fb = fa * lerp(0.6, 1.4, rK()), wob = lerp(1, 5, rK());
       const imp = new Float32Array(n); let ph = 0, f = fa;
@@ -400,12 +417,16 @@ kbd { font: .8rem var(--f-mono); border: 1px solid var(--line); border-bottom-wi
   function fiche(Pin, sr) {
     const P = Object.assign({}, DEFAUT, Pin); sr = sr || 48000;
     const F = contact(0.9 + 3.6 * P.poids, raideur(P.durete), pertes(P.durete), lerp(0.16, 0.55, P.appui), sr), R = piece(P, sr);
-    const fm = floorModes(P, 0, 0.42, 0.4, sr); return { contactMs: F.length / sr * 1000, planchHz: fm.length ? fm[0][0] : NaN, echoS: R.T, distanceCritique: R.rc };
+    const beton = P.matiere >= 0.5, fm = beton ? [] : floorModes(P, 0, 0.42, 0.4, sr);
+    return { matiere: beton ? "béton" : "bois", contactMs: F.length / sr * 1000, planchHz: fm.length ? fm[0][0] : NaN,
+      chaussureHz: BETON_F * lerp(0.75, 1.3, P.durete), echoS: R.T, distanceCritique: R.rc };
   }
-  const api = { fiche, PARAMS, GROUPES, DEFAUT, get PRESETS() { return PRESETS; }, preset, rendre, marche, piece, rng, contact, raideur, pertes, version: "2.0",
-    _calib(c) { if (c) { if (c.TILT != null) TILT = c.TILT; if (c.CLAQUE != null) CLAQUE = c.CLAQUE; if (c.BASCULE != null) BASCULE = c.BASCULE; if (c.CRAQUE != null) CRAQUE = c.CRAQUE; if (c.CRAQUE_F != null) CRAQUE_F = c.CRAQUE_F; if (c.PEAU != null) PEAU = c.PEAU; refCache.clear(); } return { TILT, CLAQUE, BASCULE, CRAQUE, CRAQUE_F, PEAU }; },
+  const api = { fiche, BOIS_SEULEMENT, PARAMS, GROUPES, DEFAUT, get PRESETS() { return PRESETS; }, preset, rendre, marche, piece, rng, contact, raideur, pertes, version: "2.0",
+    _calib(c) { if (c) { if (c.TILT != null) TILT = c.TILT; if (c.CLAQUE != null) CLAQUE = c.CLAQUE; if (c.BASCULE != null) BASCULE = c.BASCULE; if (c.CRAQUE != null) CRAQUE = c.CRAQUE; if (c.CRAQUE_F != null) CRAQUE_F = c.CRAQUE_F; if (c.PEAU != null) PEAU = c.PEAU;
+      for (const k of ["BETON_SOL", "BETON_CORPS", "BETON_F", "CRAQUE_B", "CRAQUE_FB"]) if (c[k] != null) ({ BETON_SOL, BETON_CORPS, BETON_F, CRAQUE_B, CRAQUE_FB } = Object.assign({ BETON_SOL, BETON_CORPS, BETON_F, CRAQUE_B, CRAQUE_FB }, { [k]: c[k] }));
+      refCache.clear(); } return { TILT, CLAQUE, BASCULE, CRAQUE, CRAQUE_F, PEAU, BETON_SOL, BETON_CORPS, BETON_F, CRAQUE_B, CRAQUE_FB }; },
     _presets(p) { PRESETS = p; } };
-  // ---------- réglages tout prêts (générés par mesure/reglages_bois.py ; les trois premiers sont calés sur 13 vrais pas sur bois) ----------
+  // ---------- réglages tout prêts (générés par mesure/reglages.py ; les réglages de CALES sont calés sur de vrais pas) ----------
   PRESETS = {
    "Parquet en chêne": {
     "essence": 0.947,
@@ -695,9 +716,194 @@ kbd { font: .8rem var(--f-mono); border: 1px solid var(--line); border-bottom-wi
     "hauteur": 5,
     "absorption": 0.12,
     "clarte": 0.4
+   },
+   "Béton, chaussures de ville": {
+    "matiere": 1,
+    "durete": 0.699,
+    "claque": 0.314,
+    "talonF": 1392,
+    "appui": 0.937,
+    "pointe": 0,
+    "amorti": 0,
+    "frottement": 0.718,
+    "poussiere": 0.255,
+    "lache": 0,
+    "grince": 0,
+    "longueur": 5.5,
+    "largeur": 4.2,
+    "hauteur": 2.6,
+    "absorption": 0.12,
+    "clarte": 0.55
+   },
+   "Cave en béton, talons": {
+    "matiere": 1,
+    "durete": 1,
+    "claque": 0.402,
+    "talonF": 818.6,
+    "appui": 0.279,
+    "pointe": 0.255,
+    "amorti": 0.916,
+    "frottement": 0.877,
+    "poussiere": 0.541,
+    "longueur": 23.7,
+    "largeur": 7,
+    "hauteur": 2.4,
+    "absorption": 0.623,
+    "clarte": 0.482,
+    "mix": 1,
+    "lache": 0,
+    "grince": 0
+   },
+   "Couloir en béton": {
+    "matiere": 1,
+    "durete": 0.699,
+    "claque": 0.314,
+    "talonF": 1392,
+    "appui": 0.937,
+    "pointe": 0,
+    "amorti": 0,
+    "frottement": 0.718,
+    "poussiere": 0.255,
+    "lache": 0,
+    "grince": 0,
+    "longueur": 30,
+    "largeur": 2.4,
+    "hauteur": 3,
+    "absorption": 0.06,
+    "clarte": 0.6
+   },
+   "Parking souterrain": {
+    "matiere": 1,
+    "durete": 0.699,
+    "claque": 0.314,
+    "talonF": 1392,
+    "appui": 0.937,
+    "pointe": 0,
+    "amorti": 0,
+    "frottement": 0.25,
+    "poussiere": 0.4,
+    "lache": 0,
+    "grince": 0,
+    "longueur": 30,
+    "largeur": 25,
+    "hauteur": 2.8,
+    "absorption": 0.05,
+    "clarte": 0.45
+   },
+   "Escalier de secours en béton": {
+    "matiere": 1,
+    "durete": 0.699,
+    "claque": 0.314,
+    "talonF": 1392,
+    "appui": 0.65,
+    "pointe": 0.3,
+    "amorti": 0,
+    "frottement": 0.718,
+    "poussiere": 0.255,
+    "lache": 0,
+    "grince": 0,
+    "longueur": 4,
+    "largeur": 2.5,
+    "hauteur": 12,
+    "absorption": 0.04,
+    "clarte": 0.6
+   },
+   "Trottoir, dehors": {
+    "matiere": 1,
+    "durete": 0.699,
+    "claque": 0.314,
+    "talonF": 1392,
+    "appui": 0.937,
+    "pointe": 0,
+    "amorti": 0,
+    "frottement": 0.25,
+    "poussiere": 0.45,
+    "lache": 0,
+    "grince": 0,
+    "longueur": 30,
+    "largeur": 30,
+    "hauteur": 12,
+    "absorption": 0.9,
+    "clarte": 0.3
+   },
+   "Rangers militaires sur béton": {
+    "matiere": 1,
+    "durete": 0.85,
+    "claque": 0.25,
+    "talonF": 1400,
+    "appui": 0.75,
+    "pointe": 0.45,
+    "amorti": 0,
+    "frottement": 0.718,
+    "poussiere": 0.3,
+    "lache": 0,
+    "grince": 0,
+    "poids": 1.2,
+    "allure": 1.9,
+    "longueur": 12,
+    "largeur": 8,
+    "hauteur": 3.5,
+    "absorption": 0.1
+   },
+   "Baskets sur béton": {
+    "matiere": 1,
+    "durete": 0.32,
+    "claque": 0,
+    "talonF": 1392,
+    "appui": 0.5,
+    "pointe": 0.3,
+    "amorti": 0,
+    "frottement": 0.2,
+    "poussiere": 0.255,
+    "lache": 0,
+    "grince": 0,
+    "crissement": 0.15,
+    "longueur": 5.5,
+    "largeur": 4.2,
+    "hauteur": 2.6,
+    "absorption": 0.12,
+    "clarte": 0.45
+   },
+   "Pas furtifs sur béton": {
+    "matiere": 1,
+    "durete": 0.5,
+    "claque": 0.314,
+    "talonF": 1392,
+    "appui": 0.04,
+    "pointe": 0.5,
+    "amorti": 0,
+    "frottement": 0.15,
+    "poussiere": 0.255,
+    "lache": 0,
+    "grince": 0,
+    "allure": 1.1,
+    "variation": 0.6,
+    "longueur": 12,
+    "largeur": 8,
+    "hauteur": 3,
+    "absorption": 0.08
+   },
+   "Pieds nus sur béton": {
+    "matiere": 1,
+    "durete": 0,
+    "claque": 0,
+    "talonF": 1392,
+    "appui": 0.35,
+    "pointe": 0.5,
+    "amorti": 0,
+    "frottement": 0.1,
+    "poussiere": 0.15,
+    "lache": 0,
+    "grince": 0,
+    "poids": 0.5,
+    "longueur": 5.5,
+    "largeur": 4.2,
+    "hauteur": 2.6,
+    "absorption": 0.12,
+    "clarte": 0.45
    }
   };
-  api.CALES = {"Parquet en chêne": "minetest", "Vieux plancher massif": "kretopi", "Parquet fin, semelles souples": "kenney"};   // réglages calés automatiquement sur de vrais enregistrements
+  api.CALES = {"Parquet en chêne": "minetest", "Vieux plancher massif": "kretopi", "Parquet fin, semelles souples": "kenney", "Béton, chaussures de ville": "minetest (sol dur)", "Cave en béton, talons": "InspectorJ"};   // réglages calés automatiquement sur de vrais enregistrements
   return api;
 });
 
@@ -901,6 +1107,7 @@ const ZONES = [
   { nom: "Escalier", sol: "Escalier en bois", x: 8, y: 0, w: 3, h: 6, c: "--z-escalier", piece: { longueur: 3, largeur: 1.4, hauteur: 6, absorption: 0.1 } },
   { nom: "Taverne", sol: "Grande salle de taverne", x: 11, y: 0, w: 13, h: 10, c: "--z-taverne", piece: { longueur: 13, largeur: 10, hauteur: 5, absorption: 0.12 } },
   { nom: "Ponton", sol: "Ponton au bord de l'eau", x: 0, y: 6, w: 11, h: 5, c: "--z-ponton", piece: { longueur: 30, largeur: 30, hauteur: 12, absorption: 0.9 } },
+  { nom: "Cave en béton", sol: "Béton, chaussures de ville", x: 11, y: 10, w: 13, h: 4, c: "--z-cave", piece: { longueur: 13, largeur: 4, hauteur: 2.4, absorption: 0.07 }, beton: true },
 ];
 const W = 24, H = 14;
 const joueur = { x: 3, y: 3, vx: 0, vy: 0, dist: 0, cote: 1, zone: null }, pnj = { t: 0, x: 14, y: 3, dist: 0, cote: 1, actif: true };
@@ -932,7 +1139,7 @@ cv.addEventListener("pointermove", e => { if (cible) cible = versMetres(e); });
 $("bSon").addEventListener("click", activer);
 $("bPnj").addEventListener("click", () => { pnj.actif = !pnj.actif; $("bPnj").setAttribute("aria-pressed", pnj.actif); });
 
-function libre(x, y) { return x > 0.3 && x < W - 0.3 && y > 0.3 && y < H - 0.3 && !!zoneEn(x, y) && !(y > 6 && y < 6.15 && (x < 2 || x > 4)) && !(x > 10.9 && x < 11.1 && (y < 2 || y > 4) && y < 10) && !(x > 7.9 && x < 8.1 && y < 6 && (y < 2.2 || y > 3.8)); }
+function libre(x, y) { return x > 0.3 && x < W - 0.3 && y > 0.3 && y < H - 0.3 && !!zoneEn(x, y) && !(y > 6 && y < 6.15 && (x < 2 || x > 4)) && !(x > 10.9 && x < 11.1 && (y < 2 || y > 4) && y < 10) && !(x > 7.9 && x < 8.1 && y < 6 && (y < 2.2 || y > 3.8)) && !(y > 9.9 && y < 10.1 && x > 11 && (x < 15 || x > 17)); }
 function avancer(dt) {
   let ax = 0, ay = 0;
   if (touches.has("z") || touches.has("w") || touches.has("arrowup")) ay -= 1;
@@ -969,13 +1176,15 @@ function dessiner() {
   for (const z of ZONES) {
     cx.fillStyle = css(z.c); cx.fillRect(z.x * s, z.y * s, z.w * s, z.h * s);
     cx.strokeStyle = css("--mur"); cx.globalAlpha = 0.18; cx.lineWidth = 1;   // lames de parquet
-    for (let yy = z.y + 0.18; yy < z.y + z.h; yy += 0.18 * (z.nom === "Ponton" ? 2.5 : 1)) { cx.beginPath(); cx.moveTo(z.x * s, yy * s); cx.lineTo((z.x + z.w) * s, yy * s); cx.stroke(); }
+    if (z.beton) { for (let xx = z.x + 2; xx < z.x + z.w; xx += 2) { cx.beginPath(); cx.moveTo(xx * s, z.y * s); cx.lineTo(xx * s, (z.y + z.h) * s); cx.stroke(); } }   // joints de dalle
+    else for (let yy = z.y + 0.18; yy < z.y + z.h; yy += 0.18 * (z.nom === "Ponton" ? 2.5 : 1)) { cx.beginPath(); cx.moveTo(z.x * s, yy * s); cx.lineTo((z.x + z.w) * s, yy * s); cx.stroke(); }
     cx.globalAlpha = 1; cx.fillStyle = css("--ink"); cx.font = `600 ${Math.round(13 * d)}px ${css("--f-body")}`; cx.fillText(z.nom, (z.x + 0.3) * s, (z.y + 0.7) * s);
   }
   cx.fillStyle = css("--mur");   // murs avec leurs portes
   cx.fillRect(0, 6 * s, 2 * s, 0.15 * s); cx.fillRect(4 * s, 6 * s, 7 * s, 0.15 * s);
   cx.fillRect(10.9 * s, 0, 0.2 * s, 2 * s); cx.fillRect(10.9 * s, 4 * s, 0.2 * s, 6 * s);
   cx.fillRect(7.95 * s, 0, 0.1 * s, 2.2 * s); cx.fillRect(7.95 * s, 3.8 * s, 0.1 * s, 2.2 * s);
+  cx.fillRect(11 * s, 9.95 * s, 4 * s, 0.1 * s); cx.fillRect(17 * s, 9.95 * s, 7 * s, 0.1 * s);   // porte vers la cave
   const rond = (x, y, r, c) => { cx.fillStyle = c; cx.beginPath(); cx.arc(x * s, y * s, r * s, 0, 6.283); cx.fill(); };
   if (pnj.actif) rond(pnj.x, pnj.y, 0.32, css("--perso"));
   rond(joueur.x, joueur.y, 0.34, css("--accent")); rond(joueur.x, joueur.y, 0.14, css("--panel"));

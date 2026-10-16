@@ -75,9 +75,9 @@ function avecPiece(y, P) {   // son tel qu'entendu depuis la tête (direct + pi�
   return out;
 }
 let PIECE = process.argv.includes("--piece");
-function mesurerGroupe(P, n, base) {
-  const ms = [];
-  for (let i = 0; i < n; i++) { const y = Pas.rendre(Object.assign({}, P, { distance: 0 }), (base || 100) + i, { sr: SR }); ms.push(mesurer(PIECE ? avecPiece(y, P) : y)); }
+function mesurerGroupe(P, n, base, piece) {   // piece : true/false pour forcer (sinon option --piece)
+  const ms = [], avec = piece == null ? PIECE : piece;
+  for (let i = 0; i < n; i++) { const y = Pas.rendre(Object.assign({}, P, { distance: 0 }), (base || 100) + i, { sr: SR }); ms.push(mesurer(avec ? avecPiece(y, P) : y)); }
   const T = TIERS.map((_, b) => ms.reduce((a, m) => a + m.tiers[b], 0) / n), D = {};
   for (const d of [10, 20, 30, 40]) { const v = ms.map(m => m.decroissance[d]).filter(z => z != null); D[d] = v.length ? v.reduce((a, b) => a + b, 0) / v.length : 300; }
   const C = [0, 1].map(k => ms.reduce((a, m) => a + m.centroides[k], 0) / n);
@@ -87,7 +87,12 @@ function mesurerGroupe(P, n, base) {
 // ---------- écart entre une synthèse et la cible ----------
 function ecart(S, C, detail) {
   let eb = 0, nb = 0;
-  for (let b = 1; b < TIERS.length - 1; b++) { const s = Math.max(2.5, C.tiers_ecart[b]), d = (S.tiers[b] - C.tiers_moy[b]) / s; eb += d * d; nb++; }
+  // les bandes sous C.fmin (si la cible en a un : grondement de micro dans l'enregistrement) sont ignorées ;
+  // on compare alors les profils renormalisés sur les bandes gardées
+  const b0 = Math.max(1, TIERS.findIndex(f => f >= (C.fmin || 0))), keep = [];
+  for (let b = b0; b < TIERS.length - 1; b++) keep.push(b);
+  const lin = v => keep.reduce((a, b) => a + 10 ** (v[b] / 10), 0), ns = 10 * Math.log10(lin(S.tiers)), nc = 10 * Math.log10(lin(C.tiers_moy));
+  for (const b of keep) { const s = Math.max(2.5, C.tiers_ecart[b]), d = C.fmin ? ((S.tiers[b] - ns) - (C.tiers_moy[b] - nc)) / s : (S.tiers[b] - C.tiers_moy[b]) / s; eb += d * d; nb++; }
   eb /= nb; let ed = 0;
   for (const [d, w] of [[10, 0.5], [20, 1], [30, 0.8], [40, 0.15]]) { const t = C.decroissance_moy[d]; if (t) ed += w * (Math.log(S.decroissance[d] / t) / 0.3) ** 2; }
   let ec = 0; for (const k of [0, 1]) ec += (Math.log((S.centroides[k] + 1) / (C.centroide_moy[k] + 1)) / 0.3) ** 2;

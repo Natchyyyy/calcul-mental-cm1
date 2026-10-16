@@ -1,0 +1,93 @@
+{
+ "_note": "Calibration du béton sur 2 groupes de vrais pas (InspectorJ CC-BY, Minetest). Depuis ce dossier : node calibrer2.js cfg_beton.json sortie.json 120",
+ "globales": {
+  "BETON_SOL": [
+   0,
+   6
+  ],
+  "BETON_CORPS": [
+   0,
+   3
+  ],
+  "BETON_F": [
+   200,
+   2500
+  ],
+  "CRAQUE_B": [
+   0,
+   30
+  ],
+  "CRAQUE_FB": [
+   1500,
+   14000
+  ]
+ },
+ "sigma": 0.2,
+ "cibles": [
+  {
+   "cible": "cibles/beton_ij.json",
+   "preset": "Parquet en chêne",
+   "piece": true,
+   "base": {
+    "matiere": 1,
+    "durete": 0.9,
+    "claque": 0.4,
+    "talonF": 2500,
+    "appui": 0.6,
+    "pointe": 0.7,
+    "amorti": 0.5,
+    "frottement": 0.3,
+    "poussiere": 0.5,
+    "longueur": 9,
+    "largeur": 7,
+    "hauteur": 2.4,
+    "absorption": 0.08,
+    "clarte": 0.5,
+    "mix": 1,
+    "lache": 0,
+    "grince": 0
+   },
+   "cles": [
+    "durete",
+    "claque",
+    "talonF",
+    "appui",
+    "pointe",
+    "amorti",
+    "frottement",
+    "poussiere",
+    "absorption",
+    "longueur",
+    "clarte"
+   ]
+  },
+  {
+   "cible": "cibles/beton_mt.json",
+   "preset": "Parquet en chêne",
+   "piece": false,
+   "base": {
+    "matiere": 1,
+    "durete": 0.85,
+    "claque": 0.3,
+    "talonF": 2500,
+    "appui": 0.6,
+    "pointe": 0.4,
+    "amorti": 0.5,
+    "frottement": 0.15,
+    "poussiere": 0.2,
+    "lache": 0,
+    "grince": 0
+   },
+   "cles": [
+    "durete",
+    "claque",
+    "talonF",
+    "appui",
+    "pointe",
+    "amorti",
+    "frottement",
+    "poussiere"
+   ]
+  }
+ ]
+}

@@ -1,5 +1,5 @@
 # Mesures d'un bruit de pas, identiques pour les vrais enregistrements et pour nos synthèses, afin de les comparer.
-# python3 mesures.py dossier_ou_fichiers...   → tableau + mesures.json (+ graphiques avec --png sortie.png)
+# python3 mesures.py dossier_ou_fichiers... [--png sortie.png] [--passe-haut 80]   → tableau + mesures.json
 import sys, os, json, glob, numpy as np, scipy.signal as sg
 from scipy.io import wavfile
 
@@ -76,13 +76,17 @@ def resume(ms):
             "centroide_moy": C.mean(0).round().tolist(), "crete_sur_rms": round(float(np.mean([m["crete_sur_rms"] for m in ms])), 1)}
 
 if __name__ == "__main__":
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]; png = None
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]; png = None; ph = None
     if "--png" in sys.argv: png = sys.argv[sys.argv.index("--png") + 1]; args = [a for a in args if a != png]
+    # --passe-haut F : enlève le grondement (vent, manipulation du micro) sous F Hz avant de mesurer
+    if "--passe-haut" in sys.argv: ph = sys.argv[sys.argv.index("--passe-haut") + 1]; args = [a for a in args if a != ph]; ph = float(ph)
     files = []
     for a in args: files += sorted(glob.glob(os.path.join(a, "*.wav"))) if os.path.isdir(a) else [a]
     res = {}
     for f in files:
-        m = mesurer(lire(f)); res[os.path.basename(f)] = m
+        x = lire(f)
+        if ph: x = sg.sosfiltfilt(sg.butter(4, ph, "hp", fs=SR, output="sos"), x); x /= np.max(np.abs(x))
+        m = mesurer(x); res[os.path.basename(f)] = m
         print(f"{os.path.basename(f):38s} {m['duree_ms']:4d} ms  décr {m['decroissance']}  évts {m['evenements']}  centr {m['centroide_attaque_suite']}  rés {m['resonances']}")
     R = resume(list(res.values()))
     print("\nMOYENNE tiers d'octave (dB rel.):"); print("  ".join(f"{f}:{v}" for f, v in zip(TIERS, R["tiers_moy"])))

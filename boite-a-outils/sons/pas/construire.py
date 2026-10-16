@@ -6,7 +6,7 @@ import os, json, base64, glob
 H = os.path.dirname(os.path.abspath(__file__)); lire = lambda f: open(os.path.join(H, f), encoding="utf-8").read()
 js = {f: lire(f) for f in ("pas.js", "sons-de-pas.js")}
 for v in js.values(): assert "</script" not in v
-vrais = {k: [base64.b64encode(open(f, "rb").read()).decode() for f in sorted(glob.glob(os.path.join(H, "vrais", k + "_*.ogg")))] for k in ("kretopi", "kenney")}
+vrais = {k: [base64.b64encode(open(f, "rb").read()).decode() for f in sorted(glob.glob(os.path.join(H, "vrais", k + "_*.ogg")))] for k in ("kretopi", "kenney", "inspectorj")}
 a = lire("atelier.src.html").replace("/*PAS_JS*/", js["pas.js"]).replace("/*VRAIS*/", json.dumps(vrais))
 open(os.path.join(H, "atelier.html"), "w", encoding="utf-8").write(a)
 e = lire("exemple.html")

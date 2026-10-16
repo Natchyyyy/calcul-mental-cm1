@@ -31,7 +31,7 @@ lumière, ombres, un modèle Meshy (un buis en pot), vue libre à la souris ET p
 | `sons/exemples.py` | Exemples courts : clic bois, réussite marimba, carillon, pas, vent, pluie. |
 | `sons/exemples_jeu.py`, `exemples_ambiance.py`, `exemples_doux.py` | Les ~55 sons de Pythagore : marimba, xylophone, cloches, pièces, bulle, tambour, sifflet, trombone, oiseaux, hibou, caisses ; pas pierre/tapis, feu et crépitements, armure, pendule, chouette, gramophone, page, coffre, télescope… |
 | `sons/banc.py` | Page d'écoute (un bouton par son) à publier pour faire écouter et choisir. |
-| **`sons/pas/`** | **Bruits de pas physiques, calés sur de vrais enregistrements** (bois : 15 réglages tout prêts). `sons-de-pas.js` pour un jeu web (Worker, changement de sol et de pièce, autres personnages, branchement sur la promenade), `atelier.html` pour régler à l'oreille, `exporter.js` pour Unreal / Godot / Unity, outils pour caler une nouvelle surface. Voir `sons/pas/README.md`. |
+| **`sons/pas/`** | **Bruits de pas physiques, calés sur de vrais enregistrements** (bois et béton : 25 réglages tout prêts). `sons-de-pas.js` pour un jeu web (Worker, changement de sol et de pièce, autres personnages, branchement sur la promenade), `atelier.html` pour régler à l'oreille, `exporter.js` pour Unreal / Godot / Unity, outils pour caler une nouvelle surface. Voir `sons/pas/README.md`. |
 | `sons/integrer.py` + `lecteur.js` | Mettre les sons dans la page (un seul fichier) et les jouer : `Son.jouer("pas", {pan, vol, varie, reverb})`, limiteur en sortie. |
 | `tests/verif_page.py` | Modèle de test automatique (Playwright) : ouvrir, agir, vérifier, compter les erreurs JS. |
 | `PIEGES.md` | Les erreurs déjà rencontrées et leur solution. **À lire avant de commencer.** |

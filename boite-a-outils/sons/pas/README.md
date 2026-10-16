@@ -1,10 +1,11 @@
 # Sons de pas — synthèse physique, calée sur de vrais enregistrements
 
 Des bruits de pas **calculés**, sans aucun fichier son : le talon qui écrase le sol, les planches qui vibrent, la pièce
-qui répond. Chaque pas est différent, comme en vrai. Pour l'instant : **le bois** (parquet, plancher, escalier, ponton…).
+qui répond. Chaque pas est différent, comme en vrai. Deux matières : **le bois** (parquet, plancher, escalier, ponton…)
+et **le béton / la pierre** (cave, couloir, parking, escalier de secours, trottoir…).
 
 Les réglages marqués « calé » ont été ajustés automatiquement pour que leur spectre, leur décroissance et leur brillance
-collent à **13 vrais enregistrements** de pas sur bois (3 sources libres de droits). Résultat mesuré : nos pas sont aussi
+collent à de vrais enregistrements : **13 pas sur bois** (3 sources) et **12 pas sur béton** (2 sources). Résultat mesuré : nos pas sont aussi
 proches de ces enregistrements qu'un vrai pas l'est de sa propre série (voir « Fidélité » plus bas).
 
 | Fichier | À quoi ça sert |
@@ -15,7 +16,7 @@ proches de ces enregistrements qu'un vrai pas l'est de sa propre série (voir «
 | `exemple.html` | Petite démo jouable (vue de dessus : salon, escalier, taverne avec un marcheur, ponton). `exemple_seul.html` = la même en un seul fichier. |
 | `exporter.js` | Fabrique des **fichiers** (.ogg / .wav) pour un autre moteur (Unreal, Godot, Unity) ou pour `sons/integrer.py`. |
 | `mesure/` | Les outils de mesure et de calibration (voir « Caler une nouvelle surface »). |
-| `vrais/` | Les vrais enregistrements CC0 utilisés dans l'atelier pour comparer à l'oreille (kretopi, Kenney). |
+| `vrais/` | Les vrais enregistrements utilisés dans l'atelier pour comparer à l'oreille (kretopi et Kenney en CC0, InspectorJ en CC BY 4.0 : voir `vrais/CREDITS.md`). |
 | `tests/` | `node tests/test_pas.js` (moteur + fidélité) et `python3 tests/verif_pages.py` (les deux pages dans Chromium). |
 
 ## Dans un jeu web (le plus simple)
@@ -69,8 +70,18 @@ Cadences réalistes si le jeu déclenche lui-même les pas : ~0,75 m par pas en 
 | Grenier poussiéreux | Pin, grains de poussière, grincements, petite pièce sous le toit. |
 | Chalet en bois | Tout en bois : sol et murs, écho court et chaleureux. |
 | Grande salle de taverne | Plancher massif, salle de 14 × 10 × 5 m (écho ≈ 1,7 s). |
+| **Béton, chaussures de ville** · calé | Dalle de béton, semelles dures, pièce aux murs nus. |
+| **Cave en béton, talons** · calé | Talons durs sur un béton poussiéreux, grand espace en béton brut (avec son écho). |
+| Couloir en béton | Long couloir étroit (30 × 2,4 m) : écho long et « flottant ». Idéal jeu d'horreur. |
+| Parking souterrain | Immense, bas de plafond, très réverbérant, un peu de sable. |
+| Escalier de secours en béton | Cage d'escalier haute (12 m) en béton nu. |
+| Trottoir, dehors | Béton dehors, grains de sable, presque pas d'écho. |
+| Rangers militaires sur béton | Grosses semelles, pas lourds et décidés, hangar. |
+| Baskets sur béton | Semelle caoutchouc, petits crissements. |
+| Pas furtifs sur béton | Pied posé tout doucement. |
+| Pieds nus sur béton | Coussinet du talon et peau sur la pierre. |
 
-`SonsDePas.reglagesPossibles()` donne la liste. Tous les curseurs (27) sont décrits dans `Pas.PARAMS` et dans l'atelier.
+`SonsDePas.reglagesPossibles()` donne la liste. Tous les curseurs (28) sont décrits dans `Pas.PARAMS` et dans l'atelier.
 
 ## Pour un autre moteur de jeu (Unreal, Godot, Unity…)
 ```
@@ -98,7 +109,12 @@ et jouer `Son.jouer("pas_parquet_en_chene", {varie: .02})`. (Mais dans un jeu we
 4. **Craquement de contact** (bruit large bande qui suit les variations brutales de la force), claquement du talon,
    avant du pied ≈ 70 ms après, frottements, poussière, crissement de basket, planche lâche, grincement (frottement
    collé-glissé). Chaque couche a son propre tirage aléatoire : bouger un curseur ne change pas le hasard des autres.
-5. **La pièce** — premiers échos par sources-images (avec diffusion à chaque rebond) + queue de réverbération dont la
+5. **Le béton** (`matiere: 1`) — une dalle est environ mille fois plus lourde par mode qu'une planche : elle ne vibre
+   presque pas (≈ −60 dB). On entend donc le choc rayonné par la surface rigide (∝ variation de la force), le **corps de la
+   chaussure** (semelle + tige : résonances ≈ 490 Hz × 1 ; 1,5 ; 2,1 ; 3 ; 4,4, très amorties), le claquement du talon, le
+   craquement de contact sur une surface minérale, les grains et les frottements. Les curseurs propres au bois sont ignorés
+   (l'atelier les cache ; liste dans `Pas.BOIS_SEULEMENT`).
+6. **La pièce** — premiers échos par sources-images (avec diffusion à chaque rebond) + queue de réverbération dont la
    durée vient de la formule d'Eyring (dimensions + absorption) et dont la quantité vient de la distance critique
    (source posée au sol). Écho d'un salon ≈ 0,4 s, cage d'escalier ≈ 0,6 s, grande salle ≈ 1,7 s, dehors ≈ rien.
 
@@ -108,7 +124,12 @@ centroïde spectral de l'attaque et de la suite. `mesure/calibrer.js` refait les
 et `mesure/calibrer2.js` (CMA-ES) ajuste ensemble les constantes du moteur (communes) et les réglages de chaque source.
 Échelle (`mesure/etalon.js`) : un vrai pas pris seul est à **0,7–4,3** de la moyenne de sa série ; du vrai bois d'une autre
 source est à **6,3**. Nos réglages calés, mesurés sur des pas que l'optimiseur n'a jamais vus : **2,2** (kretopi),
-**2,3** (Minetest), **3,4** (Kenney) — tous dans la fourchette d'un vrai pas. Variation d'un pas à l'autre : 4,3 dB par
+**2,3** (Minetest), **3,4** (Kenney) — tous dans la fourchette d'un vrai pas.
+Béton : un vrai pas Minetest seul est à 1,2–2,0 de sa série, un vrai pas InspectorJ à 2,4–20,8 (médiane ≈ 7 : extraits
+chargés d'écho et d'autres bruits) ; nos réglages calés : **3,1** (Minetest, sec) et **5,9** (InspectorJ, avec sa pièce).
+Les spectres des deux sources de béton concordent entre eux (écart de bandes ≈ 2) : seule leur pièce diffère.
+Les enregistrements d'InspectorJ ont un grondement de micro sous 100 Hz : ils sont mesurés avec `--passe-haut 90`
+et la comparaison ignore leurs bandes sous 100 Hz (`fmin` dans la cible). Variation d'un pas à l'autre : 4,3 dB par
 bande en moyenne (réel : 4,1 dB) ; niveau : ±2,5 dB à variation 0,5.
 `node tests/test_pas.js` vérifie que ça reste vrai après chaque modification du moteur.
 
@@ -122,13 +143,14 @@ bande en moyenne (réel : 4,1 dB) ; niveau : ±2,5 dB à variation 0,5.
 3. `python3 mesure/mesures.py dossier` → `mesures.json` (la cible) ; `python3 mesure/planche_spectro.py planche.png *.wav`
    pour **voir** la structure (événements, durée des aigus, résonances).
 4. Écrire une config comme `mesure/cfg_bois.json` et lancer `cd mesure && node calibrer2.js cfg.json sortie.json 150`
-   (≈ 6 min en arrière-plan). Viser un écart < 4. Pour le bois : `python3 reglages_bois.py sortie.json` reporte les
-   constantes et les ancres dans `pas.js` et regénère les 15 réglages. Si l'écart reste haut, c'est que le **modèle** manque d'une couche
+   (≈ 6 min en arrière-plan). Viser un écart < 4. `python3 reglages.py --bois sortie.json` (ou `--beton`) reporte les
+   constantes et les ancres dans `pas.js` et regénère les 25 réglages ; il refuse un résultat moins bon que le départ.
+   Un enregistrement fait dans une pièce qui résonne se compare avec `"piece": true` dans la config (voir `cfg_beton.json`). Si l'écart reste haut, c'est que le **modèle** manque d'une couche
    physique : regarder la planche de spectrogrammes, comparer bande par bande, ajouter la couche, recommencer.
-5. Ajouter le réglage (dans `mesure/reglages_bois.py` pour le bois, sinon dans `PRESETS` à la fin de `pas.js`), son seuil
-   dans `tests/test_pas.js`, et relancer les tests.
-Le moteur actuel ne sait faire que des **planches de bois**. Pierre, métal, gravier, neige… demandent leur propre modèle
-physique (plaque très raide et peu amortie pour la pierre, grains PhISEM de Perry Cook pour gravier et neige, etc.).
+5. Ajouter le réglage dans `mesure/reglages.py`, son seuil dans `tests/test_pas.js`, et relancer les tests.
+Le moteur sait faire le **bois** et le **béton / la pierre**. Métal, gravier, neige, herbe… demandent leur propre modèle
+physique (tôle peu amortie pour le métal, grains PhISEM de Perry Cook pour gravier et neige, etc.) ; de vrais
+enregistrements pour les caler sont déjà repérés (Minetest, CDDA-Soundpacks).
 
 ## Limites connues
 - Les couches de détail (grincement, crissement, poussière, planche lâche) ont été dosées par mesure de niveau par
@@ -141,3 +163,6 @@ physique (plaque très raide et peu amortie pour la pierre, grains PhISEM de Per
 - Kenney, « Impact Sounds » `footstep_wood_000–004`, **CC0** (kenney.nl).
 - Minetest Game `default_wood_footstep.1/2` : utilisés seulement pour la mesure (les mesures sont dans `mesure/cibles/`), pas redistribués.
 - SpliceSound, « Footsteps, barefoot on wet tile » (Freesound 338106), **CC0** : mesure du claquement de peau.
+- InspectorJ (www.jshaw.co.uk), « Footsteps, Concrete, A.wav » (Freesound 336598), **CC BY 4.0** : calibration du béton,
+  et 4 extraits (filtrés sous 90 Hz) dans l'atelier. Toute page qui les réutilise doit citer l'auteur.
+- Minetest Game `default_hard_footstep.1–3` : mesure du béton (mesures dans `mesure/cibles/`), pas redistribués.

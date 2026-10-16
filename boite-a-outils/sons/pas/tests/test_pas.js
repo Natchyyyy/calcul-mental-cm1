@@ -28,10 +28,14 @@ for (const nom of ["Parquet en chêne", "Grande salle de taverne", "Ponton au bo
 }
 ok(Pas.fiche(Pas.preset("Talons sur parquet")).contactMs < 1, "talon dur : contact < 1 ms");
 ok(Pas.fiche(Pas.preset("Pieds nus")).contactMs > 6, "pied nu : contact > 6 ms");
+ok(Object.values(Pas.PRESETS).some(p => p.matiere === 1) && Pas.fiche(Pas.preset("Béton, chaussures de ville")).matiere === "béton", "réglages béton présents");
 console.log("Fidélité aux vrais enregistrements (écart ; un vrai pas seul est à 0,7–4,3 de sa série) :");
-const A = JSON.parse(fs.readFileSync(path.join(M, "ancres_bois.json"))), seuils = { "cibles/bois_kretopi.json": 3.5, "cibles/bois_minetest.json": 3.5, "cibles/bois_kenney.json": 4.5 };
+// béton : un vrai pas InspectorJ pris seul est à 2,4–20,8 de sa série (médiane ≈ 7), un pas Minetest à 1,2–2,0
+const A = Object.assign({}, JSON.parse(fs.readFileSync(path.join(M, "ancres_bois.json"))), JSON.parse(fs.readFileSync(path.join(M, "ancres_beton.json"))));
+const seuils = { "cibles/bois_kretopi.json": 3.5, "cibles/bois_minetest.json": 3.5, "cibles/bois_kenney.json": 4.5, "cibles/beton_ij.json": 7, "cibles/beton_mt.json": 4 };
+const avecPiece = { "cibles/beton_ij.json": true };   // enregistré dans une pièce qui résonne : comparé avec sa pièce
 for (const [cible, q] of Object.entries(A)) {
-  const T = JSON.parse(fs.readFileSync(path.join(M, cible))).resume, e = ecart(mesurerGroupe(Object.assign(Pas.preset("x"), q), 10, 900), T);
+  const T = JSON.parse(fs.readFileSync(path.join(M, cible))).resume, e = ecart(mesurerGroupe(Object.assign(Pas.preset("x"), q), 10, 900, !!avecPiece[cible]), T);
   console.log(`  · ${cible.padEnd(28)} ${e.toFixed(2)} (seuil ${seuils[cible]})`); ok(e < seuils[cible], cible + " : la synthèse s'éloigne du vrai");
 }
 console.log(fails ? `${fails} échec(s)` : "Tout est bon."); process.exit(fails ? 1 : 0);
