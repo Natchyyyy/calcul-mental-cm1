@@ -1,0 +1,143 @@
+<title>Promenade sonore</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Une maison vue de dessus : on marche, le sol et l'écho changent selon la pièce ; quelqu'un fait les cent pas dans la taverne. */
+:root {
+  --bg: #e6e8e3; --panel: #f4f5f1; --ink: #23201b; --mute: #5f6158; --line: #c9ccc2; --accent: #0b6e66; --accent-ink: #f4f5f1;
+  --z-salon: #c99b68; --z-escalier: #a97d50; --z-taverne: #b58a5c; --z-ponton: #8f7a5c; --eau: #9fb9b6; --mur: #3a3128; --perso: #b8452f;
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161a18; --panel: #1f2421; --ink: #e8e6df; --mute: #a3a69c; --line: #343a36; --accent: #5cc4b5; --accent-ink: #10201d;
+  --z-salon: #7e5f3f; --z-escalier: #664a2e; --z-taverne: #745536; --z-ponton: #5d4f3b; --eau: #2b4744; --mur: #0c0a08; --perso: #e2765f; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #161a18; --panel: #1f2421; --ink: #e8e6df; --mute: #a3a69c; --line: #343a36; --accent: #5cc4b5; --accent-ink: #10201d;
+  --z-salon: #7e5f3f; --z-escalier: #664a2e; --z-taverne: #745536; --z-ponton: #5d4f3b; --eau: #2b4744; --mur: #0c0a08; --perso: #e2765f; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--f-body); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 40px }
+.wrap { max-width: 1000px; margin: 0 auto; display: grid; gap: 14px }
+h1 { font: 800 clamp(1.7rem, 4vw, 2.4rem)/1 var(--f-display); margin: 0; letter-spacing: -.02em }
+p { margin: 0; color: var(--mute) }
+#carte { width: 100%; aspect-ratio: 24 / 14; max-width: 100%; display: block; border-radius: 8px; border: 1px solid var(--line); touch-action: none; cursor: crosshair }
+#carte:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px }
+.hud { display: flex; flex-wrap: wrap; gap: 8px 18px; font: .85rem/1.4 var(--f-mono); color: var(--mute); font-variant-numeric: tabular-nums }
+.hud b { color: var(--ink); font-weight: 600 }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+button { font: 700 .92rem/1 var(--f-body); border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 10px 16px; cursor: pointer }
+button.main { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink) }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px }
+kbd { font: .8rem var(--f-mono); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 1px 5px; background: var(--panel); color: var(--ink) }
+</style>
+
+<div class="wrap">
+  <h1>Promenade sonore</h1>
+  <p>Déplace-toi avec <kbd>Z</kbd><kbd>Q</kbd><kbd>S</kbd><kbd>D</kbd>, <kbd>W</kbd><kbd>A</kbd> ou les flèches (<kbd>Maj</kbd> pour courir), ou garde le doigt / la souris appuyé sur la carte pour marcher vers ce point. Chaque pièce a son sol et son écho. Dans la taverne, quelqu'un en bottes fait les cent pas : écoute-le s'approcher et s'éloigner.</p>
+  <div class="row"><button type="button" class="main" id="bSon">Activer le son</button><button type="button" id="bPnj" aria-pressed="true">Le marcheur de la taverne</button></div>
+  <canvas id="carte" tabindex="0" aria-label="Carte de la maison"></canvas>
+  <div class="hud" role="status"><span><b style="color:var(--accent)">●</b> toi · <b style="color:var(--perso)">●</b> le marcheur</span><span>Pièce : <b id="hZone">—</b></span><span>Sol : <b id="hSol">—</b></span><span>Écho : <b id="hEcho">—</b></span><span>Pas joués : <b id="hPas">0</b></span></div>
+</div>
+
+<script src="pas.js"></script>
+<script src="sons-de-pas.js"></script>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id), css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+// la maison (en mètres) : chaque zone a un réglage de sol et une pièce
+const ZONES = [
+  { nom: "Salon", sol: "Parquet en chêne", x: 0, y: 0, w: 8, h: 6, c: "--z-salon", piece: { longueur: 8, largeur: 6, hauteur: 2.6, absorption: 0.22 } },
+  { nom: "Escalier", sol: "Escalier en bois", x: 8, y: 0, w: 3, h: 6, c: "--z-escalier", piece: { longueur: 3, largeur: 1.4, hauteur: 6, absorption: 0.1 } },
+  { nom: "Taverne", sol: "Grande salle de taverne", x: 11, y: 0, w: 13, h: 10, c: "--z-taverne", piece: { longueur: 13, largeur: 10, hauteur: 5, absorption: 0.12 } },
+  { nom: "Ponton", sol: "Ponton au bord de l'eau", x: 0, y: 6, w: 11, h: 5, c: "--z-ponton", piece: { longueur: 30, largeur: 30, hauteur: 12, absorption: 0.9 } },
+];
+const W = 24, H = 14;
+const joueur = { x: 3, y: 3, vx: 0, vy: 0, dist: 0, cote: 1, zone: null }, pnj = { t: 0, x: 14, y: 3, dist: 0, cote: 1, actif: true };
+let sons = null, nbPas = 0;
+const DEMO = window.DEMO = { get pas() { return nbPas; }, joueur, pnj, step: (n, dt) => { for (let i = 0; i < n; i++) avancer(dt || 1 / 60); dessiner(); } };
+
+function zoneEn(x, y) { return ZONES.find(z => x >= z.x && x < z.x + z.w && y >= z.y && y < z.y + z.h) || null; }
+function activer() {
+  if (sons) { sons.ac.resume(); return; }
+  sons = SonsDePas.creer({ surface: ZONES[0].sol });
+  ZONES.forEach(z => sons.precharger(z.sol)); sons.precharger("Bottes, personnage lourd");
+  joueur.zone = null; changerZone(); $("bSon").textContent = "Son activé"; $("bSon").disabled = true;
+}
+function changerZone() {
+  const z = zoneEn(joueur.x, joueur.y); if (!z || z === joueur.zone) return; joueur.zone = z;
+  $("hZone").textContent = z.nom; $("hSol").textContent = z.sol;
+  if (sons) { sons.surface(z.sol); sons.piece(z.piece).then(() => { if (joueur.zone === z) $("hEcho").textContent = sons.echo.toFixed(2).replace(".", ",") + " s"; }); }
+}
+
+// ---------- déplacement : un pas tous les ~0,75 m en marchant, ~1,2 m en courant (cadences réelles ≈ 1,9 et 2,9 pas/s) ----------
+const touches = new Set(); let cible = null;
+addEventListener("keydown", e => { const k = e.key.toLowerCase(); if (["arrowup", "arrowdown", "arrowleft", "arrowright", " "].includes(k)) e.preventDefault(); touches.add(k); if (!sons) activer(); });
+addEventListener("keyup", e => touches.delete(e.key.toLowerCase()));
+const cv = $("carte"), cx = cv.getContext("2d");
+const versMetres = e => { const b = cv.getBoundingClientRect(); return { x: (e.clientX - b.left) / b.width * W, y: (e.clientY - b.top) / b.height * H }; };
+cv.addEventListener("pointerdown", e => { cv.setPointerCapture(e.pointerId); cible = versMetres(e); if (!sons) activer(); });
+cv.addEventListener("pointermove", e => { if (cible) cible = versMetres(e); });
+["pointerup", "pointercancel"].forEach(ev => cv.addEventListener(ev, () => cible = null));
+$("bSon").addEventListener("click", activer);
+$("bPnj").addEventListener("click", () => { pnj.actif = !pnj.actif; $("bPnj").setAttribute("aria-pressed", pnj.actif); });
+
+function libre(x, y) { return x > 0.3 && x < W - 0.3 && y > 0.3 && y < H - 0.3 && !!zoneEn(x, y) && !(y > 6 && y < 6.15 && (x < 2 || x > 4)) && !(x > 10.9 && x < 11.1 && (y < 2 || y > 4) && y < 10) && !(x > 7.9 && x < 8.1 && y < 6 && (y < 2.2 || y > 3.8)); }
+function avancer(dt) {
+  let ax = 0, ay = 0;
+  if (touches.has("z") || touches.has("w") || touches.has("arrowup")) ay -= 1;
+  if (touches.has("s") || touches.has("arrowdown")) ay += 1;
+  if (touches.has("q") || touches.has("a") || touches.has("arrowleft")) ax -= 1;
+  if (touches.has("d") || touches.has("arrowright")) ax += 1;
+  if (cible) { const dx = cible.x - joueur.x, dy = cible.y - joueur.y, d = Math.hypot(dx, dy); if (d > 0.25) { ax = dx / d; ay = dy / d; } }
+  const court = touches.has("shift"), vmax = court ? 3.6 : 1.45, n = Math.hypot(ax, ay) || 1;
+  joueur.vx += ((ax / n) * vmax * (ax || ay ? 1 : 0) - joueur.vx) * Math.min(1, dt * 8); joueur.vy += ((ay / n) * vmax * (ax || ay ? 1 : 0) - joueur.vy) * Math.min(1, dt * 8);
+  const nx = joueur.x + joueur.vx * dt, ny = joueur.y + joueur.vy * dt;
+  if (libre(nx, joueur.y)) joueur.x = nx; else joueur.vx = 0;
+  if (libre(joueur.x, ny)) joueur.y = ny; else joueur.vy = 0;
+  const v = Math.hypot(joueur.vx, joueur.vy); joueur.dist += v * dt;
+  const foulee = court && v > 2.2 ? 1.2 : 0.75;
+  if (v > 0.3 && joueur.dist >= foulee) { joueur.dist = 0; joueur.cote = -joueur.cote; changerZone();
+    if (sons && sons.jouer({ force: Math.min(1.1, 0.75 + v / 6), cote: joueur.cote, course: v > 2.2 })) nbPas++; }
+  if (v < 0.05) joueur.dist = 0.5;      // le premier pas après un arrêt part vite
+  // le marcheur de la taverne : une boucle lente, ses pas sont joués à sa distance et de son côté
+  if (pnj.actif) {
+    pnj.t += dt; const a = pnj.t * 0.16, px = 17.5 + 4.6 * Math.cos(a), py = 5 + 3 * Math.sin(a * 2) * 0.9;
+    pnj.dist += Math.hypot(px - pnj.x, py - pnj.y); pnj.x = px; pnj.y = py;
+    if (pnj.dist >= 0.8) { pnj.dist = 0; pnj.cote = -pnj.cote; const dx = pnj.x - joueur.x, dy = pnj.y - joueur.y, d = Math.hypot(dx, dy);
+      // un mur entre nous (le joueur n'est pas dans la taverne) : plus loin et plus étouffé
+      const dans = joueur.zone && joueur.zone.nom === "Taverne";
+      if (sons && d < 22) sons.jouer({ surface: "Bottes, personnage lourd", distance: dans ? d : d * 1.8 + 3, pan: Math.max(-1, Math.min(1, dx / Math.max(2, d))), force: 0.95, cote: pnj.cote }); }
+  }
+}
+
+// ---------- dessin ----------
+function dessiner() {
+  const d = Math.min(2, devicePixelRatio || 1), w = Math.round(cv.clientWidth * d), h = Math.round(cv.clientHeight * d);
+  if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+  const s = w / W; cx.fillStyle = css("--eau"); cx.fillRect(0, 0, w, h);
+  for (const z of ZONES) {
+    cx.fillStyle = css(z.c); cx.fillRect(z.x * s, z.y * s, z.w * s, z.h * s);
+    cx.strokeStyle = css("--mur"); cx.globalAlpha = 0.18; cx.lineWidth = 1;   // lames de parquet
+    for (let yy = z.y + 0.18; yy < z.y + z.h; yy += 0.18 * (z.nom === "Ponton" ? 2.5 : 1)) { cx.beginPath(); cx.moveTo(z.x * s, yy * s); cx.lineTo((z.x + z.w) * s, yy * s); cx.stroke(); }
+    cx.globalAlpha = 1; cx.fillStyle = css("--ink"); cx.font = `600 ${Math.round(13 * d)}px ${css("--f-body")}`; cx.fillText(z.nom, (z.x + 0.3) * s, (z.y + 0.7) * s);
+  }
+  cx.fillStyle = css("--mur");   // murs avec leurs portes
+  cx.fillRect(0, 6 * s, 2 * s, 0.15 * s); cx.fillRect(4 * s, 6 * s, 7 * s, 0.15 * s);
+  cx.fillRect(10.9 * s, 0, 0.2 * s, 2 * s); cx.fillRect(10.9 * s, 4 * s, 0.2 * s, 6 * s);
+  cx.fillRect(7.95 * s, 0, 0.1 * s, 2.2 * s); cx.fillRect(7.95 * s, 3.8 * s, 0.1 * s, 2.2 * s);
+  const rond = (x, y, r, c) => { cx.fillStyle = c; cx.beginPath(); cx.arc(x * s, y * s, r * s, 0, 6.283); cx.fill(); };
+  if (pnj.actif) rond(pnj.x, pnj.y, 0.32, css("--perso"));
+  rond(joueur.x, joueur.y, 0.34, css("--accent")); rond(joueur.x, joueur.y, 0.14, css("--panel"));
+}
+let last = performance.now();
+function boucle(t) { const dt = Math.min(0.05, (t - last) / 1000); last = t; avancer(dt); dessiner(); $("hPas").textContent = nbPas; requestAnimationFrame(boucle); }
+const z0 = zoneEn(joueur.x, joueur.y); $("hZone").textContent = z0.nom; $("hSol").textContent = z0.sol;
+if (!/manual=1/.test(location.search)) requestAnimationFrame(boucle); else dessiner();
+window.PRET = true;
+})();
+</script>

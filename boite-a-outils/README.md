@@ -31,18 +31,22 @@ lumière, ombres, un modèle Meshy (un buis en pot), vue libre à la souris ET p
 | `sons/exemples.py` | Exemples courts : clic bois, réussite marimba, carillon, pas, vent, pluie. |
 | `sons/exemples_jeu.py`, `exemples_ambiance.py`, `exemples_doux.py` | Les ~55 sons de Pythagore : marimba, xylophone, cloches, pièces, bulle, tambour, sifflet, trombone, oiseaux, hibou, caisses ; pas pierre/tapis, feu et crépitements, armure, pendule, chouette, gramophone, page, coffre, télescope… |
 | `sons/banc.py` | Page d'écoute (un bouton par son) à publier pour faire écouter et choisir. |
+| **`sons/pas/`** | **Bruits de pas physiques, calés sur de vrais enregistrements** (bois : 15 réglages tout prêts). `sons-de-pas.js` pour un jeu web (Worker, changement de sol et de pièce, autres personnages, branchement sur la promenade), `atelier.html` pour régler à l'oreille, `exporter.js` pour Unreal / Godot / Unity, outils pour caler une nouvelle surface. Voir `sons/pas/README.md`. |
 | `sons/integrer.py` + `lecteur.js` | Mettre les sons dans la page (un seul fichier) et les jouer : `Son.jouer("pas", {pan, vol, varie, reverb})`, limiteur en sortie. |
 | `tests/verif_page.py` | Modèle de test automatique (Playwright) : ouvrir, agir, vérifier, compter les erreurs JS. |
 | `PIEGES.md` | Les erreurs déjà rencontrées et leur solution. **À lire avant de commencer.** |
 
-## Exemples
+## Exemples (chaque ligne se lance depuis `boite-a-outils/`)
 ```
 # voir la scène (mode manuel : le jeu n'avance que quand on appelle API.step)
 python3 capture.py "http://127.0.0.1:8765/gabarit/index.html?manual=1" vue --attendre "window.PRET" \
    --etape "js:(API.step(3), 0)" --etape shot
 # des sons
-cd sons && python3 fabriquer.py exemples --sortie ../gabarit/sons_out && python3 banc.py ../gabarit/sons_out ../banc.html
-python3 integrer.py ../gabarit/sons_out ../gabarit/index.html
+(cd sons && python3 fabriquer.py exemples --sortie ../gabarit/sons_out && python3 banc.py ../gabarit/sons_out ../banc.html)
+# des pas physiques (voir sons/pas/README.md) : tests, page de réglage à publier, puis des fichiers dans le même dossier que les autres sons
+(cd sons/pas && node tests/test_pas.js && python3 construire.py)
+(cd sons/pas && node exporter.js --sortie ../../gabarit/sons_out --reglages "Parquet en chêne" --variantes 8)
+(cd sons && python3 integrer.py ../gabarit/sons_out ../gabarit/index.html)
 # un modèle Meshy téléchargé
 python3 modeles3d/alleger_glb.py brut.glb glb/objet.glb 1024,1024,512 && python3 modeles3d/glb_en_js.py glb gabarit/modeles
 ```

@@ -1,0 +1,405 @@
+<title>Atelier de pas</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Atkinson+Hyperlegible:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Mise en page : un établi de bruiteur. À gauche le plancher qu'on frappe et ce qu'on voit du son ; à droite les curseurs, rangés comme des tiroirs. */
+:root {
+  --bg: #e6e8e3;         /* gris frêne, légèrement vert */
+  --panel: #f4f5f1;
+  --ink: #23201b;        /* brou de noix */
+  --mute: #5f6158;
+  --line: #c9ccc2;
+  --accent: #0b6e66;     /* vert-bleu de vernis à l'huile */
+  --accent-ink: #f4f5f1;
+  --wood-a: #b98a57; --wood-b: #9c6c3d; --wood-gap: #4a3420;
+  --spec0: #f4f5f1; --spec1: #9fc9c2; --spec2: #0b6e66; --spec3: #23201b;
+  --wave: #23201b;
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161a18; --panel: #1f2421; --ink: #e8e6df; --mute: #a3a69c; --line: #343a36;
+  --accent: #5cc4b5; --accent-ink: #10201d;
+  --wood-a: #8a6440; --wood-b: #6d4b2c; --wood-gap: #1a120b;
+  --spec0: #1f2421; --spec1: #1d5a52; --spec2: #5cc4b5; --spec3: #f6f1d9; --wave: #e8e6df;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #161a18; --panel: #1f2421; --ink: #e8e6df; --mute: #a3a69c; --line: #343a36;
+  --accent: #5cc4b5; --accent-ink: #10201d;
+  --wood-a: #8a6440; --wood-b: #6d4b2c; --wood-gap: #1a120b;
+  --spec0: #1f2421; --spec1: #1d5a52; --spec2: #5cc4b5; --spec3: #f6f1d9; --wave: #e8e6df;
+  color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 16px/1.5 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 20px 56px }
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 20px }
+header { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 24px }
+h1 { font: 800 clamp(1.9rem, 4vw, 2.7rem)/1 var(--f-display); letter-spacing: -.02em; margin: 0; text-wrap: balance }
+h1 small { display: block; font: 500 .95rem/1.4 var(--f-body); letter-spacing: 0; color: var(--mute); margin-top: 8px }
+h2 { font: 700 1.05rem/1.2 var(--f-display); margin: 0 }
+.cols { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 20px; align-items: start }
+@media (max-width: 860px) { .cols { grid-template-columns: minmax(0, 1fr) } }
+.left { display: grid; gap: 16px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px) }
+@media (max-width: 860px) { .left { position: static } }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 12px; min-width: 0 }
+.label { font: 600 .72rem/1 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--mute) }
+
+/* le plancher qu'on frappe */
+#plancher { width: 100%; aspect-ratio: 5 / 2; max-width: 100%; display: block; border-radius: 6px; cursor: pointer; touch-action: manipulation }
+#plancher:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px }
+.hint { color: var(--mute); font-size: .88rem; margin: 0 }
+
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+button { font: 700 .92rem/1 var(--f-body); border: 1px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 999px; padding: 10px 16px; cursor: pointer }
+button:hover { border-color: var(--accent) }
+button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px }
+button.main { background: var(--accent); color: var(--accent-ink); border-color: var(--accent) }
+button[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink) }
+.vol { display: flex; align-items: center; gap: 8px; margin-left: auto; color: var(--mute); font-size: .85rem }
+.vol input { width: 110px; accent-color: var(--accent) }
+
+#vue { width: 100%; height: 210px; display: block; border-radius: 6px }
+.legend { display: flex; justify-content: space-between; gap: 8px; color: var(--mute); font: .75rem/1.3 var(--f-mono) }
+
+.presets { display: flex; flex-wrap: wrap; gap: 6px }
+.presets button { font-weight: 400; padding: 8px 12px; font-size: .88rem }
+.presets button[aria-pressed="true"] { font-weight: 700 }
+.presets .cale { font: 600 .66rem/1 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-left: 6px }
+.presets button[aria-pressed="true"] .cale { color: inherit }
+.fiche { margin: 0; font: .8rem/1.5 var(--f-mono); color: var(--mute); font-variant-numeric: tabular-nums }
+.fiche b { color: var(--ink); font-weight: 600 }
+.vs { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: center }
+.vs span { font-weight: 700; font-size: .9rem; min-width: 0 }
+.vs button { padding: 8px 12px; font-size: .85rem }
+
+.ab { display: grid; grid-template-columns: auto 1fr; gap: 8px 12px; align-items: center }
+.ab b { font: 800 1.3rem/1 var(--f-display); width: 1.6em; text-align: center }
+.ab .row button { padding: 8px 12px; font-size: .85rem }
+.ab .etat { color: var(--mute); font-size: .82rem; flex-basis: 100% }
+
+/* les tiroirs de réglages */
+.right { display: grid; gap: 12px }
+details.box { padding: 0; gap: 0 }
+details summary { list-style: none; cursor: pointer; padding: 14px; display: flex; justify-content: space-between; align-items: center; gap: 12px }
+details summary::-webkit-details-marker { display: none }
+details summary::after { content: "+"; font: 600 1.2rem/1 var(--f-mono); color: var(--mute) }
+details[open] summary::after { content: "−" }
+details .sliders { display: grid; gap: 14px; padding: 0 14px 16px }
+.sl { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: baseline }
+.sl label { font-weight: 700; font-size: .93rem }
+.sl output { font: .82rem var(--f-mono); color: var(--accent); font-variant-numeric: tabular-nums; white-space: nowrap }
+.sl input { grid-column: 1 / -1; width: 100%; accent-color: var(--accent) }
+.sl .aide { grid-column: 1 / -1; color: var(--mute); font-size: .8rem; line-height: 1.35 }
+.sl.change label::after { content: " •"; color: var(--accent) }
+
+textarea { width: 100%; min-height: 84px; resize: vertical; font: .78rem/1.4 var(--f-mono); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 10px }
+.toast { color: var(--accent); font-size: .85rem; min-height: 1.2em }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important } }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Atelier de pas<small>Des bruits de pas fabriqués de zéro par un modèle physique : le talon qui écrase le sol, les planches qui vibrent, la pièce qui répond. Les réglages marqués « calé » ont été ajustés automatiquement sur de vrais enregistrements.</small></h1>
+  </header>
+
+  <div class="cols">
+    <div class="left">
+      <section class="box" aria-label="Le plancher">
+        <canvas id="plancher" tabindex="0" aria-label="Plancher : clique ou appuie sur Espace pour faire un pas"></canvas>
+        <p class="hint">Clique sur une planche pour poser un pied. Chaque planche et chaque endroit sonnent un peu différemment. Lance « En boucle », puis bouge les curseurs pendant que ça marche.</p>
+        <p class="fiche" id="fiche" aria-live="polite"></p>
+        <div class="row">
+          <button type="button" class="main" id="bUn">Un pas</button>
+          <button type="button" id="bMarche">Marcher (8 pas)</button>
+          <button type="button" id="bBoucle" aria-pressed="false">En boucle</button>
+          <span class="vol"><label for="vol">Volume</label><input id="vol" type="range" min="0" max="1.5" step="0.01" value="0.9"></span>
+        </div>
+      </section>
+
+      <section class="box" aria-label="Ce que l'on voit du son">
+        <div class="row" style="justify-content:space-between"><span class="label">Le dernier pas</span><span class="label" id="info">—</span></div>
+        <canvas id="vue" aria-label="Forme d'onde et spectrogramme du dernier pas"></canvas>
+        <div class="legend"><span>en haut : forme d'onde</span><span>en bas : spectrogramme 50 Hz → 16 kHz</span></div>
+      </section>
+
+      <section class="box" aria-label="Réglages tout prêts">
+        <span class="label">Réglages tout prêts</span>
+        <div class="presets" id="presets"></div>
+        <p class="hint">« Calé » : le moteur a été ajusté pour que le spectre, la décroissance et la brillance de ces pas collent à de vrais enregistrements. Les autres réglages en dérivent en changeant ce qui change dans la réalité (essence du bois, chaussure, pièce…).</p>
+      </section>
+
+      <section class="box" aria-label="Vrai ou synthèse">
+        <span class="label">Vrai ou synthèse ?</span>
+        <p class="hint">Compare à l'oreille un vrai pas enregistré et le réglage calé dessus (joué sans écho, comme l'enregistrement). Enregistrements libres de droits (CC0) : kretopi sur Freesound et Kenney.</p>
+        <div class="vs">
+          <span>Vieux plancher massif</span>
+          <button type="button" data-vrai="kretopi">Vrai pas</button><button type="button" data-synth="Vieux plancher massif">Synthèse</button>
+          <span>Parquet fin, semelles souples</span>
+          <button type="button" data-vrai="kenney">Vrai pas</button><button type="button" data-synth="Parquet fin, semelles souples">Synthèse</button>
+        </div>
+      </section>
+
+      <section class="box" aria-label="Comparer A et B">
+        <span class="label">Comparer deux réglages</span>
+        <div class="ab">
+          <b>A</b><div class="row"><button type="button" data-ab="A" data-act="garder">Garder ici</button><button type="button" data-ab="A" data-act="ecouter">Écouter</button><button type="button" data-ab="A" data-act="reprendre">Reprendre</button><span class="etat" id="etatA">vide</span></div>
+          <b>B</b><div class="row"><button type="button" data-ab="B" data-act="garder">Garder ici</button><button type="button" data-ab="B" data-act="ecouter">Écouter</button><button type="button" data-ab="B" data-act="reprendre">Reprendre</button><span class="etat" id="etatB">vide</span></div>
+        </div>
+      </section>
+    </div>
+
+    <div class="right" id="reglages">
+      <section class="box" aria-label="Envoyer les réglages à Claude">
+        <span class="label">Tes réglages</span>
+        <textarea id="json" readonly aria-label="Réglages actuels"></textarea>
+        <div class="row"><button type="button" class="main" id="bCopier">Copier les réglages</button><button type="button" id="bDefaut">Revenir au réglage choisi</button><span class="toast" id="toast" role="status"></span></div>
+        <p class="hint">Colle ces réglages dans la conversation avec ce que tu entends (« trop mat », « on dirait du carton »…) : je m'en sers pour corriger le moteur.</p>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script type="text/plain" id="vrais-data">/*VRAIS*/</script>
+<script>
+/*PAS_JS*/
+</script>
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const store = { get(k) { try { return JSON.parse(localStorage.getItem("atelier-pas2:" + k)); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem("atelier-pas2:" + k, JSON.stringify(v)); } catch (e) {} } };
+
+// ---------- état ----------
+const PRESET0 = Object.keys(Pas.PRESETS)[0];
+let presetNom = store.get("preset") || PRESET0; if (!Pas.PRESETS[presetNom]) presetNom = PRESET0;
+let P = Object.assign(Pas.preset(presetNom), store.get("reglages") || {});
+const slots = { A: store.get("A"), B: store.get("B") };
+let seedCount = (Math.random() * 1e6) | 0;
+
+// ---------- audio ----------
+let ac = null, master, dry, wet, conv, lastRoom = "";
+function audio() {
+  if (ac) { if (ac.state === "suspended") ac.resume(); return ac; }
+  ac = new (window.AudioContext || window.webkitAudioContext)();
+  master = ac.createGain(); master.gain.value = +$("vol").value;
+  const lim = ac.createDynamicsCompressor(); lim.threshold.value = -4; lim.knee.value = 4; lim.ratio.value = 16; lim.attack.value = 0.002; lim.release.value = 0.15;
+  master.connect(lim).connect(ac.destination);
+  dry = ac.createGain(); wet = ac.createGain(); conv = ac.createConvolver(); conv.normalize = false;
+  dry.connect(master); wet.connect(conv).connect(master);
+  piece(P); return ac;
+}
+let roomSec = 1;
+function piece(Q, sec) {   // la pièce n'est recalculée que si ses réglages changent ; sec = sans écho (pour comparer à un enregistrement)
+  const key = ["longueur", "largeur", "hauteur", "absorption", "clarte", "distance"].map(k => Q[k]).join();
+  if (key !== lastRoom) {
+    lastRoom = key; const R = Pas.piece(Q, ac.sampleRate), b = ac.createBuffer(2, R.ir[0].length, ac.sampleRate);
+    b.copyToChannel(R.ir[0], 0); b.copyToChannel(R.ir[1], 1); conv.buffer = b; roomSec = R.sec;
+  }
+  // gain du son direct : 1 pour ses propres pas (oreilles à 1,6 m), moins quand la source s'éloigne ; l'écho a déjà la bonne quantité
+  dry.gain.value = Math.min(1, roomSec); wet.gain.value = sec ? 0 : Math.min(1, roomSec) * Q.mix;
+}
+function jouerPas(Q, when, o) {
+  audio(); piece(Q, o.sec);
+  const y = Pas.rendre(Q, o.seed, { sr: ac.sampleRate, force: o.force, planche: o.planche, pos: o.pos });
+  const b = ac.createBuffer(1, y.length, ac.sampleRate); b.copyToChannel(y, 0);
+  const s = ac.createBufferSource(); s.buffer = b; const p = ac.createStereoPanner(); p.pan.value = o.pan || 0;
+  s.connect(p); p.connect(dry); p.connect(wet); s.start(Math.max(when, ac.currentTime + 0.005));
+  const delay = Math.max(0, (when - ac.currentTime) * 1000); setTimeout(() => dessiner(y, ac.sampleRate), delay);
+  return y;
+}
+
+// ---------- marche : on fabrique chaque pas juste avant de le jouer, donc les curseurs agissent en direct ----------
+let walk = null;
+function marcher(n, Q) {
+  audio(); arreter();
+  const seed = ++seedCount, steps = n ? Pas.marche(Q || P, n, seed) : null;
+  walk = { steps, seed, i: 0, t0: ac.currentTime + 0.08, Q: Q || null, boucle: !n, tempoT: 0 };
+  walk.timer = setInterval(tick, 40); tick();
+}
+function tick() {
+  if (!walk) return; const Q = walk.Q || P;
+  // en boucle, les pas sont fabriqués au fur et à mesure et la vitesse suit le curseur
+  while (walk.boucle || walk.i < walk.steps.length) {
+    const i = walk.i, s = walk.boucle ? { seed: walk.seed * 1000 + i, force: i % 2 ? 0.92 : 1, pan: i % 2 ? 0.07 : -0.07 } : walk.steps[i];
+    const t = walk.boucle ? walk.t0 + walk.tempoT : walk.t0 + s.t;
+    if (t - ac.currentTime > 0.15) break;
+    jouerPas(Q, t, s);
+    if (walk.boucle) walk.tempoT += (1 / Q.allure) * (1 + Q.variation * 0.05 * (Math.random() * 2 - 1));
+    walk.i++;
+  }
+  if (!walk.boucle && walk.i >= walk.steps.length) { const w = walk; setTimeout(() => { if (walk === w) arreter(); }, 500); }
+}
+function arreter() { if (walk) { clearInterval(walk.timer); walk = null; } $("bBoucle").setAttribute("aria-pressed", "false"); }
+
+// ---------- le plancher dessiné ----------
+const cv = $("plancher"), cx = cv.getContext("2d"); let grain = null, ripples = [];
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function grainCanvas(w, h) {   // veinage : quelques lignes ondulées par planche, graine fixe
+  const c = document.createElement("canvas"); c.width = w; c.height = h; const g = c.getContext("2d"), r = Pas.rng(7);
+  const n = 5, ph = h / n;
+  for (let k = 0; k < n; k++) {
+    const y0 = k * ph; g.fillStyle = k % 2 ? css("--wood-b") : css("--wood-a"); g.fillRect(0, y0, w, ph);
+    g.globalAlpha = 0.22; g.strokeStyle = css("--wood-gap"); g.lineWidth = Math.max(1, w / 900);
+    for (let l = 0; l < 9; l++) {
+      const yy = y0 + ph * (0.1 + 0.8 * r()), amp = ph * (0.04 + 0.08 * r()), fr = 1 + 3 * r(), off = r() * 6;
+      g.beginPath(); for (let x = 0; x <= w; x += 6) g.lineTo(x, yy + amp * Math.sin(x / w * fr * 6.28 + off) + amp * 0.4 * Math.sin(x / w * 23 + off * 3)); g.stroke();
+    }
+    g.globalAlpha = 1; const j = (0.25 + 0.5 * r()) * w;   // joint de bout de planche
+    g.fillStyle = css("--wood-gap"); g.fillRect(j, y0, Math.max(1.5, w / 600), ph); g.fillRect(0, y0 + ph - Math.max(2, h / 140), w, Math.max(2, h / 140));
+  }
+  return c;
+}
+function taille() {
+  const d = Math.min(2, window.devicePixelRatio || 1), w = Math.round(cv.clientWidth * d), h = Math.round(cv.clientHeight * d);
+  if (cv.width !== w || cv.height !== h || !grain) { cv.width = w; cv.height = h; grain = grainCanvas(w, h); }
+  const v = $("vue"), vw = Math.round(v.clientWidth * d), vh = Math.round(v.clientHeight * d);
+  if (v.width !== vw || v.height !== vh) { v.width = vw; v.height = vh; if (lastY) dessiner(lastY, lastSr); else vide(); }
+  peindre();
+}
+function peindre() {
+  cx.drawImage(grain, 0, 0); const now = performance.now();
+  ripples = ripples.filter(r => now - r.t < 600);
+  for (const r of ripples) { const k = (now - r.t) / 600; cx.strokeStyle = css("--accent"); cx.globalAlpha = 1 - k; cx.lineWidth = 3;
+    cx.beginPath(); cx.ellipse(r.x, r.y, 10 + 60 * k, (10 + 60 * k) * 0.45, 0, 0, 6.283); cx.stroke(); }
+  cx.globalAlpha = 1; if (ripples.length) requestAnimationFrame(peindre);
+}
+function frapper(fx, fy) {
+  audio(); const planche = Math.min(4, Math.floor(fy * 5));
+  jouerPas(P, ac.currentTime + 0.005, { seed: ++seedCount, planche, pos: fx, force: 1, pan: (fx - 0.5) * 0.5 });
+  ripples.push({ x: fx * cv.width, y: (planche + 0.5) / 5 * cv.height, t: performance.now() }); peindre();
+}
+cv.addEventListener("pointerdown", e => { const b = cv.getBoundingClientRect(); frapper((e.clientX - b.left) / b.width, (e.clientY - b.top) / b.height); });
+cv.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); frapper(0.2 + 0.6 * Math.random(), Math.random()); } });
+
+// ---------- forme d'onde + spectrogramme ----------
+let lastY = null, lastSr = 48000;
+function fft(re, im) {
+  const n = re.length;
+  for (let i = 1, j = 0; i < n; i++) { let b = n >> 1; for (; j & b; b >>= 1) j ^= b; j ^= b; if (i < j) { [re[i], re[j]] = [re[j], re[i]]; [im[i], im[j]] = [im[j], im[i]]; } }
+  for (let len = 2; len <= n; len <<= 1) { const a = -2 * Math.PI / len, wr = Math.cos(a), wi = Math.sin(a);
+    for (let i = 0; i < n; i += len) { let cr = 1, ci = 0; for (let k = 0; k < len / 2; k++) {
+      const ur = re[i + k], ui = im[i + k], vr = re[i + k + len / 2] * cr - im[i + k + len / 2] * ci, vi = re[i + k + len / 2] * ci + im[i + k + len / 2] * cr;
+      re[i + k] = ur + vr; im[i + k] = ui + vi; re[i + k + len / 2] = ur - vr; im[i + k + len / 2] = ui - vi; const t = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = t; } } }
+}
+function hex(c) { c = c.replace("#", ""); return [0, 2, 4].map(i => parseInt(c.substr(i, 2), 16)); }
+function palette() { const s = [css("--spec0"), css("--spec1"), css("--spec2"), css("--spec3")].map(hex), lut = [];
+  for (let i = 0; i < 256; i++) { const x = i / 255 * 3, k = Math.min(2, Math.floor(x)), f = x - k; lut.push(s[k].map((v, j) => Math.round(v + (s[k + 1][j] - v) * f))); } return lut; }
+function vide() { const v = $("vue"), g = v.getContext("2d"); g.fillStyle = css("--panel"); g.fillRect(0, 0, v.width, v.height);
+  g.fillStyle = css("--mute"); g.font = `${14 * Math.min(2, devicePixelRatio || 1)}px ${css("--f-body")}`; g.textAlign = "center"; g.fillText("Fais un pas pour voir le son ici", v.width / 2, v.height / 2); }
+function dessiner(y, sr) {
+  lastY = y; lastSr = sr; const v = $("vue"), g = v.getContext("2d"), W = v.width, H = v.height, hw = Math.round(H * 0.28);
+  const dur = 0.4, n = Math.round(dur * sr);   // fenêtre fixe de 400 ms : les pas se comparent à la même échelle
+  g.fillStyle = css("--spec0"); g.fillRect(0, 0, W, H);
+  // forme d'onde
+  g.strokeStyle = css("--wave"); g.lineWidth = 1; g.beginPath();
+  let pk = 0; for (let i = 0; i < y.length; i++) pk = Math.max(pk, Math.abs(y[i]));
+  for (let x = 0; x < W; x++) { const a = Math.floor(x / W * n), b = Math.floor((x + 1) / W * n); let lo = 0, hi = 0;
+    for (let i = a; i < b && i < y.length; i++) { if (y[i] < lo) lo = y[i]; if (y[i] > hi) hi = y[i]; }
+    g.moveTo(x + .5, hw / 2 - hi / (pk || 1) * hw * 0.46); g.lineTo(x + .5, hw / 2 - lo / (pk || 1) * hw * 0.46 + 1); }
+  g.stroke();
+  // spectrogramme (fréquences en échelle log)
+  const N = 1024, hop = Math.max(32, Math.floor(n / W * 2)), cols = Math.floor(n / hop), SH = H - hw - 2, img = g.createImageData(cols, SH), lut = palette();
+  const win = new Float32Array(N).map((_, i) => 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N)), fmin = 50, fmax = 16000;
+  const rowBin = new Float32Array(SH).map((_, r) => fmin * Math.pow(fmax / fmin, 1 - r / (SH - 1)) / sr * N);
+  let mags = [], mx = -1e9;
+  for (let c = 0; c < cols; c++) { const re = new Float32Array(N), im = new Float32Array(N), s0 = c * hop - N / 2;
+    for (let i = 0; i < N; i++) { const j = s0 + i; re[i] = j >= 0 && j < y.length ? y[j] * win[i] : 0; }
+    fft(re, im); const m = new Float32Array(N / 2); for (let k = 0; k < N / 2; k++) { m[k] = 10 * Math.log10(re[k] * re[k] + im[k] * im[k] + 1e-12); if (m[k] > mx) mx = m[k]; } mags.push(m); }
+  for (let c = 0; c < cols; c++) for (let r = 0; r < SH; r++) {
+    const b = rowBin[r], k = Math.floor(b), f = b - k, m = mags[c][Math.min(k, N / 2 - 2)] * (1 - f) + mags[c][Math.min(k + 1, N / 2 - 1)] * f;
+    const t = Math.max(0, Math.min(255, Math.round((m - (mx - 75)) / 75 * 255))), o = (r * cols + c) * 4, col = lut[t];
+    img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2]; img.data[o + 3] = 255; }
+  const tmp = document.createElement("canvas"); tmp.width = cols; tmp.height = SH; tmp.getContext("2d").putImageData(img, 0, 0);
+  g.imageSmoothingEnabled = true; g.drawImage(tmp, 0, hw + 2, W, SH);
+  // repères de fréquence
+  g.fillStyle = css("--mute"); g.font = `${10 * Math.min(2, devicePixelRatio || 1)}px ${css("--f-mono")}`; g.textAlign = "left";
+  for (const f of [100, 300, 1000, 3000, 10000]) { const yy = hw + 2 + (1 - Math.log(f / fmin) / Math.log(fmax / fmin)) * SH; g.fillRect(0, yy, 6, 1); g.fillText(f >= 1000 ? f / 1000 + " kHz" : f + " Hz", 9, yy + 4); }
+  let e = y.length; const th = pk * 0.01; while (e > 0 && Math.abs(y[e - 1]) < th) e--;
+  $("info").textContent = `${Math.round(e / sr * 1000)} ms jusqu'à −40 dB`;
+}
+
+// ---------- curseurs ----------
+const sliders = {};
+function fmt(p, v) { const step = p[5]; const d = step >= 1 ? 0 : step >= 0.05 ? 2 : 2; return (+v).toFixed(d).replace(".", ",") + (p[7] ? " " + p[7] : ""); }
+function construire() {
+  const R = $("reglages");
+  for (const [g, titre] of Object.entries(Pas.GROUPES)) {
+    const d = document.createElement("details"); d.className = "box"; d.open = g !== "piece" || window.innerWidth > 860;
+    d.innerHTML = `<summary><h2></h2></summary><div class="sliders"></div>`; d.querySelector("h2").textContent = titre;
+    const S = d.querySelector(".sliders");
+    for (const p of Pas.PARAMS.filter(p => p[1] === g)) {
+      const el = document.createElement("div"); el.className = "sl"; const id = "p-" + p[0];
+      el.innerHTML = `<label for="${id}"></label><output for="${id}"></output><input id="${id}" type="range" min="${p[3]}" max="${p[4]}" step="${p[5]}">${p[8] ? '<span class="aide"></span>' : ""}`;
+      el.querySelector("label").textContent = p[2]; if (p[8]) el.querySelector(".aide").textContent = p[8];
+      const inp = el.querySelector("input"), out = el.querySelector("output");
+      inp.addEventListener("input", () => { P[p[0]] = +inp.value; out.textContent = fmt(p, inp.value); majEtat(); if (ac && p[1] === "piece") piece(P); });
+      sliders[p[0]] = { inp, out, el, p }; S.appendChild(el);
+    }
+    R.appendChild(d);
+  }
+}
+function majSliders() { for (const [k, s] of Object.entries(sliders)) { s.inp.value = P[k]; s.out.textContent = fmt(s.p, P[k]); } majEtat(); }
+function differences() { const base = Pas.preset(presetNom), d = {}; for (const p of Pas.PARAMS) if (Math.abs(P[p[0]] - base[p[0]]) > 1e-9) d[p[0]] = +(+P[p[0]]).toFixed(4); return d; }
+function majEtat() {
+  const base = Pas.preset(presetNom), d = differences();
+  for (const [k, s] of Object.entries(sliders)) s.el.classList.toggle("change", Math.abs(P[k] - base[k]) > 1e-9);
+  $("json").value = JSON.stringify({ moteur: "Pas.js " + Pas.version, depart: presetNom, changements: d });
+  clearTimeout(majEtat.t); majEtat.t = setTimeout(() => {   // fiche physique (un peu de calcul : on attend que le curseur s'arrête)
+    const f = Pas.fiche(P); $("fiche").innerHTML = `Contact du talon <b>${f.contactMs.toFixed(1).replace(".", ",")} ms</b> · planche <b>${Math.round(f.planchHz)} Hz</b> · écho de la pièce <b>${f.echoS.toFixed(2).replace(".", ",")} s</b>`;
+  }, 120);
+  store.set("preset", presetNom); store.set("reglages", P);
+  for (const b of $("presets").children) b.setAttribute("aria-pressed", b.dataset.nom === presetNom ? "true" : "false");
+}
+function choisir(nom) { presetNom = nom; P = Pas.preset(nom); majSliders(); if (ac) piece(P); }
+
+// presets
+for (const nom of Object.keys(Pas.PRESETS)) { const b = document.createElement("button"); b.type = "button"; b.textContent = nom; b.dataset.nom = nom;
+  if (Pas.CALES[nom]) { const c = document.createElement("span"); c.className = "cale"; c.textContent = "calé"; b.appendChild(c); b.title = "Calé sur de vrais enregistrements (" + Pas.CALES[nom] + ")"; }
+  b.addEventListener("click", () => { choisir(nom); audio(); jouerPas(P, ac.currentTime + 0.01, { seed: ++seedCount, force: 1 }); }); $("presets").appendChild(b); }
+
+// A / B
+function etatAB() { for (const k of ["A", "B"]) $("etat" + k).textContent = slots[k] ? `${slots[k].depart}${Object.keys(slots[k].changements || {}).length ? " (modifié)" : ""}` : "vide"; }
+document.querySelectorAll("[data-ab]").forEach(b => b.addEventListener("click", () => {
+  const k = b.dataset.ab, act = b.dataset.act;
+  if (act === "garder") { slots[k] = { depart: presetNom, changements: differences(), P: Object.assign({}, P) }; store.set(k, slots[k]); etatAB(); toast(`Réglage gardé dans ${k}`); }
+  else if (!slots[k]) toast(`${k} est vide : clique d'abord sur « Garder ici »`);
+  else if (act === "ecouter") marcher(4, Object.assign({}, slots[k].P));
+  else { presetNom = slots[k].depart; P = Object.assign(Pas.preset(presetNom), slots[k].P); majSliders(); if (ac) piece(P); toast(`${k} repris`); }
+}));
+
+// vrais enregistrements (CC0) pour comparer à l'oreille
+const VRAIS = JSON.parse(document.getElementById("vrais-data").textContent), vraisBuf = {}, vraisI = {};
+async function jouerVrai(k) {
+  audio(); const L = VRAIS[k]; const i = vraisI[k] = ((vraisI[k] ?? -1) + 1) % L.length, id = k + i;
+  if (!vraisBuf[id]) { const s = atob(L[i]), u = new Uint8Array(s.length); for (let j = 0; j < s.length; j++) u[j] = s.charCodeAt(j); vraisBuf[id] = await ac.decodeAudioData(u.buffer); }
+  const src = ac.createBufferSource(); src.buffer = vraisBuf[id]; const g = ac.createGain(); g.gain.value = 0.8; src.connect(g).connect(master); src.start();
+  dessiner(vraisBuf[id].getChannelData(0), vraisBuf[id].sampleRate);
+}
+document.querySelectorAll("[data-vrai]").forEach(b => b.addEventListener("click", () => jouerVrai(b.dataset.vrai)));
+document.querySelectorAll("[data-synth]").forEach(b => b.addEventListener("click", () => { audio(); jouerPas(Pas.preset(b.dataset.synth), ac.currentTime + 0.01, { seed: ++seedCount, force: 1, sec: true }); }));
+
+// boutons
+$("bUn").addEventListener("click", () => { audio(); jouerPas(P, ac.currentTime + 0.01, { seed: ++seedCount, force: 1 }); });
+$("bMarche").addEventListener("click", () => marcher(8));
+$("bBoucle").addEventListener("click", () => { const on = $("bBoucle").getAttribute("aria-pressed") !== "true"; if (on) { marcher(0); $("bBoucle").setAttribute("aria-pressed", "true"); } else arreter(); });
+$("vol").addEventListener("input", () => { if (master) master.gain.value = +$("vol").value; });
+$("bDefaut").addEventListener("click", () => { choisir(presetNom); toast("Réglage d'origine remis"); });
+let tt; function toast(m) { $("toast").textContent = m; clearTimeout(tt); tt = setTimeout(() => $("toast").textContent = "", 2600); }
+$("bCopier").addEventListener("click", () => {
+  const t = $("json").value;
+  const ok = () => toast("Copié, tu peux le coller dans la conversation"), ko = () => { $("json").focus(); $("json").select(); toast("Sélectionné : fais Ctrl+C (ou Cmd+C)"); };
+  try { navigator.clipboard.writeText(t).then(ok, ko); } catch (e) { ko(); }
+});
+
+construire(); majSliders(); etatAB();
+new ResizeObserver(taille).observe(cv); new ResizeObserver(taille).observe($("vue"));
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => { grain = null; taille(); });
+new MutationObserver(() => { grain = null; taille(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+taille();
+window.ATELIER = { P: () => P, jouerPas, dessiner, Pas };
+})();
+</script>

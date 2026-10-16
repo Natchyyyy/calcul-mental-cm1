@@ -1,0 +1,41 @@
+{
+ "cibles/bois_kretopi.json": {
+  "essence": 0.8904,
+  "epaisseur": 30.61,
+  "portee": 50.11,
+  "support": 0.5527,
+  "amorti": 0.5136,
+  "durete": 0.7546,
+  "claque": 0.03167,
+  "talonF": 2594,
+  "appui": 0.5977,
+  "pointe": 0.3012
+ },
+ "cibles/bois_minetest.json": {
+  "essence": 0.9468,
+  "epaisseur": 12.58,
+  "portee": 25.91,
+  "support": 0.9517,
+  "amorti": 0.466,
+  "durete": 0.9288,
+  "claque": 0.1498,
+  "talonF": 2294,
+  "appui": 0.8687,
+  "pointe": 1
+ },
+ "cibles/bois_kenney.json": {
+  "lache": 0,
+  "poussiere": 0,
+  "frottement": 0.05,
+  "essence": 0.7807,
+  "epaisseur": 21.92,
+  "portee": 62.11,
+  "support": 0.1153,
+  "amorti": 0.5573,
+  "durete": 0.3362,
+  "claque": 0.3179,
+  "talonF": 1504,
+  "appui": 0.6883,
+  "pointe": 0.2373
+ }
+}

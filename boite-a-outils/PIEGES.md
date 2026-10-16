@@ -48,3 +48,21 @@
 ## Outils
 - `rm` avec un chemin relatif après `cd` est bloqué par sécurité : utiliser des chemins absolus.
 - Dans ces conteneurs, l'accès Internet est limité (pas de banques de sons) : tout se fabrique sur place.
+
+## Sons de pas physiques (sons/pas)
+- **Comparer à de vrais enregistrements, pas à son idée** : la v1 « à l'intuition » était 20 dB trop brillante et trop
+  résonante, invisible sans mesure. GitHub est accessible : des dépôts de jeux libres contiennent des pas CC0
+  (minetest_game, CDDA-Soundpacks avec credits.md). Mesurer (`mesure/mesures.py`), puis caler (`mesure/calibrer2.js`).
+- Avoir une **échelle** avant de juger : l'écart d'un vrai pas à sa propre série (0,7–4,3) dit ce qu'est « assez proche ».
+- **Regarder la structure temporelle** des vrais sons (planche de spectrogrammes, enveloppes aigus / graves séparées) :
+  c'est comme ça qu'est apparu le second claquement du talon ~18 ms après le premier.
+- Un banc de résonateurs qui s'arrête « quand c'est silencieux » doit attendre la **fin de l'excitation** (sinon il
+  s'arrête avant l'impact et ne produit rien) ; borner plutôt par le temps de décroissance (t60 × 1,7 = −100 dB).
+- Ne pas tronquer la liste des modes d'une plaque aux N premiers : ça supprime tous les aigus. Garder tout sous ~9 kHz.
+- **Un générateur aléatoire par couche** (frottement, grincement…) : sinon bouger un curseur change le hasard de tout
+  le reste, les A/B mentent et les mesures « avec / sans » sont fausses.
+- Des curseurs en butée après calibration = échelle mal centrée : recentrer la formule (sans changer le son).
+- Échos par sources-images parfaitement réguliers entre deux murs proches = son « en tube » qui gonfle ; ajouter une
+  diffusion à chaque rebond (gain et signe aléatoires, petit décalage).
+- Dans un jeu, calculer les pas dans un **Worker** (`Pas.__fabrique.toString()` dans un Blob) et garder une réserve de
+  variantes, avec un secours synchrone si la réserve est vide (sinon le premier pas de course est muet).

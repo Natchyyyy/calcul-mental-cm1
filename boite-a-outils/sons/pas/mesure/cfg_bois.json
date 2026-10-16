@@ -1,0 +1,76 @@
+{
+ "_note": "Calibration conjointe du moteur sur 3 groupes de vrais pas sur bois. Depuis ce dossier : node calibrer2.js cfg_bois.json sortie.json 150, puis python3 reglages_bois.py sortie.json, puis node ../tests/test_pas.js. Le départ est l'état actuel du moteur (constantes) et des réglages calés (presets).",
+ "globales": {
+  "TILT": [
+   0,
+   1.5
+  ],
+  "CLAQUE": [
+   0,
+   15
+  ],
+  "BASCULE": [
+   0,
+   1.2
+  ],
+  "CRAQUE": [
+   0,
+   25
+  ],
+  "CRAQUE_F": [
+   1500,
+   9000
+  ]
+ },
+ "sigma": 0.15,
+ "cibles": [
+  {
+   "cible": "cibles/bois_kretopi.json",
+   "preset": "Vieux plancher massif",
+   "cles": [
+    "essence",
+    "epaisseur",
+    "portee",
+    "support",
+    "amorti",
+    "durete",
+    "claque",
+    "talonF",
+    "appui",
+    "pointe"
+   ]
+  },
+  {
+   "cible": "cibles/bois_minetest.json",
+   "preset": "Parquet en chêne",
+   "cles": [
+    "essence",
+    "epaisseur",
+    "portee",
+    "support",
+    "amorti",
+    "durete",
+    "claque",
+    "talonF",
+    "appui",
+    "pointe"
+   ]
+  },
+  {
+   "cible": "cibles/bois_kenney.json",
+   "preset": "Parquet fin, semelles souples",
+   "cles": [
+    "essence",
+    "epaisseur",
+    "portee",
+    "support",
+    "amorti",
+    "durete",
+    "claque",
+    "talonF",
+    "appui",
+    "pointe"
+   ]
+  }
+ ]
+}
