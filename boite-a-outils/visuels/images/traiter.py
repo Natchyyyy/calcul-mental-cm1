@@ -138,7 +138,11 @@ def traiter(chemin, nom, typ="objet", sortie=".", tailles=None, fond="auto", mar
     detoure = T["detourer"] and fond != "aucun"
     if detoure:
         if fond == "auto": K, bruit = detecter_fond(rgb)
-        else: K = np.array(NOMMES.get(fond) or couleur(fond), dtype=float); _, bruit = detecter_fond(rgb)
+        else:
+            K = np.array(NOMMES.get(fond) or couleur(fond), dtype=float); Km, bruit = detecter_fond(rgb)
+            # la couleur réellement rendue (JPEG, « vert » de Gemini ≈ (8,246,3)) diffère un peu de la couleur demandée :
+            # si la bordure est unie et proche, on prend la couleur mesurée, sinon tout le fond garde un voile d'alpha
+            if Km is not None and np.linalg.norm(Km - K) < 60: K = Km
         if K is None:
             detoure = False; info["avertissement"] = "fond non uni : pas de détourage (redemander l'image sur un fond uni, ou --fond #RRGGBB)"
     if detoure:
