@@ -1,0 +1,30 @@
+{
+ "clic": [
+  "clic_0.ogg",
+  "clic_1.ogg",
+  "clic_2.ogg",
+  "clic_3.ogg"
+ ],
+ "reussite": [
+  "reussite_0.ogg",
+  "reussite_1.ogg",
+  "reussite_2.ogg"
+ ],
+ "carillon": [
+  "carillon_0.ogg"
+ ],
+ "pas": [
+  "pas_0.ogg",
+  "pas_1.ogg",
+  "pas_2.ogg",
+  "pas_3.ogg",
+  "pas_4.ogg",
+  "pas_5.ogg"
+ ],
+ "vent": [
+  "vent_0.ogg"
+ ],
+ "pluie": [
+  "pluie_0.ogg"
+ ]
+}
