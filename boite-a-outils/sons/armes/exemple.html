@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stand de tir sonore</title>
+<style>
+:root { --bg: #17181c; --panel: #22242a; --ink: #ece9e2; --mute: #9d9a92; --accent: #f08a5d; --line: #3a3d45 }
+@media (prefers-color-scheme: light) { :root { --bg: #e9e6df; --panel: #f6f4ef; --ink: #1f1e1b; --mute: #625f57; --accent: #b4441c; --line: #cbc7bd } }
+* { box-sizing: border-box }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, sans-serif; padding: 20px max(16px, env(safe-area-inset-left)) 40px }
+main { max-width: 820px; margin: 0 auto; display: grid; gap: 14px }
+h1 { margin: 0; font-size: 1.7rem }
+p { margin: 0; color: var(--mute) }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 10px }
+.row { display: flex; flex-wrap: wrap; gap: 8px }
+button { font: 600 .92rem system-ui, sans-serif; padding: 10px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); cursor: pointer }
+button[aria-pressed="true"] { background: var(--accent); color: #111; border-color: var(--accent) }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px }
+#etat { font: .85rem ui-monospace, monospace; color: var(--mute); min-height: 1.4em }
+kbd { font: .8rem ui-monospace, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px }
+</style>
+</head>
+<body>
+<main>
+  <h1>Stand de tir sonore</h1>
+  <p>Démo de <code>sons-d-armes.js</code> : <kbd>Espace</kbd> pour tirer, <kbd>R</kbd> pour recharger / armer, <kbd>G</kbd> pour une grenade au loin. Les « ennemis » tirent de temps en temps depuis différentes distances. Baisse le volume avant de commencer.</p>
+  <section class="box"><strong>Ton arme</strong><div class="row" id="armes"></div></section>
+  <section class="box"><strong>Le lieu</strong><div class="row" id="lieux"></div></section>
+  <section class="box"><div class="row">
+    <button type="button" id="bTir">Tirer</button><button type="button" id="bRafale">Rafale</button><button type="button" id="bAction">Recharger</button>
+    <button type="button" id="bGrenade">Grenade à 40 m</button><button type="button" id="bEnnemis" aria-pressed="false">Ennemis</button></div>
+    <div id="etat" role="status"></div></section>
+</main>
+<script src="armes.js"></script>
+<script src="sons-d-armes.js"></script>
+<script>
+"use strict";
+const armes = SonsDArmes.creer({ lieu: "Forêt", volume: 0.5 });
+let arme = "Fusil d'assaut 5,56", ennemis = null;
+const $ = id => document.getElementById(id), etat = t => $("etat").textContent = t;
+function bouton(parent, nom, actif, f) { const b = document.createElement("button"); b.type = "button"; b.textContent = nom; b.setAttribute("aria-pressed", String(actif)); b.onclick = () => { for (const x of parent.children) x.setAttribute("aria-pressed", "false"); b.setAttribute("aria-pressed", "true"); f(); }; parent.appendChild(b); }
+for (const n of armes.armes().filter(n => Armes.PRESETS[n].type !== 1)) bouton($("armes"), n, n === arme, () => { arme = n; armes.charger(n); etat("Arme : " + n); });
+for (const n of armes.lieux()) bouton($("lieux"), n, n === "Forêt", () => { armes.lieu(n); armes.charger(arme); etat("Lieu : " + n); });
+armes.charger(arme, { distances: [60, 150, 400], angles: [15, 90] });
+const action = () => { const P = Armes.PRESETS[arme]; return P.meca >= 1 ? "culasse" : P.projectiles > 1 ? "pompe" : "verrou"; };
+const tir = () => { const ok = armes.tirer(arme); etat(ok ? "Pan ! (" + arme + ")" : "Clique d'abord dans la page pour activer le son"); };
+$("bTir").onclick = tir;
+$("bRafale").onclick = () => { const P = Armes.PRESETS[arme]; if (P.cadence > 0) { armes.rafale(arme, { coups: 6 }); etat("Rafale à " + P.cadence + " coups/min"); } else etat("Cette arme ne tire pas en rafale"); };
+$("bAction").onclick = () => armes.action(arme, action());
+$("bGrenade").onclick = () => { armes.tirer("Grenade à main", { distance: 40, pan: 0.3 }); etat("Grenade à 40 m : le souffle arrive 0,12 s après l'éclair"); };
+$("bEnnemis").onclick = () => {
+  const on = !ennemis; $("bEnnemis").setAttribute("aria-pressed", String(on));
+  if (!on) { clearInterval(ennemis); ennemis = null; etat("Ennemis arrêtés"); return; }
+  ennemis = setInterval(() => {
+    const d = [60, 150, 400][Math.floor(Math.random() * 3)], a = Math.random() < 0.5 ? 15 : 90, n = Math.random() < 0.5 ? "Fusil d'assaut 7,62×39" : "Fusil d'assaut 5,56", pan = Math.random() * 1.6 - 0.8;
+    const k = armes.rafale(n, { coups: 1 + Math.floor(Math.random() * 4), distance: d, angle: a, pan });
+    etat(`Ennemi à ${d} m${a < 45 ? ", il tire vers toi (claquement avant le coup)" : ", sur le côté"}${k ? "" : " (sons pas encore prêts)"}`);
+  }, 2200);
+};
+addEventListener("keydown", e => { if (e.repeat) return; if (e.code === "Space") { e.preventDefault(); tir(); } else if (e.key === "r" || e.key === "R") armes.action(arme, action()); else if (e.key === "g" || e.key === "G") $("bGrenade").click(); });
+</script>
+</body>
+</html>

@@ -1,0 +1,247 @@
+{
+ "site": "site.json",
+ "arme": {
+  "beta": 3.385,
+  "allonge": 0.4628,
+  "precurseur": -6.872,
+  "avance": 1.5,
+  "cellules": 0,
+  "cellNiv": -5.769,
+  "cellEsp": 2.413,
+  "gaz": -27.05,
+  "gazDuree": 7.122,
+  "gazF": 1785,
+  "corps": -33.1,
+  "corpsF": 137,
+  "corpsDuree": 19.49,
+  "phaseNeg": 5.869,
+  "montee": 92,
+  "niveau": 162,
+  "tplus": 0.9781,
+  "directivite": 18,
+  "vitesse": 400,
+  "diametre": 8.4,
+  "longueur": 8.4,
+  "projectiles": 9,
+  "freinage": 150,
+  "meca": 0,
+  "douille": 0,
+  "queueDebut": 10.79,
+  "queueMontee": 130,
+  "queueT": 2.001,
+  "queueClarte": 0.9068,
+  "echos": 5,
+  "echoNiv": -37.17,
+  "echoLoin": 31,
+  "queueGrave": 350
+ },
+ "cles": [
+  "tplus",
+  "montee",
+  "beta",
+  "allonge",
+  "precurseur",
+  "avance",
+  "cellules",
+  "cellNiv",
+  "cellEsp",
+  "gaz",
+  "gazDuree",
+  "gazF",
+  "corps",
+  "corpsF",
+  "corpsDuree",
+  "phaseNeg",
+  "queueDebut",
+  "queueMontee",
+  "queueT",
+  "queueClarte",
+  "echos",
+  "echoNiv",
+  "echoLoin",
+  "queueGrave"
+ ],
+ "bornes": {
+  "tplus": [
+   0.15,
+   2.0
+  ],
+  "mecaCycle": [
+   8,
+   90
+  ],
+  "queueDebut": [
+   5,
+   60
+  ],
+  "echos": [
+   0,
+   6
+  ],
+  "echoLoin": [
+   5,
+   80
+  ],
+  "montee": [
+   1,
+   60
+  ]
+ },
+ "cibles": [
+  {
+   "dossier": "../cibles/pompe_proche",
+   "libres": {
+    "distance": [
+     2,
+     15
+    ],
+    "angle": [
+     5,
+     90
+    ],
+    "micro": [
+     130,
+     170
+    ],
+    "queue": [
+     -95,
+     -50
+    ],
+    "coupeBas": [
+     10,
+     300
+    ],
+    "hauteurOreille": [
+     0.3,
+     3
+    ]
+   },
+   "depart": {
+    "distance": 5,
+    "angle": 30,
+    "micro": 150,
+    "queue": -70,
+    "coupeBas": 40,
+    "hauteurOreille": 1.5
+   },
+   "n": 2
+  },
+  {
+   "dossier": "../cibles/pompe_moyen",
+   "libres": {
+    "distance": [
+     10,
+     80
+    ],
+    "angle": [
+     0,
+     45
+    ],
+    "micro": [
+     115,
+     165
+    ],
+    "queue": [
+     -95,
+     -50
+    ],
+    "coupeBas": [
+     10,
+     300
+    ],
+    "hauteurOreille": [
+     0.3,
+     3
+    ]
+   },
+   "depart": {
+    "distance": 25,
+    "angle": 15,
+    "micro": 138,
+    "queue": -70,
+    "coupeBas": 40,
+    "hauteurOreille": 1.5
+   },
+   "n": 2
+  },
+  {
+   "dossier": "../cibles/pompe_loin",
+   "libres": {
+    "distance": [
+     10,
+     300
+    ],
+    "angle": [
+     0,
+     45
+    ],
+    "micro": [
+     100,
+     155
+    ],
+    "queue": [
+     -95,
+     -50
+    ],
+    "coupeBas": [
+     10,
+     300
+    ],
+    "hauteurOreille": [
+     0.3,
+     3
+    ]
+   },
+   "depart": {
+    "distance": 80,
+    "angle": 10,
+    "micro": 128,
+    "queue": -70,
+    "coupeBas": 40,
+    "hauteurOreille": 1.5
+   },
+   "n": 2
+  },
+  {
+   "dossier": "../cibles/pompe_tireur",
+   "libres": {
+    "distance": [
+     0.4,
+     4
+    ],
+    "angle": [
+     120,
+     180
+    ],
+    "micro": [
+     130,
+     172
+    ],
+    "queue": [
+     -95,
+     -50
+    ],
+    "coupeBas": [
+     10,
+     300
+    ],
+    "hauteurOreille": [
+     0.3,
+     3
+    ]
+   },
+   "depart": {
+    "distance": 1.5,
+    "angle": 170,
+    "micro": 152,
+    "queue": -70,
+    "coupeBas": 40,
+    "hauteurOreille": 1.5
+   },
+   "fixe": {
+    "tireur": 1
+   },
+   "n": 2
+  }
+ ]
+}

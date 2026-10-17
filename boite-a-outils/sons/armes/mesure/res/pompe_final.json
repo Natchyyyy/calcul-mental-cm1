@@ -1,0 +1,111 @@
+{
+ "ecart": 6.90032266624098,
+ "depart": 56.42658564499104,
+ "generation": 129,
+ "parts": [
+  {
+   "cible": "pompe_proche",
+   "total": 6.008,
+   "direct": 2.15,
+   "queue": 1.92,
+   "profil": 1.77,
+   "fort": 1.44
+  },
+  {
+   "cible": "pompe_moyen",
+   "total": 6.467,
+   "direct": 3.29,
+   "queue": 2.79,
+   "profil": 0.68,
+   "fort": 1.7
+  },
+  {
+   "cible": "pompe_loin",
+   "total": 6.802,
+   "direct": 1.5,
+   "queue": 4.56,
+   "profil": 2.12,
+   "fort": 0.06
+  },
+  {
+   "cible": "pompe_tireur",
+   "total": 8.324,
+   "direct": 1.6,
+   "queue": 4.77,
+   "profil": 3.13,
+   "fort": 0.27
+  }
+ ],
+ "arme": {
+  "tplus": 0.6295,
+  "montee": 57,
+  "beta": 3.909,
+  "allonge": 1.287,
+  "precurseur": -7.325,
+  "avance": 1.172,
+  "cellules": 2,
+  "cellNiv": -17.53,
+  "cellEsp": 2.776,
+  "gaz": -33.2,
+  "gazDuree": 7.102,
+  "gazF": 5532,
+  "corps": -39.25,
+  "corpsF": 59,
+  "corpsDuree": 27.65,
+  "phaseNeg": 11.02,
+  "queueDebut": 16.96,
+  "queueMontee": 64,
+  "queueT": 3.083,
+  "queueClarte": 0.5028,
+  "echos": 6,
+  "echoNiv": -34.56,
+  "echoLoin": 30,
+  "queueGrave": 549
+ },
+ "cibles": [
+  {
+   "dossier": "../cibles/pompe_proche",
+   "reglages": {
+    "distance": 2.349,
+    "angle": 65,
+    "micro": 141.6,
+    "queue": -72.33,
+    "coupeBas": 177,
+    "hauteurOreille": 1.276
+   }
+  },
+  {
+   "dossier": "../cibles/pompe_moyen",
+   "reglages": {
+    "distance": 35.69,
+    "angle": 10,
+    "micro": 150.4,
+    "queue": -71.39,
+    "coupeBas": 289,
+    "hauteurOreille": 2.72
+   }
+  },
+  {
+   "dossier": "../cibles/pompe_loin",
+   "reglages": {
+    "distance": 36.09,
+    "angle": 29,
+    "micro": 126.5,
+    "queue": -80.89,
+    "coupeBas": 241,
+    "hauteurOreille": 2.675
+   }
+  },
+  {
+   "dossier": "../cibles/pompe_tireur",
+   "reglages": {
+    "distance": 0.9213,
+    "angle": 131,
+    "micro": 158.8,
+    "queue": -53.56,
+    "coupeBas": 79,
+    "hauteurOreille": 0.5706
+   }
+  }
+ ]
+}

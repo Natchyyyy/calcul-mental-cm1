@@ -1,0 +1,114 @@
+{
+ "ecart": 8.018963956461159,
+ "depart": 8.591068277996182,
+ "generation": 99,
+ "parts": [
+  {
+   "cible": "9mm_proche",
+   "total": 6.299,
+   "direct": 2.3,
+   "queue": 2.06,
+   "profil": 2.2,
+   "fort": 0.29
+  },
+  {
+   "cible": "9mm_moyen",
+   "total": 8.199,
+   "direct": 6.02,
+   "queue": 2.98,
+   "profil": 0.17,
+   "fort": 0.46
+  },
+  {
+   "cible": "9mm_loin",
+   "total": 10.745,
+   "direct": 6.55,
+   "queue": 2.14,
+   "profil": 1.68,
+   "fort": 2.23
+  },
+  {
+   "cible": "9mm_tireur",
+   "total": 6.69,
+   "direct": 2.93,
+   "queue": 1.75,
+   "profil": 2.15,
+   "fort": 0.34
+  }
+ ],
+ "arme": {
+  "tplus": 0.6010817,
+  "montee": 41,
+  "beta": 2.329589,
+  "allonge": 0.8214711,
+  "precurseur": -6.077603,
+  "avance": 1.400291,
+  "cellules": 0,
+  "cellNiv": -21.20593,
+  "cellEsp": 0.6861589,
+  "gaz": -26.74768,
+  "gazDuree": 6.937005,
+  "gazF": 2449,
+  "corps": -27.71468,
+  "corpsF": 593,
+  "corpsDuree": 1,
+  "phaseNeg": 0.3,
+  "mecaNiv": 98.55405,
+  "mecaCycle": 40,
+  "mecaF": 2063,
+  "queueDebut": 15.18861,
+  "queueMontee": 32,
+  "queueT": 2.611457,
+  "queueClarte": 0.7146593,
+  "echos": 1,
+  "echoNiv": -21.14949,
+  "echoLoin": 29,
+  "queueGrave": 426
+ },
+ "cibles": [
+  {
+   "dossier": "../cibles/9mm_proche",
+   "reglages": {
+    "distance": 2.014443,
+    "angle": 77,
+    "micro": 154.0515,
+    "queue": -69.27479,
+    "coupeBas": 38,
+    "hauteurOreille": 1.34457
+   }
+  },
+  {
+   "dossier": "../cibles/9mm_moyen",
+   "reglages": {
+    "distance": 78.35988,
+    "angle": 15,
+    "micro": 160,
+    "queue": -68.84836,
+    "coupeBas": 286,
+    "hauteurOreille": 2.220089
+   }
+  },
+  {
+   "dossier": "../cibles/9mm_loin",
+   "reglages": {
+    "distance": 40.09695,
+    "angle": 1,
+    "micro": 136.8629,
+    "queue": -87.00441,
+    "coupeBas": 300,
+    "hauteurOreille": 2.963575
+   }
+  },
+  {
+   "dossier": "../cibles/9mm_tireur",
+   "reglages": {
+    "distance": 2.611008,
+    "angle": 172,
+    "micro": 144.6144,
+    "queue": -68.67656,
+    "coupeBas": 212,
+    "hauteurOreille": 3
+   }
+  }
+ ]
+}

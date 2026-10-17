@@ -81,3 +81,19 @@
 - Estimer le bruit du fond sur les seuls pixels de fond (un buste touche souvent le bord de l'image).
 - Pixel art : calculer la palette sur les pixels visibles seulement (sinon le fond enlevé « teinte » le sujet).
 - Ne pas lancer de génération (ni dépenser de crédits Meshy) sans que l'utilisateur l'ait demandé.
+
+## Coups de feu et explosions (sons/armes)
+- Les enregistrements de tirs sont **toujours saturés** (micro ou enregistreur dépassé, puis normalisés à 0 dBFS) :
+  mettre la même saturation dans la synthèse (« marge du micro ») au lieu de la combattre.
+- Repérer l'attaque en **remontant depuis le maximum** (au plus 15 ms) : un pré-roulement bruyant (vent, autres
+  tireurs) se fait sinon passer pour le début du tir et décale toutes les fenêtres de mesure.
+- Devant le tireur, la balle supersonique **claque avant** le coup de feu (5,56 à 30 m : ≈ 15 ms d'avance). Une cible
+  « de loin » mélange deux sons ; ne pas mélanger dans une même cible des micros placés différemment (AK et SKS « loin »).
+- Une perte plafonnée (min(d², 25)) rend l'optimiseur aveugle dès que l'écart est grand : perte de Huber (carré puis
+  linéaire). Le paysage reste accidenté (ondes en N, échos qui changent de fenêtre) : garder les réglages en pleine
+  précision et annoncer une fidélité mesurée avec **d'autres graines** que celles de la calibration.
+- La directivité (devant / derrière) se calibre mal avec des enregistrements normalisés : la fixer aux mesures publiées
+  (≈ 15 dB, 18 pour un calibre 12).
+- Reverbération en plein air : les obstacles (arbres, talus) renvoient mal les graves (passe-haut) et l'air éteint les
+  aigus du long trajet ; des arrivées éparses (pas un bruit continu) donnent le grain des vrais tirs.
+- `pkill -f motif` ou `grep motif` dans la même commande que le motif se tue / se trouve lui-même : garder le PID.

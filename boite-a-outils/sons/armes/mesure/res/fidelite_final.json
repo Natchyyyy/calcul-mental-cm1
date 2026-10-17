@@ -1,0 +1,138 @@
+{
+ "556": {
+  "556_proche": {
+   "total": 6.09,
+   "direct": 2.25,
+   "queue": 2.5,
+   "profil": 1.31,
+   "fort": 1.92
+  },
+  "556_moyen": {
+   "total": 5.911,
+   "direct": 5.59,
+   "queue": 0,
+   "profil": 0.07,
+   "fort": 0.59
+  },
+  "556_loin": {
+   "total": 14.774,
+   "direct": 4.11,
+   "queue": 2.64,
+   "profil": 7.57,
+   "fort": 0
+  },
+  "556_tireur": {
+   "total": 10.191,
+   "direct": 1.8,
+   "queue": 2.21,
+   "profil": 5.87,
+   "fort": 0.05
+  }
+ },
+ "762": {
+  "762_proche": {
+   "total": 5.761,
+   "direct": 2.3,
+   "queue": 0.75,
+   "profil": 2.21,
+   "fort": 0.89
+  },
+  "762_loin": {
+   "total": 11.422,
+   "direct": 3.7,
+   "queue": 2.31,
+   "profil": 3.89,
+   "fort": 4.16
+  },
+  "762_tireur": {
+   "total": 5.773,
+   "direct": 1.38,
+   "queue": 1.82,
+   "profil": 2.65,
+   "fort": 0.31
+  }
+ },
+ "76254": {
+  "76254_proche": {
+   "total": 9.155,
+   "direct": 1.16,
+   "queue": 2.75,
+   "profil": 5.14,
+   "fort": 0.45
+  },
+  "76254_moyen": {
+   "total": 4.105,
+   "direct": 1.37,
+   "queue": 1,
+   "profil": 1.69,
+   "fort": 0.27
+  },
+  "76254_loin": {
+   "total": 7.836,
+   "direct": 7.57,
+   "queue": 0,
+   "profil": 0.15,
+   "fort": 0.21
+  }
+ },
+ "9mm": {
+  "9mm_proche": {
+   "total": 6.365,
+   "direct": 2.37,
+   "queue": 1.91,
+   "profil": 2.28,
+   "fort": 0.29
+  },
+  "9mm_moyen": {
+   "total": 8.319,
+   "direct": 6.21,
+   "queue": 2.88,
+   "profil": 0.15,
+   "fort": 0.49
+  },
+  "9mm_loin": {
+   "total": 10.75,
+   "direct": 6.62,
+   "queue": 2.24,
+   "profil": 1.55,
+   "fort": 2.33
+  },
+  "9mm_tireur": {
+   "total": 6.941,
+   "direct": 2.97,
+   "queue": 1.42,
+   "profil": 2.49,
+   "fort": 0.34
+  }
+ },
+ "pompe": {
+  "pompe_proche": {
+   "total": 5.62,
+   "direct": 1.74,
+   "queue": 1.85,
+   "profil": 1.85,
+   "fort": 1.37
+  },
+  "pompe_moyen": {
+   "total": 6.861,
+   "direct": 3.57,
+   "queue": 2.74,
+   "profil": 0.81,
+   "fort": 1.7
+  },
+  "pompe_loin": {
+   "total": 6.602,
+   "direct": 1.53,
+   "queue": 4.46,
+   "profil": 1.98,
+   "fort": 0.06
+  },
+  "pompe_tireur": {
+   "total": 8.516,
+   "direct": 1.7,
+   "queue": 4.77,
+   "profil": 3.21,
+   "fort": 0.25
+  }
+ }
+}

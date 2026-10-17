@@ -1,0 +1,116 @@
+{
+ "ecart": 9.20579431719566,
+ "depart": 11.74997167740548,
+ "generation": 99,
+ "parts": [
+  {
+   "cible": "556_proche",
+   "total": 6.308,
+   "direct": 2.41,
+   "queue": 2.56,
+   "profil": 1.34,
+   "fort": 1.88
+  },
+  {
+   "cible": "556_moyen",
+   "total": 6.006,
+   "direct": 5.7,
+   "queue": 0,
+   "profil": 0.09,
+   "fort": 0.51
+  },
+  {
+   "cible": "556_loin",
+   "total": 14.5,
+   "direct": 3.83,
+   "queue": 2.75,
+   "profil": 7.52,
+   "fort": 0
+  },
+  {
+   "cible": "556_tireur",
+   "total": 9.871,
+   "direct": 1.76,
+   "queue": 2.1,
+   "profil": 5.69,
+   "fort": 0.05
+  }
+ ],
+ "arme": {
+  "tplus": 0.8251,
+  "montee": 56,
+  "beta": 3.915,
+  "allonge": 0.9612,
+  "precurseur": -7.438,
+  "avance": 1.5,
+  "cellules": 0,
+  "cellNiv": -9.189,
+  "cellEsp": 1.54,
+  "gaz": -20.02,
+  "gazDuree": 5.792,
+  "gazF": 1375,
+  "corps": -38.84,
+  "corpsF": 163,
+  "corpsDuree": 23.46,
+  "phaseNeg": 13.96,
+  "mecaNiv": 80.4,
+  "mecaCycle": 83.35,
+  "mecaF": 7281,
+  "ressort": -11.2,
+  "ressortF": 4874,
+  "queueDebut": 24.42,
+  "queueMontee": 2,
+  "queueT": 2.249,
+  "queueClarte": 0.4378,
+  "echos": 4,
+  "echoNiv": -33.87,
+  "echoLoin": 24,
+  "queueGrave": 478
+ },
+ "cibles": [
+  {
+   "dossier": "../cibles/556_proche",
+   "reglages": {
+    "distance": 8.521,
+    "angle": 68,
+    "micro": 168.8,
+    "queue": -84.43,
+    "coupeBas": 297,
+    "hauteurOreille": 2.115
+   }
+  },
+  {
+   "dossier": "../cibles/556_moyen",
+   "reglages": {
+    "distance": 40.89,
+    "angle": 28,
+    "micro": 142.7,
+    "queue": -55.03,
+    "coupeBas": 288,
+    "hauteurOreille": 2.948
+   }
+  },
+  {
+   "dossier": "../cibles/556_loin",
+   "reglages": {
+    "distance": 10,
+    "angle": 3,
+    "micro": 112.3,
+    "queue": -68.01,
+    "coupeBas": 201,
+    "hauteurOreille": 2.743
+   }
+  },
+  {
+   "dossier": "../cibles/556_tireur",
+   "reglages": {
+    "distance": 1.644,
+    "angle": 177,
+    "micro": 168.7,
+    "queue": -59.61,
+    "coupeBas": 275,
+    "hauteurOreille": 2.421
+   }
+  }
+ ]
+}
