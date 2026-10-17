@@ -548,9 +548,9 @@
   // ---------- lieux tout prêts (réglages du groupe « Lieu ») ----------
   const LIEUX = {
     "Champ ouvert": { lieu: 0, sol: 1, queue: -82, queueDebut: 90, queueT: 0.7, queueClarte: 0.3, echos: 0, echoNiv: -20, echoLoin: 200, portee: 300 },
-    "Forêt": { lieu: 0, sol: 1, queue: -64, queueDebut: 8, queueT: 2.2, queueClarte: 0.45, echos: 0, echoNiv: -20, echoLoin: 30, portee: 120 },
-    "Village / rue": { lieu: 0, sol: 3, queue: -66, queueDebut: 9, queueT: 1.5, queueClarte: 0.6, echos: 7, echoNiv: -4, echoLoin: 14, portee: 80 },
-    "Vallée de montagne": { lieu: 0, sol: 2, queue: -70, queueDebut: 150, queueT: 4.5, queueClarte: 0.25, echos: 3, echoNiv: -5, echoLoin: 450, portee: 1500 },
+    "Forêt": { lieu: 0, sol: 1, queue: -68, queueDebut: 8, queueT: 2.2, queueClarte: 0.45, echos: 0, echoNiv: -20, echoLoin: 30, portee: 120 },
+    "Village / rue": { lieu: 0, sol: 3, queue: -68, queueDebut: 9, queueT: 1.4, queueClarte: 0.6, echos: 5, echoNiv: -16, echoLoin: 16, portee: 80 },
+    "Vallée de montagne": { lieu: 0, sol: 2, queue: -74, queueDebut: 150, queueT: 4.5, queueClarte: 0.25, echos: 3, echoNiv: -10, echoLoin: 450, portee: 1500 },
     "Neige": { lieu: 0, sol: 0, queue: -78, queueDebut: 15, queueT: 1.0, queueClarte: 0.2, echos: 0, echoNiv: -20, echoLoin: 40, portee: 150 },
     "Intérieur — pièce": { lieu: 1, sol: 4, longueurP: 5, largeurP: 4, hauteurP: 2.6, absorption: 0.22 },
     "Intérieur — couloir": { lieu: 1, sol: 3, longueurP: 24, largeurP: 2.2, hauteurP: 2.6, absorption: 0.1 },
@@ -920,7 +920,7 @@
   LIEUX["Stand de tir (plein air)"] = {"queueDebut": 16.899, "queueMontee": 64, "queueGrave": 513, "queueT": 2.263, "queueClarte": 0.438, "echos": 4, "echoNiv": -33.87, "echoLoin": 29, "lieu": 0, "sol": 1, "queue": -74.3, "portee": 150};
   for (const k of Object.keys(LIEUX)) if (k !== "Stand de tir (plein air)") { const v = LIEUX[k]; delete LIEUX[k]; LIEUX[k] = v; }   // le stand en premier
   // </presets>
-  const api = { PARAMS, GROUPES, DEFAUT, SOLS, LIEUX, get PRESETS() { return PRESETS; }, get CALES() { return CALES; }, get FIDELITE() { return FIDELITE; }, preset, tir, rendre, action, actionLieu, fiche, kinney, rng, absAir, reflet, version: "1.0",
+  const api = { PARAMS, GROUPES, DEFAUT, SOLS, LIEUX, get PRESETS() { return PRESETS; }, get CALES() { return CALES; }, get FIDELITE() { return FIDELITE; }, preset, tir, rendre, action, actionLieu, fiche, reponseLieu: (P, r, sr, v) => lieuIR(Object.assign({}, DEFAUT, P), r, sr || 48000, v || 0), kinney, rng, absAir, reflet, version: "1.0",
     _presets(p) { PRESETS = p; }, _vider() { irCache.clear(); }, _limiteIR(s) { LIMITE_IR = s; irCache.clear(); } };
   return api;
 });

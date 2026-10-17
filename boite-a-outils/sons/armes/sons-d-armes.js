@@ -1,157 +1,181 @@
-/* SonsDArmes — coups de feu et explosions physiques pour un jeu web, construits sur armes.js (à charger avant ce fichier).
+/* SonsDArmes 2 — coups de feu pour un jeu web : VRAIS enregistrements + physique de l'espace.
 
-   const armes = SonsDArmes.creer({ lieu: "Forêt" });                  // ou lieu: { …réglages du lieu… }
-   await armes.charger("Pistolet 9 mm");                               // prépare d'avance (facultatif mais conseillé)
-   armes.tirer("Pistolet 9 mm");                                       // c'est le joueur qui tire (vue du tireur)
-   armes.tirer("Fusil d'assaut 5,56", { distance: 120, angle: 30, pan: -0.4 });   // un autre, à 120 m
-   armes.rafale("Fusil d'assaut 7,62×39", { coups: 6, cadence: 600 });  // rafale (coups par minute)
-   armes.action("Fusil à pompe 12", "pompe");                          // la pompe (aussi "culasse", "verrou", "clic")
-   armes.tirer("Grenade à main", { distance: 25 });                    // une explosion
-   armes.lieu("Intérieur — couloir");                                  // on change de lieu (réverbération)
+   Les coups eux-mêmes sont de vrais tirs enregistrés (Free Firearm Sound Library, CC0), pris derrière le tireur, de près,
+   à mi-distance et de loin. La physique (armes.js) s'occupe de ce qui dépend de l'endroit : distance (niveau, air qui
+   avale les aigus, retard du son), claquement de la balle qui arrive avant le coup quand on est devant le canon,
+   côté ou arrière du tireur plus sourd, réverbération du lieu (forêt, rue, vallée, pièce, couloir, bunker…).
 
-   Chaque tir est calculé par le moteur physique (≈ 50 ms) dans un Worker : on garde d'avance quelques variantes par arme
-   et par position d'écoute (tireur, près, loin… devant, à côté, derrière). Chaque variante jouée est remplacée par une
-   nouvelle : on n'entend jamais deux fois le même coup. Le son direct passe par le panoramique (ou un PannerNode 3D) ;
-   la réverbération du lieu arrive des deux côtés. Les sons lointains arrivent en retard (vitesse du son), et le claquement
-   d'une balle supersonique arrive AVANT le coup de feu quand on est devant le tireur, comme en vrai. */
+   charger dans la page : armes.js, puis sons-d-armes.js, puis banque/banque-data.js (page en un seul fichier),
+   ou bien passer banque: "banque/" (les fichiers .ogg et banque.json à côté de la page)
+   const armes = SonsDArmes.creer({ lieu: "Forêt" });                       // banque : window.BANQUE_ARMES par défaut
+   await armes.charger("Fusil d'assaut 5,56");
+   armes.tirer("Fusil d'assaut 5,56");                                      // c'est le joueur qui tire
+   armes.tirer("Fusil d'assaut 7,62×39", { distance: 120, angle: 10 });     // un ennemi à 120 m qui tire vers nous
+   armes.rafale("Pistolet-mitrailleur 9 mm", { coups: 6 });
+   armes.action("Fusil à pompe 12", "pompe");                               // "pompe", "culasse", "verrou", "chargeur", "clic", "cartouche"
+   armes.tirer("Grenade à main", { distance: 25 });
+   armes.lieu("Intérieur — couloir");                                       */
 (function (root, factory) {
   if (typeof module === "object" && module.exports) module.exports = factory(require("./armes.js")); else root.SonsDArmes = factory(root.Armes);
 })(typeof self !== "undefined" ? self : this, function (Armes) {
   "use strict";
   if (!Armes) throw new Error("SonsDArmes : charger armes.js avant sons-d-armes.js");
-  const CLES_LIEU = Armes.PARAMS.filter(p => p[1] === "Lieu").map(p => p[0]);
-  const DISTANCES = [1.5, 4, 10, 25, 60, 150, 400, 1000], ANGLES = [15, 90, 165];
-
-  // ---------- Worker partagé ----------
-  let worker = null, wId = 0, enVol = 0; const attentes = new Map(), file = [];
-  const local = d => d.type === "action" ? Armes.actionLieu(d.P, d.quoi, d.seed, { sr: d.sr }) : Armes.tir(d.P, d.seed, { sr: d.sr });
-  function demarrerWorker() {
-    if (worker !== null) return worker;
-    try {
-      const src = "self.Armes = (" + Armes.__fabrique.toString() + ")();\n" +
-        "self.onmessage = e => { const d = e.data; try {\n" +
-        "  const R = d.type === 'action' ? self.Armes.actionLieu(d.P, d.quoi, d.seed, { sr: d.sr }) : self.Armes.tir(d.P, d.seed, { sr: d.sr });\n" +
-        "  self.postMessage({ id: d.id, R }, [R.sec.buffer, R.env[0].buffer, R.env[1].buffer]);\n" +
-        "} catch (err) { self.postMessage({ id: d.id, erreur: String(err) }); } };";
-      worker = new Worker(URL.createObjectURL(new Blob([src], { type: "text/javascript" })));
-      worker.onmessage = e => { const a = attentes.get(e.data.id); enVol--; if (a) { attentes.delete(e.data.id);
-        if (e.data.erreur) { console.warn("SonsDArmes : calcul impossible", e.data.erreur); a.res(null); } else a.res(e.data.R); } pomper(); };
-      worker.onerror = () => { worker = false; const restes = [...attentes.values(), ...file.splice(0)]; attentes.clear(); restes.forEach(a => tard(() => a.res(local(a.d)))); };
-    } catch (e) { worker = false; }
-    return worker;
-  }
-  const tard = f => setTimeout(() => { try { f(); } catch (e) { console.warn(e); } }, 0);
-  function pomper() {
-    while (worker && enVol < 2 && file.length) {
-      const a = file.shift(); if (a.vivant && !a.vivant()) { a.res(null); continue; }
-      const id = ++wId; attentes.set(id, a); enVol++; worker.postMessage(Object.assign({ id }, a.d));
-    }
-  }
-  function calculer(d, vivant, urgent) {
-    const w = typeof Worker !== "undefined" && Armes.__fabrique ? demarrerWorker() : false;
-    return new Promise(res => {
-      if (w) { const a = { res, d, vivant }; if (urgent) file.unshift(a); else file.push(a); pomper(); }
-      else tard(() => { if (vivant && !vivant()) return res(null); try { res(local(d)); } catch (e) { console.warn(e); res(null); } });
-    });
-  }
+  const CLES_LIEU = Armes.PARAMS.filter(p => p[1] === "Lieu").map(p => p[0]), STAND = "Stand de tir (plein air)";
+  let INTERIEUR = 0.045;   // calé : réverbération d'une pièce ≈ −20 dB 0,1 s après le coup (couloir)
+  // niveau de chaque arme (dB) par rapport au fusil d'assaut : ce qu'on entend dans la réalité, en un peu resserré
+  const NIVEAU = { "Pistolet 9 mm": -3, "Pistolet-mitrailleur 9 mm": -2, "Fusil d'assaut 5,56": 0, "Fusil d'assaut 7,62×39": 0.5,
+    "Fusil de précision 7,62×54": 2, "Fusil à pompe 12": 1, "Grenade à main": 3, "Explosion lourde": 6 };
+  const CADENCE = { "Pistolet-mitrailleur 9 mm": 600, "Fusil d'assaut 5,56": 750, "Fusil d'assaut 7,62×39": 600 };
+  // pour la physique (claquement, directivité) : vitesse de la balle et réglages du moteur
+  const PHYS = { "Pistolet 9 mm": "Pistolet 9 mm", "Pistolet-mitrailleur 9 mm": "Pistolet-mitrailleur 9 mm", "Fusil d'assaut 5,56": "Fusil d'assaut 5,56",
+    "Fusil d'assaut 7,62×39": "Fusil d'assaut 7,62×39", "Fusil de précision 7,62×54": "Fusil de précision 7,62×54", "Fusil à pompe 12": "Fusil à pompe 12" };
+  const b64 = s => { const t = atob(s), u = new Uint8Array(t.length); for (let i = 0; i < t.length; i++) u[i] = t.charCodeAt(i); return u.buffer; };
 
   function creer(o) {
     o = o || {};
-    const ac = o.ac || new (window.AudioContext || window.webkitAudioContext)(), N = o.variantes || 3, dyn = o.dynamique == null ? 0.3 : o.dynamique;
-    const master = ac.createGain(); master.gain.value = o.volume == null ? 0.9 : o.volume;
-    const lim = ac.createDynamicsCompressor(); lim.threshold.value = -2; lim.knee.value = 2; lim.ratio.value = 20; lim.attack.value = 0.0005; lim.release.value = 0.15;
+    const ac = o.ac || new (window.AudioContext || window.webkitAudioContext)();
+    const dyn = o.dynamique == null ? 0.5 : o.dynamique, NREF = -16;
+    let punch = o.graves == null ? 0.6 : o.graves;   // renfort de graves des jeux (0 = son brut des enregistrements)
+    const expo = 1 - 0.6 * dyn, retardOn = o.retard !== false, reverb = o.reverb == null ? 1 : o.reverb;
+    const src = o.banque || (typeof window !== "undefined" && window.BANQUE_ARMES);
+    if (!src) throw new Error("SonsDArmes : banque introuvable — charger banque/banque-data.js ou passer banque: \"chemin/vers/banque/\"");
+    const master = ac.createGain(); master.gain.value = o.volume == null ? 0.8 : o.volume;
+    const lim = ac.createDynamicsCompressor(); lim.threshold.value = -3; lim.knee.value = 3; lim.ratio.value = 12; lim.attack.value = 0.001; lim.release.value = 0.2;
     master.connect(lim).connect(o.sortie || ac.destination);
-    let lieu = Object.fromEntries(CLES_LIEU.map(k => [k, Armes.DEFAUT[k]])), seed = (o.graine || ((Math.random() * 1e6) | 0)) * 1000, generation = 0;
-    const reserves = new Map();
+    // réverbération du lieu : une seule convolution partagée, calculée par le moteur physique
+    const conv = ac.createConvolver(); conv.normalize = false; const envoi = ac.createGain(); envoi.connect(conv).connect(master);
+    let lieuP = Object.assign({}, Armes.DEFAUT, Armes.LIEUX[STAND]), lieuNom = STAND, lieuPret = Promise.resolve();
+    let banque = null; const tampons = new Map(), dernier = new Map();
+    const pretBanque = (async () => {
+      if (typeof src === "string") { const r = await fetch(src.replace(/\/?$/, "/") + "banque.json"); banque = await r.json(); banque.base = src.replace(/\/?$/, "/"); }
+      else banque = src.json ? Object.assign({}, src.json, { ogg: src.ogg }) : src;
+    })();
+    async function tampon(f) {
+      if (tampons.has(f)) return tampons.get(f);
+      const p = (async () => { const data = banque.ogg ? b64(banque.ogg[f]) : await (await fetch(banque.base + f)).arrayBuffer(); return await ac.decodeAudioData(data); })();
+      tampons.set(f, p); try { const b = await p; tampons.set(f, b); return b; } catch (e) { tampons.delete(f); throw e; }
+    }
+    const pret = v => { const t = tampons.get(v.f); return t && !(t instanceof Promise) ? t : null; };
+    const W = nom => { const w = banque && banque.armes[nom]; if (!w) throw new Error("SonsDArmes : arme inconnue « " + nom + " » — possibles : " + (banque ? Object.keys(banque.armes).join(", ") : "(banque pas encore chargée)")); return w; };
 
-    const versBuf = (a, b) => { const B = ac.createBuffer(b ? 2 : 1, a.length, ac.sampleRate); B.copyToChannel(a, 0); if (b) B.copyToChannel(b, 1); return B; };
-    function arme(nom) {
-      if (nom && typeof nom === "object" && nom.depart) return Object.assign(Armes.preset(nom.depart), nom.changements || {});
-      if (typeof nom === "string") { if (!Armes.PRESETS[nom]) throw new Error("SonsDArmes : arme inconnue « " + nom + " » — possibles : " + Object.keys(Armes.PRESETS).join(", ")); return Armes.preset(nom); }
-      return Object.assign({}, Armes.DEFAUT, nom || {});
+    // perspective d'écoute → quelle série d'enregistrements
+    function perspective(w, q) {
+      if (w.explosion) return "proche";
+      if (!q.distance || q.distance < 1) return "tireur";
+      return q.distance < 10 ? "proche" : q.distance < 50 ? "moyen" : "loin";
     }
-    // position d'écoute ramenée à une « case » (distance et angle arrondis) : quelques variantes calculées par case
-    function cas(P, q) {
-      const moi = !q.distance || q.distance < 1, d = moi ? 0 : DISTANCES.reduce((a, b) => Math.abs(Math.log(b / q.distance)) < Math.abs(Math.log(a / q.distance)) ? b : a);
-      const an = moi ? 170 : ANGLES.reduce((a, b) => Math.abs(b - (q.angle || 0)) < Math.abs(a - (q.angle || 0)) ? b : a);
-      const Pq = Object.assign({}, P, lieu, moi ? { tireur: 1, distance: P.type >= 0.5 ? 6 : 0.6, angle: 170 } : { tireur: 0, distance: d, angle: P.type >= 0.5 ? 0 : an });
-      return { Pq, k: generation + "|" + JSON.stringify(P) + "|" + d + "|" + an, d: Pq.distance, moi };
+    function choisir(nom, L) {   // une variante prête, jamais deux fois de suite la même
+      const ok = L.filter(pret); if (!ok.length) return null; let v = ok[Math.floor(Math.random() * ok.length)];
+      if (ok.length > 1 && v === dernier.get(nom)) v = ok[(ok.indexOf(v) + 1) % ok.length]; dernier.set(nom, v); return v;
     }
-    function reserve(c, creer) {
-      let R = reserves.get(c.k); if (R || !creer) return R;
-      R = { k: c.k, P: c.Pq, bufs: [], attente: 0, oublie: false, gen: generation }; R.pret = new Promise(r => R.fin = r);
-      R.remplir = () => { while (!R.oublie && R.bufs.length + R.attente < N) { R.attente++;
-        calculer({ type: "tir", P: R.P, seed: ++seed, sr: ac.sampleRate }, () => !R.oublie && R.gen === generation, c.moi).then(T => { R.attente--;
-          if (!T || R.oublie) { R.fin(); return; } R.bufs.push({ sec: versBuf(T.sec), env: versBuf(T.env[0], T.env[1]), retard: T.retard }); R.fin(); R.remplir(); }); } };
-      reserves.set(c.k, R); R.remplir();
-      if (reserves.size > 60) { const v = reserves.values().next().value; if (v !== R) { v.oublie = true; reserves.delete(v.k); } }
-      return R;
-    }
-    function jouerVariante(V, q, d, dr, Pq) {
-      const t = q.quand || ac.currentTime + 0.005, vol = q.volume == null ? 1 : q.volume;
-      // correction de distance à l'intérieur d'une case : 1/r pour le son direct, réverbération presque constante
-      const r = q.distance && q.distance >= 1 ? q.distance : d, gD = dr ? d / r : 1, gE = Math.sqrt(1 + (d / Pq.portee) ** 2) / Math.sqrt(1 + (r / Pq.portee) ** 2);
-      const gDyn = Math.pow(Math.max(1, r), dyn * 0.5);   // « dynamique » : les tirs lointains un peu moins faibles qu'en vrai (jouabilité)
-      const retard = q.retard === false ? 0 : Math.max(0, V.retard + (r - d) / 343);
-      const s1 = ac.createBufferSource(); s1.buffer = V.sec; const g1 = ac.createGain(); g1.gain.value = vol * gD * gDyn; s1.connect(g1);
-      if (q.sortie) g1.connect(q.sortie); else { const p = ac.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, q.pan || 0)); g1.connect(p).connect(master); }
-      const s2 = ac.createBufferSource(); s2.buffer = V.env; const g2 = ac.createGain(); g2.gain.value = vol * gE * gDyn; s2.connect(g2).connect(master);
-      const r0 = 1 + (Math.random() * 2 - 1) * 0.01; s1.playbackRate.value = r0; s2.playbackRate.value = r0;
-      s1.start(t + retard); s2.start(t + retard);
-      return true;
-    }
+    function filtrer(n, type, f, q) { const b = ac.createBiquadFilter(); b.type = type; b.frequency.value = f; if (q) b.Q.value = q; n.connect(b); return b; }
 
     const api = {
       ac, entree: master,
-      /** Change de lieu : nom d'un réglage tout prêt (ses réglages de lieu) ou objet { lieu, queue, queueT, … }. */
+      get lieuActuel() { return lieuNom; },
+      /** Change de lieu : nom (voir lieux()) ou objet de réglages du groupe Lieu de armes.js. */
       lieu(q) {
         if (typeof q === "string" && !Armes.LIEUX[q]) throw new Error("SonsDArmes : lieu inconnu « " + q + " » — possibles : " + Object.keys(Armes.LIEUX).join(", "));
-        const Q = typeof q === "string" ? Armes.LIEUX[q] : q || {};
-        for (const k of CLES_LIEU) if (k in Q) lieu[k] = Q[k];
-        generation++; for (const R of reserves.values()) R.oublie = true; reserves.clear();
+        lieuNom = typeof q === "string" ? q : "perso"; lieuP = Object.assign({}, Armes.DEFAUT, typeof q === "string" ? Armes.LIEUX[q] : q);
+        lieuPret = new Promise(res => setTimeout(() => {
+          try { const R = Armes.reponseLieu(lieuP, 10, ac.sampleRate, 0), b = ac.createBuffer(2, R.ir[0].length, ac.sampleRate);
+            b.copyToChannel(R.ir[0], 0); b.copyToChannel(R.ir[1], 1); conv.buffer = b; } catch (e) { console.warn(e); }
+          res();
+        }, 0));
+        return lieuPret;
       },
-      /** Prépare une arme : vue du tireur et, si on donne des distances, des positions d'écoute (ex. [25, 150]). */
-      charger(nom, opts) {
-        opts = opts || {}; const P = arme(nom), ps = [reserve(cas(P, {}), true).pret];
-        for (const d of opts.distances || []) for (const a of opts.angles || [15]) ps.push(reserve(cas(P, { distance: d, angle: a }), true).pret);
-        return Promise.all(ps);
+      /** Charge les enregistrements d'une arme (toutes les positions) : à faire avant le premier tir. */
+      async charger(nom) {
+        await pretBanque; const w = W(nom), L = [...Object.values(w.tirs).flat(), ...Object.values(w.actions || {}).flat()];
+        await Promise.all(L.map(v => tampon(v.f).catch(() => null))); await lieuPret;
       },
-      /** Un coup de feu (ou une explosion). q : { distance (m ; absent = c'est moi qui tire), angle (° depuis l'axe du canon :
-       *  0 = devant, 90 = à côté, 180 = derrière), pan −1…1, sortie (PannerNode relié à armes.entree), quand, volume,
-       *  retard (false = ignorer le temps de vol du son) } */
+      /** Un coup. q : { distance (m ; absent = c'est moi qui tire), angle (0 = devant le canon, 90 = à côté, 180 = derrière),
+       *  pan −1…1, sortie (PannerNode relié à armes.entree), quand, volume, retard (false : pas de temps de vol) } */
       tirer(nom, q) {
-        q = q || {}; if (ac.state !== "running") { ac.resume().catch(() => {}); if (ac.state !== "running") return false; }
-        const P = arme(nom), c = cas(P, q); let R = reserve(c, true);
-        if (!R.bufs.length) {
-          if (!c.moi) return false;   // un autre tireur, sons pas encore prêts : on saute plutôt que de faire saccader le jeu
-          const T = Armes.tir(c.Pq, ++seed, { sr: ac.sampleRate });   // tout premier tir du joueur : calculé tout de suite
-          R.bufs.push({ sec: versBuf(T.sec), env: versBuf(T.env[0], T.env[1]), retard: T.retard });
+        q = q || {}; if (ac.state !== "running" && !ac.startRendering) { ac.resume().catch(() => {}); if (ac.state !== "running") return false; }
+        if (!banque) return false;
+        const w = W(nom), pos = perspective(w, q), moi = pos === "tireur", ang = moi ? 170 : (q.angle || 0);
+        const r = moi ? 1 : Math.max(1, q.distance || (w.explosion ? 15 : 4)), rnom = w.explosion ? 15 : banque.rnom[pos];
+        // la balle claque-t-elle ici ? (devant le tireur, dans le cône de Mach, balle supersonique)
+        let avance = 0;
+        if (!moi && !w.explosion && PHYS[nom]) { const f = Armes.fiche(Object.assign(Armes.preset(PHYS[nom]), { distance: r, angle: ang })); if (f.claque) avance = Math.max(0, f.avanceClaqueMs / 1000); }
+        let L = w.tirs[pos] || [];
+        if (avance > 0 && !L.some(v => v.claque)) { const Lc = [...(w.tirs.moyen || []), ...(w.tirs.loin || [])].filter(v => v.claque); if (Lc.length && r > 20) L = Lc; }
+        const v = choisir(nom, L); if (!v) { if (!tampons.size) api.charger(nom); return false; }
+        const buf = pret(v), t0 = q.quand || ac.currentTime + 0.01, vol = q.volume == null ? 1 : q.volume;
+        // niveau : chaque enregistrement ramené au même niveau, puis arme, puis distance (loi 1/r adoucie par « dynamique »)
+        const dBd = moi ? 0 : -20 * expo * Math.log10(r / 3);
+        const gDirect = vol * Math.pow(10, (NREF - v.niveau + (NIVEAU[nom] || 0) + dBd) / 20);
+        const tVol = retardOn && !moi ? r / 343 : 0;
+        // chaîne du son direct : (air au-delà de la distance d'enregistrement) → (arrière du tireur plus sourd) → panoramique
+        const s = ac.createBufferSource(); s.buffer = buf; s.playbackRate.value = 1 + (Math.random() * 2 - 1) * 0.015;
+        const g = ac.createGain(); g.gain.value = gDirect; s.connect(g); let n = g;
+        if (r > rnom * 1.3) { let fc = 500; while (fc < 20000 && Armes.absAir(fc) * (r - rnom) < 3) fc *= 1.06; if (fc < 18000) n = filtrer(n, "lowpass", fc, 0.6); }
+        if (ang > 75 && !moi && !w.explosion) { const k = (ang - 75) / 105; n = filtrer(n, "highshelf", 2500); n.gain.value = -10 * k; const g2 = ac.createGain(); g2.gain.value = Math.pow(10, -5 * k / 20); n.connect(g2); n = g2; }
+        if (q.sortie) n.connect(q.sortie); else { const p = ac.createStereoPanner(); p.pan.value = Math.max(-1, Math.min(1, q.pan || 0)); n.connect(p).connect(master); }
+        // claquement plus en avance que dans l'enregistrement : on joue le claquement, puis le coup plus tard
+        const coupe = v.coup_s || 0, extra = v.claque && avance > coupe ? Math.min(2, avance - coupe) : 0;
+        const sansClaque = v.claque && avance === 0, debut = sansClaque ? Math.max(0, coupe - 0.002) : 0;
+        // réverbération : au stand de tir, la vraie queue est dans l'enregistrement ; ailleurs on coupe à 0,12 s et le lieu prend le relais
+        const auStand = lieuNom === STAND, finDirect = auStand || w.explosion ? buf.duration : 0.12 + coupe;
+        const t = t0 + tVol;
+        if (extra > 0) {
+          const s2 = ac.createBufferSource(); s2.buffer = buf; s2.playbackRate.value = s.playbackRate.value; s2.connect(g);
+          s.start(t, 0, coupe); s2.start(t + extra, coupe, finDirect - coupe);
+        } else s.start(t, debut, finDirect - debut);
+        if (!auStand) {
+          if (!w.explosion) { g.gain.setValueAtTime(gDirect, t + extra + finDirect - debut - 0.02); g.gain.linearRampToValueAtTime(0, t + extra + finDirect - debut); }
+          const e = ac.createBufferSource(); e.buffer = buf; e.playbackRate.value = s.playbackRate.value;
+          const ge = ac.createGain(), P = lieuP.portee || 150;
+          // envoi calé pour que la queue calculée du stand ait le niveau de la vraie ; en intérieur, la pièce répond plus fort
+          // pour la même source (voir INTERIEUR) ; la réverbération ne baisse presque pas avec la distance
+          // (le niveau de référence est celui de l'enregistrement à SA distance : la queue suit l'enregistrement, pas l'oreille)
+          const dBnom = moi ? 0 : -20 * expo * Math.log10(rnom / 3);
+          ge.gain.value = vol * Math.pow(10, (NREF - v.niveau + (NIVEAU[nom] || 0) + dBnom) / 20) * (banque.envoi[w.explosion ? "moyen" : pos] || 10) * (w.explosion ? 0.5 : 1)
+            * Math.sqrt(1 + (rnom / P) ** 2) / Math.sqrt(1 + (r / P) ** 2) * (lieuP.lieu >= 0.5 ? INTERIEUR : 1) * reverb;
+          e.connect(ge).connect(envoi); e.start(t + extra, Math.max(debut, coupe - 0.002), w.explosion ? 0.4 : 0.12);
         }
-        const V = R.bufs.splice(Math.floor(Math.random() * R.bufs.length), 1)[0]; R.remplir();
-        return jouerVariante(V, q, c.d, !c.moi, c.Pq);
+        // renfort de graves (comme dans les jeux : les micros et les haut-parleurs perdent le « coup dans la poitrine ») :
+        // un coup sourd de 45–90 Hz, surtout quand on est près ; il baisse vite avec la distance
+        const kp = punch * (w.explosion ? 1.4 : 1) * (moi ? 1 : Math.min(1, 6 / r));
+        if (kp > 0.02) {
+          const os = ac.createOscillator(), go = ac.createGain(), t1 = t + extra + 0.002, f0 = w.explosion ? 70 : (nom.includes("9 mm") ? 110 : 85);
+          os.frequency.setValueAtTime(f0, t1); os.frequency.exponentialRampToValueAtTime(f0 * 0.5, t1 + 0.12);
+          const a = vol * kp * 0.5 * Math.pow(10, (NIVEAU[nom] || 0) / 20) * (moi ? 1 : Math.pow(10, dBd / 20));
+          go.gain.setValueAtTime(0, t1); go.gain.linearRampToValueAtTime(a, t1 + 0.004); go.gain.exponentialRampToValueAtTime(a * 0.001, t1 + (w.explosion ? 0.6 : 0.18));
+          os.connect(go); if (q.sortie) go.connect(q.sortie); else go.connect(master); os.start(t1); os.stop(t1 + (w.explosion ? 0.7 : 0.25));
+        }
+        return true;
       },
-      /** Rafale : coups (nombre), cadence (coups par minute). Chaque coup est une variante différente. */
+      /** Renfort de graves 0–1 (0 = enregistrements bruts). */
+      graves(v) { if (v != null) punch = v; return punch; },
+      /** Rafale : coups (nombre), cadence (coups/min, sinon celle de l'arme). Chaque coup est un enregistrement différent. */
       rafale(nom, q) {
-        q = Object.assign({ coups: 5, cadence: 650 }, q || {}); const t0 = q.quand || ac.currentTime + 0.01, dt = 60 / q.cadence; let n = 0;
-        for (let i = 0; i < q.coups; i++) if (api.tirer(nom, Object.assign({}, q, { quand: t0 + i * dt * (1 + (Math.random() - 0.5) * 0.04) }))) n++;
-        return n;
+        q = Object.assign({ coups: 5 }, q || {}); const cad = q.cadence || CADENCE[nom] || 400, t0 = q.quand || ac.currentTime + 0.02; let k = 0;
+        for (let i = 0; i < q.coups; i++) if (api.tirer(nom, Object.assign({}, q, { quand: t0 + i * 60 / cad * (1 + (Math.random() - 0.5) * 0.05) }))) k++;
+        return k;
       },
-      /** Bruit de manipulation : "pompe", "culasse", "verrou" ou "clic" (à vide). q : { distance, pan, sortie, quand } */
+      /** Manipulation : "pompe", "culasse", "verrou", "chargeur", "clic", "cartouche" (voir actions(nom)). q : { distance, pan, sortie, quand, volume } */
       action(nom, quoi, q) {
-        q = q || {}; const P = Object.assign(arme(nom), lieu, { tireur: q.distance ? 0 : 1, distance: q.distance || 0.4 });
-        return calculer({ type: "action", P, quoi: quoi || "clic", seed: ++seed, sr: ac.sampleRate }, null, true).then(R => {
-          if (!R) return false; const t = q.quand || ac.currentTime + 0.005, v = q.volume == null ? 1 : q.volume;
-          const s = ac.createBufferSource(); s.buffer = versBuf(R.sec); const g = ac.createGain(); g.gain.value = v; s.connect(g);
-          if (q.sortie) g.connect(q.sortie); else { const p = ac.createStereoPanner(); p.pan.value = q.pan || 0; g.connect(p).connect(master); }
-          const e = ac.createBufferSource(); e.buffer = versBuf(R.env[0], R.env[1]); const ge = ac.createGain(); ge.gain.value = v; e.connect(ge).connect(master);
-          s.start(t); e.start(t); return true; });
+        q = q || {}; if (!banque) return false; const w = W(nom), L = (w.actions || {})[quoi];
+        if (!L || !L.length) throw new Error("SonsDArmes : pas de « " + quoi + " » pour " + nom + " — possibles : " + Object.keys(w.actions || {}).join(", "));
+        const v = choisir(nom + quoi, L); if (!v) { api.charger(nom); return false; }
+        const t = q.quand || ac.currentTime + 0.005, r = Math.max(0.5, q.distance || 0.5), g0 = (q.volume == null ? 1 : q.volume) * Math.pow(10, -12 / 20) * 0.5 / r;
+        const s = ac.createBufferSource(); s.buffer = pret(v); const g = ac.createGain(); g.gain.value = g0; s.connect(g);
+        if (q.sortie) g.connect(q.sortie); else { const p = ac.createStereoPanner(); p.pan.value = q.pan || 0; g.connect(p).connect(master); }
+        const ge = ac.createGain(); ge.gain.value = g0 * (lieuNom === STAND ? 0.5 : 2); s.connect(ge).connect(envoi);
+        s.start(t); return true;
       },
+      armes: () => banque ? Object.keys(banque.armes) : [],
+      actions: nom => banque ? Object.keys(W(nom).actions || {}) : [],
+      lieux: () => Object.keys(Armes.LIEUX),
+      cadence: nom => CADENCE[nom] || 0,
       volume(v) { master.gain.value = v; },
-      armes: () => Object.keys(Armes.PRESETS), lieux: () => Object.keys(Armes.LIEUX),
+      pret: pretBanque,
     };
-    if (o.lieu) api.lieu(o.lieu);
+    api.lieu(o.lieu || STAND);
     if (!o.ac && typeof document !== "undefined") ["pointerdown", "keydown", "touchstart"].forEach(ev => document.addEventListener(ev, function f() { document.removeEventListener(ev, f, true); ac.resume().catch(() => {}); }, true));
     return api;
   }
-  return { creer, Armes, version: "1.0" };
+  return { creer, Armes, version: "2.0", NIVEAU, CADENCE, _interieur(v) { if (v != null) INTERIEUR = v; return INTERIEUR; } };
 });

@@ -32,7 +32,7 @@ lumière, ombres, un modèle Meshy (un buis en pot), vue libre à la souris ET p
 | `sons/exemples_jeu.py`, `exemples_ambiance.py`, `exemples_doux.py` | Les ~55 sons de Pythagore : marimba, xylophone, cloches, pièces, bulle, tambour, sifflet, trombone, oiseaux, hibou, caisses ; pas pierre/tapis, feu et crépitements, armure, pendule, chouette, gramophone, page, coffre, télescope… |
 | `sons/banc.py` | Page d'écoute (un bouton par son) à publier pour faire écouter et choisir. |
 | **`sons/pas/`** | **Bruits de pas physiques, calés sur de vrais enregistrements** (bois et béton : 25 réglages tout prêts). `sons-de-pas.js` pour un jeu web (Worker, changement de sol et de pièce, autres personnages, branchement sur la promenade), `atelier.html` pour régler à l'oreille, `exporter.js` pour Unreal / Godot / Unity, outils pour caler une nouvelle surface. Voir `sons/pas/README.md`. |
-| **`sons/armes/`** | **Coups de feu et explosions physiques, calés sur de vrais tirs** (9 mm, 5,56, 7,62×39, 7,62×54, calibre 12, grenade) : onde de souffle, claquement supersonique avant le coup, sol, air, culasse, douille, lieu. `sons-d-armes.js` pour un jeu web (le joueur tire, ennemis à distance, rafales, pompe), `atelier.html` pour écouter, `exporter.js` pour Unreal / Godot / Unity. Voir `sons/armes/README.md`. |
+| **`sons/armes/`** | **Coups de feu et explosions : de vrais tirs enregistrés (CC0) placés dans l'espace par la physique** (9 mm, pistolet-mitrailleur, 5,56, 7,62×39, 7,62×54, calibre 12, grenade) : distance, air, retard du son, claquement de la balle avant le coup, lieu. `sons-d-armes.js` + `banque/` pour un jeu web (le joueur tire, ennemis à distance, rafales, pompe, chargeur), `atelier.html` pour écouter, `exporter.py` pour Unreal / Godot / Unity. Voir `sons/armes/README.md`. |
 | **`visuels/images/`** | **Images de jeu générées par IA** (Gemini dans le navigateur de l'utilisateur, Meshy en secours) : `prompt.py` (prompts + chartes de style par jeu), `traiter.py` (fond enlevé, recadrage, tailles, contour, pixel art, planche de sprites), mode d'emploi `GEMINI.md`. |
 | `sons/integrer.py` + `lecteur.js` | Mettre les sons dans la page (un seul fichier) et les jouer : `Son.jouer("pas", {pan, vol, varie, reverb})`, limiteur en sortie. |
 | `tests/verif_page.py` | Modèle de test automatique (Playwright) : ouvrir, agir, vérifier, compter les erreurs JS. |
@@ -48,7 +48,7 @@ python3 capture.py "http://127.0.0.1:8765/gabarit/index.html?manual=1" vue --att
 # des pas physiques (voir sons/pas/README.md) : tests, page de réglage à publier, puis des fichiers dans le même dossier que les autres sons
 (cd sons/pas && node tests/test_pas.js && python3 construire.py)
 (cd sons/pas && node exporter.js --sortie ../../gabarit/sons_out --reglages "Parquet en chêne" --variantes 8)
-(cd sons/armes && node tests/test_armes.js && node exporter.js --sortie ../../gabarit/sons_out --armes "Pistolet 9 mm" --positions "tireur,40")
+(cd sons/armes && python3 construire.py && python3 exporter.py --sortie ../../gabarit/sons_out --armes "Pistolet 9 mm" --positions "tireur,40")
 (cd sons && python3 integrer.py ../gabarit/sons_out ../gabarit/index.html)
 # un modèle Meshy téléchargé
 python3 modeles3d/alleger_glb.py brut.glb glb/objet.glb 1024,1024,512 && python3 modeles3d/glb_en_js.py glb gabarit/modeles

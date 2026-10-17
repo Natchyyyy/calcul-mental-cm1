@@ -1,3 +1,5 @@
 __pycache__/
 *.pyc
 tests/*.png
+banque/banque-data.js
+exemple_seul.html

@@ -1,13 +1,19 @@
 # Crédits
 
-## Enregistrements de référence (calage du moteur et comparaison « vrai ou synthèse »)
+## Enregistrements (les sons joués : `banque/`, et le calage de l'ancien moteur)
 **Free Firearm Sound Library** — buddingmonkey (Still North Media), dédiée au domaine public (**CC0 1.0**).
 https://github.com/buddingmonkey/FreeFirearmsSFXLibrary
 
 Utilisés : pistolet 9 mm à percuteur, carabine type AR-15 (5,56×45), fusil type AK-47 et carabine SKS (7,62×39),
 fusil à verrou 7,62×54R, trois fusils à pompe calibre 12 ; tirs de près, à mi-distance, de loin et derrière le tireur ;
-bruits de pompe, de culasse et de verrou. `vrais/*.ogg` : extraits de 1,5 s (Opus 64 kb/s) de ces enregistrements.
+bruits de pompe, de culasse, de verrou, de chargeur et clics à vide ; pistolet-mitrailleur 9 mm. `banque/*.ogg` : tirs découpés
+et normalisés (Opus 64–96 kb/s) de ces enregistrements.
 `mesure/resumes/*.json` : mesures faites sur ces enregistrements (spectres, profils d'énergie).
+
+## Explosions (`banque/grenade_*.ogg`, `banque/lourde_*.ogg`), via CDDA-Soundpacks
+- j1987, *explosion* (Freesound 140727) — **CC0 1.0**
+- unfa, *explosion* (Freesound 352143) — **CC0 1.0**
+- bmlake, *explosion* (Freesound 251617) — **CC BY 3.0** : mentionner « bmlake » dans les crédits du jeu (fichiers grenade_1 et grenade_2).
 
 Aucune marque ni nom de fabricant n'est utilisé dans les réglages : ils portent le nom du type d'arme et du calibre.
 

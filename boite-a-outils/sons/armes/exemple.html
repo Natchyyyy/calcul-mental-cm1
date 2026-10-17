@@ -24,7 +24,7 @@ kbd { font: .8rem ui-monospace, monospace; border: 1px solid var(--line); border
 <body>
 <main>
   <h1>Stand de tir sonore</h1>
-  <p>Démo de <code>sons-d-armes.js</code> : <kbd>Espace</kbd> pour tirer, <kbd>R</kbd> pour recharger / armer, <kbd>G</kbd> pour une grenade au loin. Les « ennemis » tirent de temps en temps depuis différentes distances. Baisse le volume avant de commencer.</p>
+  <p>Démo de <code>sons-d-armes.js</code> (vrais enregistrements CC0 placés dans l'espace) : <kbd>Espace</kbd> pour tirer, <kbd>R</kbd> pour recharger / armer, <kbd>G</kbd> pour une grenade au loin. Les « ennemis » tirent de temps en temps depuis différentes distances. Baisse le volume avant de commencer.</p>
   <section class="box"><strong>Ton arme</strong><div class="row" id="armes"></div></section>
   <section class="box"><strong>Le lieu</strong><div class="row" id="lieux"></div></section>
   <section class="box"><div class="row">
@@ -34,26 +34,28 @@ kbd { font: .8rem ui-monospace, monospace; border: 1px solid var(--line); border
 </main>
 <script src="armes.js"></script>
 <script src="sons-d-armes.js"></script>
+<script src="banque/banque-data.js"></script>
 <script>
 "use strict";
 const armes = SonsDArmes.creer({ lieu: "Forêt", volume: 0.5 });
+const W = n => BANQUE_ARMES.json.armes[n];
 let arme = "Fusil d'assaut 5,56", ennemis = null;
 const $ = id => document.getElementById(id), etat = t => $("etat").textContent = t;
 function bouton(parent, nom, actif, f) { const b = document.createElement("button"); b.type = "button"; b.textContent = nom; b.setAttribute("aria-pressed", String(actif)); b.onclick = () => { for (const x of parent.children) x.setAttribute("aria-pressed", "false"); b.setAttribute("aria-pressed", "true"); f(); }; parent.appendChild(b); }
-for (const n of armes.armes().filter(n => Armes.PRESETS[n].type !== 1)) bouton($("armes"), n, n === arme, () => { arme = n; armes.charger(n); etat("Arme : " + n); });
-for (const n of armes.lieux()) bouton($("lieux"), n, n === "Forêt", () => { armes.lieu(n); armes.charger(arme); etat("Lieu : " + n); });
-armes.charger(arme, { distances: [60, 150, 400], angles: [15, 90] });
-const action = () => { const P = Armes.PRESETS[arme]; return P.meca >= 1 ? "culasse" : P.projectiles > 1 ? "pompe" : "verrou"; };
-const tir = () => { const ok = armes.tirer(arme); etat(ok ? "Pan ! (" + arme + ")" : "Clique d'abord dans la page pour activer le son"); };
+for (const n of Object.keys(BANQUE_ARMES.json.armes).filter(n => !W(n).explosion)) bouton($("armes"), n, n === arme, () => { arme = n; armes.charger(n); etat("Arme : " + n); });
+for (const n of Object.keys(Armes.LIEUX)) bouton($("lieux"), n, n === "Forêt", () => { armes.lieu(n); armes.charger(arme); etat("Lieu : " + n); });
+armes.charger(arme); armes.charger("Fusil d'assaut 7,62×39"); armes.charger("Grenade à main");
+const action = () => { const a = Object.keys(W(arme).actions); return a.includes("pompe") ? "pompe" : a.includes("verrou") ? "verrou" : "culasse"; };
+const tir = () => { const ok = armes.tirer(arme); etat(ok ? "Pan ! (" + arme + ")" : "Son pas encore prêt : clique encore"); };
 $("bTir").onclick = tir;
-$("bRafale").onclick = () => { const P = Armes.PRESETS[arme]; if (P.cadence > 0) { armes.rafale(arme, { coups: 6 }); etat("Rafale à " + P.cadence + " coups/min"); } else etat("Cette arme ne tire pas en rafale"); };
+$("bRafale").onclick = () => { const c = armes.cadence(arme); if (c > 0) { armes.rafale(arme, { coups: 6 }); etat("Rafale à " + c + " coups/min"); } else etat("Cette arme ne tire pas en rafale"); };
 $("bAction").onclick = () => armes.action(arme, action());
 $("bGrenade").onclick = () => { armes.tirer("Grenade à main", { distance: 40, pan: 0.3 }); etat("Grenade à 40 m : le souffle arrive 0,12 s après l'éclair"); };
 $("bEnnemis").onclick = () => {
   const on = !ennemis; $("bEnnemis").setAttribute("aria-pressed", String(on));
   if (!on) { clearInterval(ennemis); ennemis = null; etat("Ennemis arrêtés"); return; }
   ennemis = setInterval(() => {
-    const d = [60, 150, 400][Math.floor(Math.random() * 3)], a = Math.random() < 0.5 ? 15 : 90, n = Math.random() < 0.5 ? "Fusil d'assaut 7,62×39" : "Fusil d'assaut 5,56", pan = Math.random() * 1.6 - 0.8;
+    const d = [60, 150, 400][Math.floor(Math.random() * 3)], a = Math.random() < 0.5 ? 15 : 90, n = Math.random() < 0.5 ? "Fusil d'assaut 7,62×39" : arme, pan = Math.random() * 1.6 - 0.8;
     const k = armes.rafale(n, { coups: 1 + Math.floor(Math.random() * 4), distance: d, angle: a, pan });
     etat(`Ennemi à ${d} m${a < 45 ? ", il tire vers toi (claquement avant le coup)" : ", sur le côté"}${k ? "" : " (sons pas encore prêts)"}`);
   }, 2200);

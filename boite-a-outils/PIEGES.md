@@ -83,6 +83,10 @@
 - Ne pas lancer de génération (ni dépenser de crédits Meshy) sans que l'utilisateur l'ait demandé.
 
 ## Coups de feu et explosions (sons/armes)
+- **Un coup de feu 100 % synthétique sonne comme de l'airsoft**, même quand spectre et décroissance collent aux mesures
+  (l'utilisateur : « complètement nul », « on dirait de l'airsoft »). Les mesures ne voient pas ce qui fait le poids d'un
+  tir. Ce qui marche : de **vrais enregistrements CC0** pour le coup, la physique seulement pour l'espace (distance,
+  claquement, lieu), plus un renfort de graves comme dans les jeux. Faire écouter tôt, avant de passer des heures à caler.
 - Les enregistrements de tirs sont **toujours saturés** (micro ou enregistreur dépassé, puis normalisés à 0 dBFS) :
   mettre la même saturation dans la synthèse (« marge du micro ») au lieu de la combattre.
 - Repérer l'attaque en **remontant depuis le maximum** (au plus 15 ms) : un pré-roulement bruyant (vent, autres

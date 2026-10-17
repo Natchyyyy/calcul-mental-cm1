@@ -1,0 +1,1435 @@
+{
+ "source": "Free Firearm Sound Library (buddingmonkey, CC0) ; explosions : CDDA-Soundpacks (j1987 et unfa CC0, bmlake CC BY 3.0)",
+ "armes": {
+  "Pistolet 9 mm": {
+   "court": "9mm",
+   "tirs": {
+    "tireur": [
+     {
+      "src": "X_38#0",
+      "f": "9mm_tireur_0.ogg",
+      "niveau": -21.76,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "X_38#1",
+      "f": "9mm_tireur_1.ogg",
+      "niveau": -21.17,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "X_38#2",
+      "f": "9mm_tireur_2.ogg",
+      "niveau": -21.51,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "X_40#0",
+      "f": "9mm_tireur_3.ogg",
+      "niveau": -17.95,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "X_40#1",
+      "f": "9mm_tireur_4.ogg",
+      "niveau": -18.45,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "X_40#2",
+      "f": "9mm_tireur_5.ogg",
+      "niveau": -17.92,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     }
+    ],
+    "proche": [
+     {
+      "src": "X_39#0",
+      "f": "9mm_proche_0.ogg",
+      "niveau": -20.34,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "X_39#1",
+      "f": "9mm_proche_1.ogg",
+      "niveau": -19.48,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "X_39#2",
+      "f": "9mm_proche_2.ogg",
+      "niveau": -19.2,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "X_41#0",
+      "f": "9mm_proche_3.ogg",
+      "niveau": -20.48,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "X_41#1",
+      "f": "9mm_proche_4.ogg",
+      "niveau": -20.47,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "X_41#2",
+      "f": "9mm_proche_5.ogg",
+      "niveau": -20.06,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "moyen": [
+     {
+      "src": "X_30#0",
+      "f": "9mm_moyen_0.ogg",
+      "niveau": -20.45,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "X_30#1",
+      "f": "9mm_moyen_1.ogg",
+      "niveau": -20.39,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "X_32#0",
+      "f": "9mm_moyen_2.ogg",
+      "niveau": -18.33,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "X_32#1",
+      "f": "9mm_moyen_3.ogg",
+      "niveau": -18.27,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "loin": [
+     {
+      "src": "X_31#0",
+      "f": "9mm_loin_0.ogg",
+      "niveau": -19.32,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "X_31#1",
+      "f": "9mm_loin_1.ogg",
+      "niveau": -19.78,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "X_33#0",
+      "f": "9mm_loin_2.ogg",
+      "niveau": -19.35,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "X_33#1",
+      "f": "9mm_loin_3.ogg",
+      "niveau": -19.43,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ]
+   },
+   "actions": {
+    "culasse": [
+     {
+      "src": "X_21",
+      "f": "9mm_culasse_0.ogg",
+      "duree": 0.377
+     },
+     {
+      "src": "X_21",
+      "f": "9mm_culasse_1.ogg",
+      "duree": 0.37
+     }
+    ],
+    "chargeur": [
+     {
+      "src": "X_5",
+      "f": "9mm_chargeur_0.ogg",
+      "duree": 0.433
+     },
+     {
+      "src": "X_5",
+      "f": "9mm_chargeur_1.ogg",
+      "duree": 0.393
+     },
+     {
+      "src": "X_4",
+      "f": "9mm_chargeur_2.ogg",
+      "duree": 0.707
+     },
+     {
+      "src": "X_4",
+      "f": "9mm_chargeur_3.ogg",
+      "duree": 1.106
+     }
+    ],
+    "clic": [
+     {
+      "src": "X_18",
+      "f": "9mm_clic_0.ogg",
+      "duree": 0.246
+     },
+     {
+      "src": "X_19",
+      "f": "9mm_clic_1.ogg",
+      "duree": 0.221
+     },
+     {
+      "src": "X_19",
+      "f": "9mm_clic_2.ogg",
+      "duree": 0.22
+     },
+     {
+      "src": "X_19",
+      "f": "9mm_clic_3.ogg",
+      "duree": 0.221
+     }
+    ]
+   }
+  },
+  "Pistolet-mitrailleur 9 mm": {
+   "court": "pm9",
+   "tirs": {
+    "tireur": [
+     {
+      "src": "G_26#0",
+      "f": "pm9_tireur_0.ogg",
+      "niveau": -21.14,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "G_26#1",
+      "f": "pm9_tireur_1.ogg",
+      "niveau": -21.59,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "G_26#2",
+      "f": "pm9_tireur_2.ogg",
+      "niveau": -21.77,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "G_32#0",
+      "f": "pm9_tireur_3.ogg",
+      "niveau": -18.26,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "G_32#1",
+      "f": "pm9_tireur_4.ogg",
+      "niveau": -18.65,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "G_32#2",
+      "f": "pm9_tireur_5.ogg",
+      "niveau": -18.73,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     }
+    ],
+    "proche": [
+     {
+      "src": "G_25#0",
+      "f": "pm9_proche_0.ogg",
+      "niveau": -22.21,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "G_25#1",
+      "f": "pm9_proche_1.ogg",
+      "niveau": -22.07,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "G_25#2",
+      "f": "pm9_proche_2.ogg",
+      "niveau": -21.87,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "G_31#0",
+      "f": "pm9_proche_3.ogg",
+      "niveau": -19.08,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "G_31#1",
+      "f": "pm9_proche_4.ogg",
+      "niveau": -19.15,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "G_31#2",
+      "f": "pm9_proche_5.ogg",
+      "niveau": -19.6,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "moyen": [
+     {
+      "src": "G_14#0",
+      "f": "pm9_moyen_0.ogg",
+      "niveau": -19.82,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "G_14#1",
+      "f": "pm9_moyen_1.ogg",
+      "niveau": -19.54,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "G_14#2",
+      "f": "pm9_moyen_2.ogg",
+      "niveau": -19.61,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "G_20#0",
+      "f": "pm9_moyen_3.ogg",
+      "niveau": -20.81,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "loin": [
+     {
+      "src": "G_13#0",
+      "f": "pm9_loin_0.ogg",
+      "niveau": -21.44,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "G_13#1",
+      "f": "pm9_loin_1.ogg",
+      "niveau": -21.01,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "G_13#2",
+      "f": "pm9_loin_2.ogg",
+      "niveau": -22.37,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "G_19#0",
+      "f": "pm9_loin_3.ogg",
+      "niveau": -19.81,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ]
+   },
+   "actions": {
+    "culasse": [
+     {
+      "src": "G_10",
+      "f": "pm9_culasse_0.ogg",
+      "duree": 1.453
+     }
+    ],
+    "chargeur": [
+     {
+      "src": "G_9",
+      "f": "pm9_chargeur_0.ogg",
+      "duree": 0.473
+     },
+     {
+      "src": "G_9",
+      "f": "pm9_chargeur_1.ogg",
+      "duree": 0.247
+     },
+     {
+      "src": "G_8",
+      "f": "pm9_chargeur_2.ogg",
+      "duree": 0.481
+     },
+     {
+      "src": "G_8",
+      "f": "pm9_chargeur_3.ogg",
+      "duree": 0.487
+     }
+    ],
+    "clic": [
+     {
+      "src": "X_19",
+      "f": "pm9_clic_0.ogg",
+      "duree": 0.221
+     },
+     {
+      "src": "X_19",
+      "f": "pm9_clic_1.ogg",
+      "duree": 0.22
+     },
+     {
+      "src": "X_19",
+      "f": "pm9_clic_2.ogg",
+      "duree": 0.221
+     },
+     {
+      "src": "X_19",
+      "f": "pm9_clic_3.ogg",
+      "duree": 0.212
+     }
+    ]
+   }
+  },
+  "Fusil d'assaut 5,56": {
+   "court": "556",
+   "tirs": {
+    "tireur": [
+     {
+      "src": "D_27#0",
+      "f": "556_tireur_0.ogg",
+      "niveau": -20.25,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "D_27#1",
+      "f": "556_tireur_1.ogg",
+      "niveau": -20.48,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "D_27#2",
+      "f": "556_tireur_2.ogg",
+      "niveau": -20.56,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "D_29#0",
+      "f": "556_tireur_3.ogg",
+      "niveau": -18.08,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "D_29#1",
+      "f": "556_tireur_4.ogg",
+      "niveau": -17.96,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     }
+    ],
+    "proche": [
+     {
+      "src": "D_31#0",
+      "f": "556_proche_0.ogg",
+      "niveau": -20.49,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "D_31#1",
+      "f": "556_proche_1.ogg",
+      "niveau": -18.99,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "D_31#2",
+      "f": "556_proche_2.ogg",
+      "niveau": -18.78,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "D_32#0",
+      "f": "556_proche_3.ogg",
+      "niveau": -18.47,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "D_32#1",
+      "f": "556_proche_4.ogg",
+      "niveau": -19.22,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "moyen": [
+     {
+      "src": "D_23#0",
+      "f": "556_moyen_0.ogg",
+      "niveau": -20.47,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "D_23#1",
+      "f": "556_moyen_1.ogg",
+      "niveau": -20.74,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "D_24#0",
+      "f": "556_moyen_2.ogg",
+      "niveau": -19.67,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "D_24#1",
+      "f": "556_moyen_3.ogg",
+      "niveau": -19.6,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "loin": [
+     {
+      "src": "D_25#0",
+      "f": "556_loin_0.ogg",
+      "niveau": -19.1,
+      "coup_s": 0.0161,
+      "claque": true,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "D_25#1",
+      "f": "556_loin_1.ogg",
+      "niveau": -18.63,
+      "coup_s": 0.0162,
+      "claque": true,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "D_26#0",
+      "f": "556_loin_2.ogg",
+      "niveau": -18.01,
+      "coup_s": 0.0161,
+      "claque": true,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "D_26#1",
+      "f": "556_loin_3.ogg",
+      "niveau": -17.67,
+      "coup_s": 0.0161,
+      "claque": true,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ]
+   },
+   "actions": {
+    "culasse": [
+     {
+      "src": "D_14",
+      "f": "556_culasse_0.ogg",
+      "duree": 0.984
+     },
+     {
+      "src": "D_13",
+      "f": "556_culasse_1.ogg",
+      "duree": 0.366
+     },
+     {
+      "src": "D_13",
+      "f": "556_culasse_2.ogg",
+      "duree": 0.37
+     }
+    ],
+    "chargeur": [
+     {
+      "src": "D_5",
+      "f": "556_chargeur_0.ogg",
+      "duree": 2.695
+     },
+     {
+      "src": "D_4",
+      "f": "556_chargeur_1.ogg",
+      "duree": 1.494
+     }
+    ],
+    "clic": [
+     {
+      "src": "D_16",
+      "f": "556_clic_0.ogg",
+      "duree": 0.222
+     }
+    ]
+   }
+  },
+  "Fusil d'assaut 7,62×39": {
+   "court": "762",
+   "tirs": {
+    "tireur": [
+     {
+      "src": "C_39#0",
+      "f": "762_tireur_0.ogg",
+      "niveau": -20.22,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "C_39#1",
+      "f": "762_tireur_1.ogg",
+      "niveau": -20.68,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "C_39#2",
+      "f": "762_tireur_2.ogg",
+      "niveau": -20.8,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "C_42#0",
+      "f": "762_tireur_3.ogg",
+      "niveau": -17.72,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "C_42#1",
+      "f": "762_tireur_4.ogg",
+      "niveau": -18.7,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "C_42#2",
+      "f": "762_tireur_5.ogg",
+      "niveau": -18.34,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     }
+    ],
+    "proche": [
+     {
+      "src": "C_25#0",
+      "f": "762_proche_0.ogg",
+      "niveau": -20.31,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "C_25#1",
+      "f": "762_proche_1.ogg",
+      "niveau": -20.3,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "C_25#2",
+      "f": "762_proche_2.ogg",
+      "niveau": -20.37,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "C_28#0",
+      "f": "762_proche_3.ogg",
+      "niveau": -17.11,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "C_28#1",
+      "f": "762_proche_4.ogg",
+      "niveau": -17.41,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "C_28#2",
+      "f": "762_proche_5.ogg",
+      "niveau": -17.24,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "moyen": [
+     {
+      "src": "C_31#0",
+      "f": "762_moyen_0.ogg",
+      "niveau": -22.74,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "C_31#1",
+      "f": "762_moyen_1.ogg",
+      "niveau": -23.76,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "loin": [
+     {
+      "src": "C_17#0",
+      "f": "762_loin_0.ogg",
+      "niveau": -20.06,
+      "coup_s": 0.014,
+      "claque": true,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "C_17#1",
+      "f": "762_loin_1.ogg",
+      "niveau": -20.61,
+      "coup_s": 0.0134,
+      "claque": true,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ]
+   },
+   "actions": {
+    "culasse": [
+     {
+      "src": "C_2",
+      "f": "762_culasse_0.ogg",
+      "duree": 0.805
+     },
+     {
+      "src": "C_2",
+      "f": "762_culasse_1.ogg",
+      "duree": 0.636
+     },
+     {
+      "src": "U_3",
+      "f": "762_culasse_2.ogg",
+      "duree": 1.693
+     }
+    ],
+    "chargeur": [
+     {
+      "src": "C_11",
+      "f": "762_chargeur_0.ogg",
+      "duree": 0.647
+     },
+     {
+      "src": "C_10",
+      "f": "762_chargeur_1.ogg",
+      "duree": 0.334
+     }
+    ],
+    "clic": [
+     {
+      "src": "C_7",
+      "f": "762_clic_0.ogg",
+      "duree": 0.236
+     },
+     {
+      "src": "U_6",
+      "f": "762_clic_1.ogg",
+      "duree": 0.224
+     }
+    ]
+   }
+  },
+  "Fusil de précision 7,62×54": {
+   "court": "76254",
+   "tirs": {
+    "tireur": [
+     {
+      "src": "M_20#0",
+      "f": "76254_tireur_0.ogg",
+      "niveau": -20.65,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "M_20#1",
+      "f": "76254_tireur_1.ogg",
+      "niveau": -20.78,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "M_20#2",
+      "f": "76254_tireur_2.ogg",
+      "niveau": -21.12,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "M_22#0",
+      "f": "76254_tireur_3.ogg",
+      "niveau": -17.87,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "M_22#1",
+      "f": "76254_tireur_4.ogg",
+      "niveau": -18.52,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "M_22#2",
+      "f": "76254_tireur_5.ogg",
+      "niveau": -18.25,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     }
+    ],
+    "proche": [
+     {
+      "src": "M_19#0",
+      "f": "76254_proche_0.ogg",
+      "niveau": -18.64,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "M_19#1",
+      "f": "76254_proche_1.ogg",
+      "niveau": -18.81,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "M_19#2",
+      "f": "76254_proche_2.ogg",
+      "niveau": -18.67,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "M_21#0",
+      "f": "76254_proche_3.ogg",
+      "niveau": -20.6,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "M_21#1",
+      "f": "76254_proche_4.ogg",
+      "niveau": -20.37,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "M_21#2",
+      "f": "76254_proche_5.ogg",
+      "niveau": -20.36,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "moyen": [
+     {
+      "src": "M_24#0",
+      "f": "76254_moyen_0.ogg",
+      "niveau": -19.82,
+      "coup_s": 0.0164,
+      "claque": true,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "M_24#1",
+      "f": "76254_moyen_1.ogg",
+      "niveau": -20.78,
+      "coup_s": 0.0164,
+      "claque": true,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "M_24#2",
+      "f": "76254_moyen_2.ogg",
+      "niveau": -19.99,
+      "coup_s": 0.0145,
+      "claque": true,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "M_26#0",
+      "f": "76254_moyen_3.ogg",
+      "niveau": -20.34,
+      "coup_s": 0.0158,
+      "claque": true,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "loin": [
+     {
+      "src": "M_23#0",
+      "f": "76254_loin_0.ogg",
+      "niveau": -20.06,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "M_23#1",
+      "f": "76254_loin_1.ogg",
+      "niveau": -19.95,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "M_25#0",
+      "f": "76254_loin_2.ogg",
+      "niveau": -20.87,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "M_25#1",
+      "f": "76254_loin_3.ogg",
+      "niveau": -20.63,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ]
+   },
+   "actions": {
+    "verrou": [
+     {
+      "src": "M_14",
+      "f": "76254_verrou_0.ogg",
+      "duree": 2.31
+     },
+     {
+      "src": "M_14",
+      "f": "76254_verrou_1.ogg",
+      "duree": 1.694
+     }
+    ],
+    "clic": [
+     {
+      "src": "M_10",
+      "f": "76254_clic_0.ogg",
+      "duree": 0.22
+     }
+    ]
+   }
+  },
+  "Fusil à pompe 12": {
+   "court": "pompe",
+   "tirs": {
+    "tireur": [
+     {
+      "src": "O_18#0",
+      "f": "pompe_tireur_0.ogg",
+      "niveau": -22.2,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "O_18#1",
+      "f": "pompe_tireur_1.ogg",
+      "niveau": -22.37,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "O_20#0",
+      "f": "pompe_tireur_2.ogg",
+      "niveau": -19.05,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "O_20#1",
+      "f": "pompe_tireur_3.ogg",
+      "niveau": -19.2,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "K_19#0",
+      "f": "pompe_tireur_4.ogg",
+      "niveau": -21.9,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     },
+     {
+      "src": "K_19#1",
+      "f": "pompe_tireur_5.ogg",
+      "niveau": -21.48,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": true
+     }
+    ],
+    "proche": [
+     {
+      "src": "O_19#0",
+      "f": "pompe_proche_0.ogg",
+      "niveau": -20.18,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "O_19#1",
+      "f": "pompe_proche_1.ogg",
+      "niveau": -20.52,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "O_21#0",
+      "f": "pompe_proche_2.ogg",
+      "niveau": -19.3,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "O_21#1",
+      "f": "pompe_proche_3.ogg",
+      "niveau": -18.9,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "K_20#0",
+      "f": "pompe_proche_4.ogg",
+      "niveau": -19.57,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "K_20#1",
+      "f": "pompe_proche_5.ogg",
+      "niveau": -19.11,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "moyen": [
+     {
+      "src": "O_14#0",
+      "f": "pompe_moyen_0.ogg",
+      "niveau": -19.53,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "O_14#1",
+      "f": "pompe_moyen_1.ogg",
+      "niveau": -19.81,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "O_16#0",
+      "f": "pompe_moyen_2.ogg",
+      "niveau": -18.11,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "O_16#1",
+      "f": "pompe_moyen_3.ogg",
+      "niveau": -18.02,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ],
+    "loin": [
+     {
+      "src": "O_15#0",
+      "f": "pompe_loin_0.ogg",
+      "niveau": -19.69,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "O_15#1",
+      "f": "pompe_loin_1.ogg",
+      "niveau": -19.48,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "O_17#0",
+      "f": "pompe_loin_2.ogg",
+      "niveau": -17.84,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     },
+     {
+      "src": "O_17#1",
+      "f": "pompe_loin_3.ogg",
+      "niveau": -17.71,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 1.603,
+      "stereo": false
+     }
+    ]
+   },
+   "actions": {
+    "pompe": [
+     {
+      "src": "O_6",
+      "f": "pompe_pompe_0.ogg",
+      "duree": 1.263
+     },
+     {
+      "src": "H_6",
+      "f": "pompe_pompe_1.ogg",
+      "duree": 0.648
+     }
+    ],
+    "cartouche": [
+     {
+      "src": "O_7",
+      "f": "pompe_cartouche_0.ogg",
+      "duree": 2.839
+     }
+    ],
+    "clic": [
+     {
+      "src": "O_8",
+      "f": "pompe_clic_0.ogg",
+      "duree": 0.27
+     },
+     {
+      "src": "H_8",
+      "f": "pompe_clic_1.ogg",
+      "duree": 0.229
+     }
+    ]
+   }
+  },
+  "Grenade à main": {
+   "court": "grenade",
+   "explosion": true,
+   "tirs": {
+    "proche": [
+     {
+      "src": "explosion_small_explosion_small",
+      "licence": "j1987, CC0",
+      "f": "grenade_0.ogg",
+      "niveau": -14.78,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 0.39,
+      "stereo": false
+     },
+     {
+      "src": "explosion_default_explosion_default_1",
+      "licence": "bmlake, CC BY 3.0",
+      "f": "grenade_1.ogg",
+      "niveau": -8.32,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 0.894,
+      "stereo": false
+     },
+     {
+      "src": "explosion_default_explosion_default_2",
+      "licence": "bmlake, CC BY 3.0",
+      "f": "grenade_2.ogg",
+      "niveau": -6.64,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 0.891,
+      "stereo": false
+     }
+    ]
+   },
+   "actions": {}
+  },
+  "Explosion lourde": {
+   "court": "lourde",
+   "explosion": true,
+   "tirs": {
+    "proche": [
+     {
+      "src": "explosion_huge_explosion_huge_1",
+      "licence": "unfa, CC0",
+      "f": "lourde_0.ogg",
+      "niveau": -10.37,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 6.092,
+      "stereo": false
+     },
+     {
+      "src": "explosion_huge_explosion_huge_2",
+      "licence": "unfa, CC0",
+      "f": "lourde_1.ogg",
+      "niveau": -9.17,
+      "coup_s": 0,
+      "claque": false,
+      "duree": 2.825,
+      "stereo": false
+     }
+    ]
+   },
+   "actions": {}
+  }
+ },
+ "envoi": {
+  "tireur": 11.38,
+  "proche": 1.765,
+  "moyen": 11.21,
+  "loin": 12.42
+ },
+ "rnom": {
+  "tireur": 1,
+  "proche": 4,
+  "moyen": 30,
+  "loin": 90
+ }
+}

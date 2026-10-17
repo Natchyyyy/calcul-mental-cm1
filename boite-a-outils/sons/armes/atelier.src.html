@@ -83,136 +83,110 @@ textarea { width: 100%; min-height: 84px; resize: vertical; font: .78rem/1.4 var
 
 <div class="wrap">
   <header>
-    <h1>Armurerie sonore<small>Des coups de feu et une grenade fabriqués de zéro par la physique : l'onde de souffle du canon, le claquement de la balle plus rapide que le son, le reflet sur le sol, l'air qui avale les aigus avec la distance, la culasse, la douille, l'écho du lieu. Les armes marquées « calé » ont été ajustées automatiquement sur de vrais enregistrements. Baisse le volume avant le premier tir.</small></h1>
+    <h1>Armurerie sonore<small>De vrais tirs enregistrés (derrière le tireur, de près, de loin), placés dans l'espace par la physique : la distance, l'air qui avale les aigus, le retard du son, la balle qui claque avant le coup quand on est devant le canon, l'écho du lieu. Baisse le volume avant le premier tir.</small></h1>
   </header>
-
   <div class="cols">
     <div class="left">
       <section class="box" aria-label="Le terrain">
-        <canvas id="terrain" tabindex="0" aria-label="Terrain vu du ciel : le tireur à gauche vise vers la droite. Clique pour placer l'oreille. Flèches pour la déplacer, Espace pour tirer."></canvas>
-        <p class="hint">Vu du ciel : le tireur vise vers la droite. <b>Clique pour placer ton oreille</b> (l'échelle est logarithmique : 1 m près du tireur, 1 km au bord). Devant le canon, une balle plus rapide que le son claque <i>avant</i> le coup de feu.</p>
+        <canvas id="terrain" tabindex="0" aria-label="Terrain vu du ciel : le tireur au centre vise vers la droite. Clique pour placer ton oreille et tirer. Flèches pour la déplacer, Espace pour tirer."></canvas>
+        <p class="hint">Vu du ciel : le tireur vise vers la droite. <b>Clique pour placer ton oreille</b> (1 m près du tireur, 1 km au bord) : ça tire. Dans la zone bleue, la balle va plus vite que le son et claque <i>avant</i> le coup de feu.</p>
         <p class="fiche" id="fiche" aria-live="polite"></p>
         <div class="row">
           <button type="button" class="main" id="bTir">Tirer</button>
           <button type="button" id="bRafale">Rafale</button>
-          <button type="button" id="bAction">Pompe</button>
-          <button type="button" id="bMoi" aria-pressed="false">C'est moi qui tire</button>
-          <span class="vol"><label for="vol">Volume</label><input id="vol" type="range" min="0" max="1.2" step="0.01" value="0.35"></span>
+          <button type="button" id="bMoi" aria-pressed="true">C'est moi qui tire</button>
+          <span class="vol"><label for="vol">Volume</label><input id="vol" type="range" min="0" max="1.2" step="0.01" value="0.5"></span>
         </div>
+        <div class="row" id="actions"></div>
       </section>
-
-      <section class="box" aria-label="Ce que l'on voit du son">
-        <div class="row" style="justify-content:space-between"><span class="label">Le dernier son</span><span class="label" id="info">—</span></div>
-        <canvas id="vue" aria-label="Forme d'onde et spectrogramme du dernier son"></canvas>
-        <div class="legend"><span>en haut : niveau 0 → −70 dB (1,2 s)</span><span>en bas : spectrogramme 50 Hz → 16 kHz</span></div>
+      <section class="box" aria-label="Ce que l'on entend">
+        <div class="row" style="justify-content:space-between"><span class="label">En direct</span><span class="label" id="info">—</span></div>
+        <canvas id="vue" aria-label="Spectrogramme en direct de ce que l'on entend"></canvas>
+        <div class="legend"><span>spectrogramme en direct, 4 s</span><span>50 Hz → 16 kHz</span></div>
       </section>
-
+    </div>
+    <div class="right">
       <section class="box" aria-label="Armes">
         <span class="label">Armes</span>
         <div class="presets" id="presets"></div>
+      </section>
+      <section class="box" aria-label="Lieux">
         <span class="label">Lieux</span>
         <div class="presets" id="lieux"></div>
-        <p class="hint">« Calé » : spectre, durée et forme du coup ajustés sur de vrais tirs enregistrés à plusieurs distances (Free Firearm Sound Library, CC0). Les lieux changent la réverbération et le sol, l'arme reste la même.</p>
+        <p class="hint">Au stand de tir, on entend la vraie réverbération des enregistrements. Ailleurs, le coup est le même et c'est le lieu qui change (calculé).</p>
       </section>
-
-      <section class="box" aria-label="Vrai ou synthèse">
-        <span class="label">Vrai ou synthèse ?</span>
-        <p class="hint">Un vrai tir enregistré puis la synthèse calée dessus, à la même place de micro. Enregistrements : Free Firearm Sound Library (buddingmonkey, CC0), stand de tir en plein air.</p>
-        <div class="vs" id="vs"></div>
+      <section class="box" aria-label="Envoyer à Claude">
+        <span class="label">Ton avis</span>
+        <textarea id="json" readonly aria-label="Ce que tu écoutes"></textarea>
+        <div class="row"><button type="button" class="main" id="bCopier">Copier</button><span class="toast" id="toast" role="status"></span></div>
+        <p class="hint">Copie ceci et colle-le dans la conversation avec ce que tu entends : je saurai exactement quel son tu as écouté.</p>
       </section>
-    </div>
-
-    <div class="right" id="reglages">
-      <section class="box" aria-label="Envoyer les réglages à Claude">
-        <span class="label">Tes réglages</span>
-        <textarea id="json" readonly aria-label="Réglages actuels"></textarea>
-        <div class="row"><button type="button" class="main" id="bCopier">Copier les réglages</button><button type="button" id="bDefaut">Revenir à l'arme choisie</button><span class="toast" id="toast" role="status"></span></div>
-        <p class="hint">Colle ces réglages dans la conversation avec ce que tu entends (« trop sec », « on dirait un pétard »…) : je m'en sers pour corriger le moteur ou ton jeu.</p>
+      <section class="box" aria-label="Crédits">
+        <span class="label">Enregistrements</span>
+        <p class="hint">Free Firearm Sound Library (buddingmonkey / Still North Media, domaine public CC0). Explosions : j1987 et unfa (Freesound, CC0), bmlake (Freesound, CC BY 3.0), via CDDA-Soundpacks.</p>
       </section>
     </div>
   </div>
 </div>
-
-<script type="text/plain" id="vrais-data">/*VRAIS*/</script>
 <script>
 /*ARMES_JS*/
 </script>
 <script>
+/*SONS_JS*/
+</script>
+<script>
+/*BANQUE_JS*/
+</script>
+<script>
 (() => {
 "use strict";
-const $ = id => document.getElementById(id);
-const store = { get(k) { try { return JSON.parse(localStorage.getItem("armurerie1:" + k)); } catch (e) { return null; } },
-  set(k, v) { try { localStorage.setItem("armurerie1:" + k, JSON.stringify(v)); } catch (e) {} } };
-const ARMES0 = Object.keys(Armes.PRESETS)[0];
-let armeNom = store.get("arme"); if (!Armes.PRESETS[armeNom]) armeNom = ARMES0;
-let lieuNom = store.get("lieu"); if (!Armes.LIEUX[lieuNom]) lieuNom = Object.keys(Armes.LIEUX)[0];
-let P = Object.assign(Armes.preset(armeNom), Armes.LIEUX[lieuNom], store.get("reglages") || {});
-let seed = (Math.random() * 1e6) | 0;
-
-// ---------- audio ----------
-let ac = null, master;
+const $ = id => document.getElementById(id), css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const store = { get(k) { try { return JSON.parse(localStorage.getItem("armurerie2:" + k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem("armurerie2:" + k, JSON.stringify(v)); } catch (e) {} } };
+const E = { arme: store.get("arme") || "Fusil d'assaut 5,56", lieu: store.get("lieu") || "Stand de tir (plein air)", distance: 30, angle: 20, moi: true };
+let armes = null, ana = null;
 function audio() {
-  if (ac) { if (ac.state === "suspended") ac.resume(); return ac; }
-  ac = new (window.AudioContext || window.webkitAudioContext)();
-  master = ac.createGain(); master.gain.value = +$("vol").value;
-  const lim = ac.createDynamicsCompressor(); lim.threshold.value = -2; lim.knee.value = 2; lim.ratio.value = 20; lim.attack.value = 0.0005; lim.release.value = 0.15;
-  master.connect(lim).connect(ac.destination); return ac;
+  if (armes) { if (armes.ac.state === "suspended") armes.ac.resume(); return armes; }
+  armes = SonsDArmes.creer({ lieu: E.lieu, volume: +$("vol").value });
+  ana = armes.ac.createAnalyser(); ana.fftSize = 2048; ana.smoothingTimeConstant = 0; armes.entree.connect(ana); requestAnimationFrame(boucle);
+  return armes;
 }
-function jouerTir(Q, quand, o) {
-  audio(); o = o || {};
-  const T = Armes.tir(Q, ++seed, { sr: ac.sampleRate }), n = Math.max(T.sec.length, T.env[0].length);
-  const b = ac.createBuffer(2, n, ac.sampleRate), L = new Float32Array(n), R = new Float32Array(n), m = new Float32Array(n);
-  for (let i = 0; i < n; i++) { const s = i < T.sec.length ? T.sec[i] : 0, l = i < T.env[0].length ? T.env[0][i] : 0, r = i < T.env[1].length ? T.env[1][i] : 0; L[i] = s + l; R[i] = s + r; m[i] = s + 0.5 * (l + r); }
-  b.copyToChannel(L, 0); b.copyToChannel(R, 1);
-  const s = ac.createBufferSource(); s.buffer = b; s.connect(master);
-  // le temps de vol du son jusqu'à l'oreille (borné à 1,5 s pour ne pas attendre trop longtemps)
-  const t = (quand || ac.currentTime + 0.01) + (o.sansRetard ? 0 : Math.min(1.5, T.retard));
-  s.start(t); setTimeout(() => dessiner(m, ac.sampleRate), Math.max(0, (t - ac.currentTime) * 1000));
-  return T;
+const prets = new Set();
+async function preparer(nom) { audio(); if (!prets.has(nom)) { $("info").textContent = "chargement…"; await armes.pret; await armes.charger(nom); prets.add(nom); $("info").textContent = "prêt"; } }
+async function tirer() {
+  await preparer(E.arme); const q = E.moi ? {} : { distance: E.distance, angle: E.angle };
+  const ok = armes.tirer(E.arme, q); flash = performance.now(); peindre(); if (!ok) $("info").textContent = "clique encore (le son s'active)";
 }
-function jouerAction(quoi) {
-  audio(); const y = Armes.action(P, quoi, ++seed, { sr: ac.sampleRate }), b = ac.createBuffer(1, y.length, ac.sampleRate); b.copyToChannel(y, 0);
-  const s = ac.createBufferSource(); s.buffer = b; s.connect(master); s.start(); dessiner(y, ac.sampleRate);
-}
+async function rafale() { await preparer(E.arme); armes.rafale(E.arme, Object.assign({ coups: 6 }, E.moi ? {} : { distance: E.distance, angle: E.angle })); }
+async function action(q) { await preparer(E.arme); armes.action(E.arme, q, E.moi ? {} : { distance: Math.min(E.distance, 20) }); }
 
-// ---------- terrain vu du ciel (échelle log) ----------
-const cv = $("terrain"), cx = cv.getContext("2d"), css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-const RMIN = 0.5, RMAX = 1000;
-// demi-plan : l'angle va de 0 (devant le canon, à droite) à 180° (derrière le tireur, à gauche) ; le tireur en bas au milieu
+// ---------- terrain vu du ciel (échelle log, demi-plan) ----------
+const cv = $("terrain"), cx = cv.getContext("2d"), RMIN = 0.5, RMAX = 1000; let flash = 0;
 const geo = () => { const W = cv.width, H = cv.height, d = Math.min(2, devicePixelRatio || 1), ox = W / 2, oy = H - 24 * d; return { W, H, ox, oy, d, R: Math.min(W / 2 - 10 * d, oy - 12 * d) }; };
 const versR = d => Math.log(Math.max(RMIN, d) / RMIN) / Math.log(RMAX / RMIN);
-function peindre(flash) {
+const MACH = { "Pistolet 9 mm": 360, "Pistolet-mitrailleur 9 mm": 390, "Fusil d'assaut 5,56": 900, "Fusil d'assaut 7,62×39": 715, "Fusil de précision 7,62×54": 830, "Fusil à pompe 12": 400 };
+function peindre() {
   const d = Math.min(2, devicePixelRatio || 1), w = Math.round(cv.clientWidth * d), h = Math.round(cv.clientHeight * d);
   if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
-  const g = geo(); cx.fillStyle = css("--herbe"); cx.fillRect(0, 0, g.W, g.H);
-  cx.font = `${11 * d}px ${css("--f-mono")}`; cx.textAlign = "center";
-  cx.fillStyle = css("--terre"); cx.fillRect(0, g.oy, g.W, g.H - g.oy);
-  const etroit = g.W / d < 520;
-  for (const r of [1, 3, 10, 30, 100, 300, 1000]) { const rr = versR(r) * g.R; cx.strokeStyle = css("--herbe2"); cx.lineWidth = d;
-    cx.beginPath(); cx.arc(g.ox, g.oy, rr, Math.PI, 2 * Math.PI); cx.stroke();
-    if (etroit && [3, 30, 300].includes(r)) continue;
-    cx.fillStyle = css("--panel"); const lab = r >= 1000 ? "1 km" : r + " m";
+  const g = geo(); cx.fillStyle = css("--herbe"); cx.fillRect(0, 0, g.W, g.H); cx.fillStyle = css("--terre"); cx.fillRect(0, g.oy, g.W, g.H - g.oy);
+  cx.font = `${11 * d}px ${css("--f-mono")}`; const etroit = g.W / d < 520;
+  for (const r of [1, 3, 10, 30, 100, 300, 1000]) { const rr = versR(r) * g.R; cx.strokeStyle = css("--herbe2"); cx.lineWidth = d; cx.beginPath(); cx.arc(g.ox, g.oy, rr, Math.PI, 2 * Math.PI); cx.stroke();
+    if (etroit && [3, 30, 300].includes(r)) continue; cx.fillStyle = css("--panel"); const lab = r >= 1000 ? "1 km" : r + " m";
     for (const sx of [1, -1]) { cx.textAlign = r >= 1000 ? (sx > 0 ? "right" : "left") : "center"; cx.fillText(lab, g.ox + sx * rr, g.oy + 16 * d); } }
-  cx.fillStyle = css("--mute"); cx.font = `600 ${11 * d}px ${css("--f-mono")}`; cx.textAlign = "right"; cx.fillText("DEVANT LE CANON →", g.W - 8 * d, 16 * d);
-  cx.textAlign = "left"; cx.fillText("← DERRIÈRE LE TIREUR", 8 * d, 16 * d); cx.font = `${11 * d}px ${css("--f-mono")}`;
-  // trajectoire et zone où la balle claque (cône de Mach, approché : là où l'onde de choc rattrape l'oreille)
-  const f = Armes.fiche(Object.assign({}, P, { distance: 50, angle: 10 }));
+  cx.fillStyle = css("--mute"); cx.font = `600 ${11 * d}px ${css("--f-mono")}`; cx.textAlign = "right"; cx.fillText("DEVANT LE CANON →", g.W - 8 * d, 16 * d); cx.textAlign = "left"; cx.fillText("← DERRIÈRE LE TIREUR", 8 * d, 16 * d);
+  const v = MACH[E.arme] || 0, M = v / 343;
   cx.strokeStyle = css("--cone"); cx.setLineDash([6 * d, 6 * d]); cx.lineWidth = 1.5 * d; cx.beginPath(); cx.moveTo(g.ox, g.oy); cx.lineTo(g.W, g.oy); cx.stroke(); cx.setLineDash([]);
-  if (P.type < 0.5 && f.mach > 1.005) { cx.fillStyle = css("--cone"); cx.globalAlpha = 0.12; cx.beginPath(); cx.moveTo(g.ox, g.oy);
-    const a = Math.PI / 2 - Math.asin(1 / f.mach);   // vers l'avant, au-delà de cet angle la balle ne claque plus
+  if (M > 1.05) { cx.fillStyle = css("--cone"); cx.globalAlpha = 0.14; cx.beginPath(); cx.moveTo(g.ox, g.oy); const a = Math.PI / 2 - Math.asin(1 / M);
     for (let k = 0; k <= 40; k++) { const t = -a * k / 40; cx.lineTo(g.ox + Math.cos(t) * g.R, g.oy + Math.sin(t) * g.R); } cx.closePath(); cx.fill(); cx.globalAlpha = 1; }
-  // le tireur
   cx.fillStyle = css("--cible"); cx.beginPath(); cx.arc(g.ox, g.oy, 7 * d, 0, 6.283); cx.fill(); cx.fillRect(g.ox, g.oy - 2 * d, 16 * d, 4 * d);
-  if (flash) { cx.fillStyle = css("--onde"); cx.beginPath(); cx.arc(g.ox + 18 * d, g.oy, 7 * d, 0, 6.283); cx.fill(); }
-  // l'oreille
-  const moi = P.tireur >= 0.5, rr = moi ? 0 : versR(P.distance) * g.R, an = P.angle * Math.PI / 180, ex = g.ox + Math.cos(an) * rr, ey = g.oy - Math.sin(an) * rr;
-  cx.strokeStyle = css("--onde"); cx.lineWidth = 2.5 * d; cx.beginPath(); cx.arc(moi ? g.ox - 10 * d : ex, moi ? g.oy - 10 * d : ey, 9 * d, 0, 6.283); cx.stroke();
-  cx.fillStyle = css("--ink"); cx.textAlign = "left"; cx.font = `700 ${12 * d}px ${css("--f-body")}`; cx.fillText(moi ? "toi (tu tires)" : "toi", (moi ? g.ox - 10 * d : ex) + 12 * d, (moi ? g.oy - 10 * d : ey) - 10 * d);
+  if (performance.now() - flash < 120) { cx.fillStyle = css("--onde"); cx.beginPath(); cx.arc(g.ox + 18 * d, g.oy, 7 * d, 0, 6.283); cx.fill(); setTimeout(peindre, 130); }
+  const rr = E.moi ? 0 : versR(E.distance) * g.R, an = E.angle * Math.PI / 180, ex = E.moi ? g.ox - 10 * d : g.ox + Math.cos(an) * rr, ey = E.moi ? g.oy - 10 * d : g.oy - Math.sin(an) * rr;
+  cx.strokeStyle = css("--onde"); cx.lineWidth = 2.5 * d; cx.beginPath(); cx.arc(ex, ey, 9 * d, 0, 6.283); cx.stroke();
+  cx.fillStyle = css("--ink"); cx.textAlign = ex > g.W * 0.75 ? "right" : "left"; cx.font = `700 ${12 * d}px ${css("--f-body")}`; cx.fillText(E.moi ? "toi (tu tires)" : "toi", ex + (ex > g.W * 0.75 ? -12 : 12) * d, ey - 10 * d);
 }
 function placer(e) {
   const b = cv.getBoundingClientRect(), d = cv.width / b.width, x = (e.clientX - b.left) * d, y = (e.clientY - b.top) * d, g = geo();
-  const r = Math.hypot(x - g.ox, Math.min(0, y - g.oy)) / g.R, dist = RMIN * Math.pow(RMAX / RMIN, Math.min(1, r)), an = Math.abs(Math.atan2(-Math.min(-0.01, y - g.oy), x - g.ox)) * 180 / Math.PI;
-  P.distance = +Math.max(0.6, dist).toPrecision(3); P.angle = Math.round(an); P.tireur = 0; majSliders(); peindre();
+  const r = Math.hypot(x - g.ox, Math.min(0, y - g.oy)) / g.R; E.distance = +Math.max(1, RMIN * Math.pow(RMAX / RMIN, Math.min(1, r))).toPrecision(3);
+  E.angle = Math.round(Math.abs(Math.atan2(-Math.min(-0.01, y - g.oy), x - g.ox)) * 180 / Math.PI); E.moi = false; maj();
 }
 let glisse = false;
 cv.addEventListener("pointerdown", e => { glisse = true; try { cv.setPointerCapture(e.pointerId); } catch (err) {} placer(e); });
@@ -220,145 +194,52 @@ cv.addEventListener("pointermove", e => { if (glisse) placer(e); });
 cv.addEventListener("pointerup", () => { if (glisse) { glisse = false; tirer(); } });
 cv.addEventListener("keydown", e => {
   if (e.key === " " || e.key === "Enter") { e.preventDefault(); tirer(); return; }
-  const k = { ArrowUp: [0, 5], ArrowDown: [0, -5], ArrowRight: [1.25, 0], ArrowLeft: [0.8, 0] }[e.key]; if (!k) return; e.preventDefault();
-  P.tireur = 0; P.distance = +Math.min(1000, Math.max(0.6, P.distance * (k[0] || 1))).toPrecision(3); P.angle = Math.min(180, Math.max(0, P.angle + k[1])); majSliders(); peindre();
+  const k = { ArrowUp: [1, 5], ArrowDown: [1, -5], ArrowRight: [1.25, 0], ArrowLeft: [0.8, 0] }[e.key]; if (!k) return; e.preventDefault();
+  E.moi = false; E.distance = +Math.min(1000, Math.max(1, E.distance * k[0])).toPrecision(3); E.angle = Math.min(180, Math.max(0, E.angle + k[1])); maj();
 });
 
-// ---------- forme d'onde + spectrogramme ----------
-function fft(re, im) {
-  const n = re.length;
-  for (let i = 1, j = 0; i < n; i++) { let b = n >> 1; for (; j & b; b >>= 1) j ^= b; j ^= b; if (i < j) { [re[i], re[j]] = [re[j], re[i]]; [im[i], im[j]] = [im[j], im[i]]; } }
-  for (let len = 2; len <= n; len <<= 1) { const a = -2 * Math.PI / len, wr = Math.cos(a), wi = Math.sin(a);
-    for (let i = 0; i < n; i += len) { let cr = 1, ci = 0; for (let k = 0; k < len / 2; k++) {
-      const ur = re[i + k], ui = im[i + k], vr = re[i + k + len / 2] * cr - im[i + k + len / 2] * ci, vi = re[i + k + len / 2] * ci + im[i + k + len / 2] * cr;
-      re[i + k] = ur + vr; im[i + k] = ui + vi; re[i + k + len / 2] = ur - vr; im[i + k + len / 2] = ui - vi; const t = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = t; } } }
-}
+// ---------- spectrogramme en direct ----------
+const vue = $("vue"), vg = vue.getContext("2d"); let lut = null, colonne = 0;
 const hex = c => { c = c.replace("#", ""); return [0, 2, 4].map(i => parseInt(c.substr(i, 2), 16)); };
-function palette() { const s = [css("--spec0"), css("--spec1"), css("--spec2"), css("--spec3")].map(hex), lut = [];
-  for (let i = 0; i < 256; i++) { const x = i / 255 * 3, k = Math.min(2, Math.floor(x)), f = x - k; lut.push(s[k].map((v, j) => Math.round(v + (s[k + 1][j] - v) * f))); } return lut; }
-let lastY = null, lastSr = 48000;
-function vide() { const v = $("vue"), g = v.getContext("2d"); g.fillStyle = css("--panel"); g.fillRect(0, 0, v.width, v.height);
-  g.fillStyle = css("--mute"); g.font = `${14 * Math.min(2, devicePixelRatio || 1)}px ${css("--f-body")}`; g.textAlign = "center"; g.fillText("Tire pour voir le son ici", v.width / 2, v.height / 2); }
-function dessiner(y, sr) {
-  lastY = y; lastSr = sr; const v = $("vue"), g = v.getContext("2d"), W = v.width, H = v.height, hw = Math.round(H * 0.28);
-  let i0 = 0, pk = 0; for (let i = 0; i < y.length; i++) pk = Math.max(pk, Math.abs(y[i])); while (i0 < y.length && Math.abs(y[i0]) < pk * 0.02) i0++; i0 = Math.max(0, i0 - Math.round(0.003 * sr));
-  const n = Math.round(1.2 * sr); g.fillStyle = css("--spec0"); g.fillRect(0, 0, W, H);
-  // niveau (dB) : un coup de feu est un pic énorme suivi d'une queue 40 à 60 dB plus bas, invisible en forme d'onde
-  g.strokeStyle = css("--wave"); g.lineWidth = 1.5; g.beginPath();
-  for (let x = 0; x < W; x++) { const a = i0 + Math.floor(x / W * n), b = Math.max(a + 1, i0 + Math.floor((x + 1) / W * n)); let m = 0;
-    for (let i = a; i < b && i < y.length; i++) m = Math.max(m, Math.abs(y[i]));
-    const dbv = Math.max(-70, 20 * Math.log10(m / (pk || 1) + 1e-9)); x ? g.lineTo(x + .5, 3 + (-dbv / 70) * (hw - 6)) : g.moveTo(x + .5, 3 + (-dbv / 70) * (hw - 6)); }
-  g.stroke(); g.fillStyle = css("--mute"); g.font = `${10 * Math.min(2, devicePixelRatio || 1)}px ${css("--f-mono")}`; g.textAlign = "right"; g.fillText("0 dB", W - 4, 12); g.fillText("−70 dB", W - 4, hw - 4);
-  const N = 1024, hop = Math.max(64, Math.floor(n / W * 2)), cols = Math.floor(n / hop), SH = H - hw - 2, img = g.createImageData(cols, SH), lut = palette();
-  const win = new Float32Array(N).map((_, i) => 0.5 - 0.5 * Math.cos(2 * Math.PI * i / N)), fmin = 50, fmax = 16000;
-  const rowBin = new Float32Array(SH).map((_, r) => fmin * Math.pow(fmax / fmin, 1 - r / (SH - 1)) / sr * N);
-  const mags = []; let mx = -1e9;
-  for (let c = 0; c < cols; c++) { const re = new Float32Array(N), im = new Float32Array(N), s0 = i0 + c * hop - N / 2;
-    for (let i = 0; i < N; i++) { const j = s0 + i; re[i] = j >= 0 && j < y.length ? y[j] * win[i] : 0; }
-    fft(re, im); const m = new Float32Array(N / 2); for (let k = 0; k < N / 2; k++) { m[k] = 10 * Math.log10(re[k] * re[k] + im[k] * im[k] + 1e-12); if (m[k] > mx) mx = m[k]; } mags.push(m); }
-  for (let c = 0; c < cols; c++) for (let r = 0; r < SH; r++) {
-    const b = rowBin[r], k = Math.floor(b), f = b - k, m = mags[c][Math.min(k, N / 2 - 2)] * (1 - f) + mags[c][Math.min(k + 1, N / 2 - 1)] * f;
-    const t = Math.max(0, Math.min(255, Math.round((m - (mx - 85)) / 85 * 255))), o = (r * cols + c) * 4, col = lut[t];
-    img.data[o] = col[0]; img.data[o + 1] = col[1]; img.data[o + 2] = col[2]; img.data[o + 3] = 255; }
-  const tmp = document.createElement("canvas"); tmp.width = cols; tmp.height = SH; tmp.getContext("2d").putImageData(img, 0, 0);
-  g.imageSmoothingEnabled = true; g.drawImage(tmp, 0, hw + 2, W, SH);
-  g.fillStyle = css("--mute"); g.font = `${10 * Math.min(2, devicePixelRatio || 1)}px ${css("--f-mono")}`; g.textAlign = "left";
-  for (const f of [100, 300, 1000, 3000, 10000]) { const yy = hw + 2 + (1 - Math.log(f / fmin) / Math.log(fmax / fmin)) * SH; g.fillRect(0, yy, 6, 1); g.fillText(f >= 1000 ? f / 1000 + " kHz" : f + " Hz", 9, yy + 4); }
-  let e = y.length; while (e > i0 && Math.abs(y[e - 1]) < pk * 0.003) e--; $("info").textContent = `${((e - i0) / sr).toFixed(2).replace(".", ",")} s jusqu'à −50 dB`;
+function palette() { const s = [css("--spec0"), css("--spec1"), css("--spec2"), css("--spec3")].map(hex), L = []; for (let i = 0; i < 256; i++) { const x = i / 255 * 3, k = Math.min(2, Math.floor(x)), f = x - k; L.push(s[k].map((v, j) => Math.round(v + (s[k + 1][j] - v) * f))); } return L; }
+function tailleVue() { const d = Math.min(2, devicePixelRatio || 1); vue.width = Math.round(vue.clientWidth * d); vue.height = Math.round(vue.clientHeight * d); vg.fillStyle = css("--spec0"); vg.fillRect(0, 0, vue.width, vue.height); lut = palette(); peindre(); }
+let tPrec = 0;
+function boucle(t) {
+  requestAnimationFrame(boucle); if (!ana) return; const W = vue.width, H = vue.height, px = Math.max(1, Math.round((t - tPrec) / 4000 * W)); tPrec = t; if (px > W) return;
+  const F = new Float32Array(ana.frequencyBinCount); ana.getFloatFrequencyData(F); const sr = armes.ac.sampleRate, N = ana.fftSize;
+  vg.drawImage(vue, -px, 0); const img = vg.createImageData(px, H);
+  for (let r = 0; r < H; r++) { const f = 50 * Math.pow(16000 / 50, 1 - r / (H - 1)), b = Math.min(F.length - 1, Math.round(f / sr * N)), m = F[b];
+    const k = Math.max(0, Math.min(255, Math.round((m + 110) / 90 * 255))), c = lut[k]; for (let x = 0; x < px; x++) { const o = (r * px + x) * 4; img.data[o] = c[0]; img.data[o + 1] = c[1]; img.data[o + 2] = c[2]; img.data[o + 3] = 255; } }
+  vg.putImageData(img, W - px, 0);
 }
-function taille() { const d = Math.min(2, devicePixelRatio || 1), v = $("vue"), vw = Math.round(v.clientWidth * d), vh = Math.round(v.clientHeight * d);
-  if (v.width !== vw || v.height !== vh) { v.width = vw; v.height = vh; if (lastY) dessiner(lastY, lastSr); else vide(); } peindre(); }
 
-// ---------- curseurs ----------
-const sliders = {}, MASQUE_EXPLOSION = new Set(["Balle", "Mécanique", "Douille"]);
-const fmt = (p, v) => p[9] ? p[9][Math.round(+v)] || "" : (+v).toFixed(p[5] >= 1 ? 0 : p[5] >= 0.1 ? 1 : 2).replace(".", ",") + (p[7] ? " " + p[7] : "");
-const groupes = {};
-function construire() {
-  const R = $("reglages");
-  for (const gname of Armes.GROUPES) {
-    const d = document.createElement("details"); d.className = "box"; d.open = ["Arme", "Écoute", "Explosion"].includes(gname) && window.innerWidth > 860;
-    d.innerHTML = `<summary><h2></h2></summary><div class="sliders"></div>`; d.querySelector("h2").textContent = gname; groupes[gname] = d;
-    const S = d.querySelector(".sliders");
-    for (const p of Armes.PARAMS.filter(p => p[1] === gname)) {
-      const el = document.createElement("div"); el.className = "sl"; const id = "p-" + p[0];
-      if (p[9]) {
-        el.innerHTML = `<label for="${id}"></label><output for="${id}"></output><input id="${id}" type="range" min="${p[3]}" max="${p[4]}" step="${p[5]}" hidden><div class="choix" role="group"></div><span class="aide"></span>`;
-        p[9].forEach((nom, v) => { const b = document.createElement("button"); b.type = "button"; b.textContent = nom; b.dataset.v = v;
-          b.addEventListener("click", () => { const inp = el.querySelector("input"); inp.value = v; inp.dispatchEvent(new Event("input")); }); el.querySelector(".choix").appendChild(b); });
-      } else el.innerHTML = `<label for="${id}"></label><output for="${id}"></output><input id="${id}" type="range" min="${p[3]}" max="${p[4]}" step="${p[5]}"><span class="aide"></span>`;
-      el.querySelector("label").textContent = p[2]; el.querySelector(".aide").textContent = p[8] || "";
-      const inp = el.querySelector("input"), out = el.querySelector("output");
-      inp.addEventListener("input", () => { P[p[0]] = +inp.value; out.textContent = fmt(p, inp.value); majEtat(); peindre(); });
-      sliders[p[0]] = { inp, out, el, p }; S.appendChild(el);
-    }
-    R.appendChild(d);
-  }
+// ---------- interface ----------
+function maj() {
+  $("bMoi").setAttribute("aria-pressed", String(E.moi));
+  const f = typeof Armes !== "undefined" && Armes.PRESETS[E.arme] && !E.moi ? Armes.fiche(Object.assign(Armes.preset(E.arme), { distance: E.distance, angle: E.angle })) : null;
+  const tv = E.moi ? 0 : E.distance / 343;
+  $("fiche").innerHTML = E.moi ? `<b>C'est toi qui tires</b> · ${E.arme}` : `Oreille à <b>${String(E.distance).replace(".", ",")} m</b>, ${E.angle}° · le son met <b>${tv < 1 ? Math.round(tv * 1000) + " ms" : tv.toFixed(1).replace(".", ",") + " s"}</b> à arriver${f && f.claque ? ` · <b>la balle claque ${String(f.avanceClaqueMs).replace(".", ",")} ms avant le coup</b>` : ""}`;
+  for (const b of $("presets").children) b.setAttribute("aria-pressed", String(b.dataset.nom === E.arme));
+  for (const b of $("lieux").children) b.setAttribute("aria-pressed", String(b.dataset.nom === E.lieu));
+  const w = BANQUE_ARMES.json.armes[E.arme]; $("bRafale").disabled = !SonsDArmes.CADENCE[E.arme]; $("bMoi").disabled = !!w.explosion;
+  const A = $("actions"); A.textContent = ""; const noms = { pompe: "Pompe", culasse: "Culasse", verrou: "Verrou", chargeur: "Chargeur", clic: "Clic à vide", cartouche: "Cartouche" };
+  for (const q of Object.keys(w.actions || {})) { const b = document.createElement("button"); b.type = "button"; b.textContent = noms[q] || q; b.addEventListener("click", () => action(q)); A.appendChild(b); }
+  $("json").value = JSON.stringify({ moteur: "sons-d-armes " + SonsDArmes.version, arme: E.arme, lieu: E.lieu, ecoute: E.moi ? "c'est moi qui tire" : { distance: E.distance, angle: E.angle } });
+  store.set("arme", E.arme); store.set("lieu", E.lieu); peindre();
 }
-function majSliders() { for (const [k, s] of Object.entries(sliders)) { s.inp.value = P[k]; s.out.textContent = fmt(s.p, P[k]); } majEtat(); }
-function differences() { const base = Object.assign(Armes.preset(armeNom), Armes.LIEUX[lieuNom]), d = {};
-  for (const p of Armes.PARAMS) if (Math.abs(P[p[0]] - base[p[0]]) > 1e-9 && !["distance", "angle", "tireur"].includes(p[0])) d[p[0]] = +(+P[p[0]]).toFixed(4); return d; }
-function majEtat() {
-  const base = Object.assign(Armes.preset(armeNom), Armes.LIEUX[lieuNom]), expl = P.type >= 0.5;
-  for (const [k, s] of Object.entries(sliders)) { s.el.classList.toggle("change", Math.abs(P[k] - base[k]) > 1e-9);
-    if (s.p[9]) s.el.querySelectorAll(".choix button").forEach(x => x.setAttribute("aria-pressed", String(+x.dataset.v === Math.round(P[k])))); }
-  for (const [gname, d] of Object.entries(groupes)) d.hidden = expl ? MASQUE_EXPLOSION.has(gname) : gname === "Explosion";
-  for (const k of ["longueurP", "largeurP", "hauteurP", "absorption"]) sliders[k].el.hidden = P.lieu < 0.5;
-  for (const k of ["queue", "queueDebut", "queueT", "queueClarte", "echos", "echoNiv", "echoLoin", "portee"]) sliders[k].el.hidden = P.lieu >= 0.5;
-  $("bMoi").setAttribute("aria-pressed", String(P.tireur >= 0.5));
-  const auto = !expl && P.meca >= 1, act = expl ? null : P.meca >= 1 ? "culasse" : P.projectiles > 1 || /pompe/i.test(armeNom) ? "pompe" : "verrou";
-  $("bRafale").disabled = !auto || !/fusil d'assaut|mitrailleur|AK|5,56/i.test(armeNom); $("bAction").disabled = !act; $("bAction").textContent = act ? act[0].toUpperCase() + act.slice(1) : "Action"; $("bAction").dataset.q = act || "";
-  $("json").value = JSON.stringify({ moteur: "armes.js " + Armes.version, depart: armeNom, lieu: lieuNom, changements: differences(), ecoute: { distance: P.distance, angle: P.angle, tireur: P.tireur } });
-  clearTimeout(majEtat.t); majEtat.t = setTimeout(() => {
-    const f = Armes.fiche(P);
-    $("fiche").innerHTML = expl ? `Souffle à ${Math.round(P.distance)} m : <b>${(f.kinney.ps / 1000).toFixed(1).replace(".", ",")} kPa</b> (${Math.round(20 * Math.log10(f.kinney.ps / 2e-5))} dB) · durée <b>${(f.kinney.td * 1000).toFixed(1).replace(".", ",")} ms</b>`
-      : `Balle à <b>Mach ${String(f.mach).replace(".", ",")}</b>${f.mach > 1 ? ` · onde en N à 1 m : <b>${f.ondeN_us_1m} µs</b>` : " · pas de claquement (subsonique)"} · ${P.tireur >= 0.5 ? "c'est toi qui tires" : `oreille à <b>${P.distance.toString().replace(".", ",")} m</b>, ${P.angle}°`}${f.claque ? ` · <b>le claquement arrive ${String(f.avanceClaqueMs).replace(".", ",")} ms avant le coup</b>` : ""}`;
-  }, 80);
-  store.set("arme", armeNom); store.set("lieu", lieuNom); store.set("reglages", differences());
-  for (const b of $("presets").children) b.setAttribute("aria-pressed", String(b.dataset.nom === armeNom));
-  for (const b of $("lieux").children) b.setAttribute("aria-pressed", String(b.dataset.nom === lieuNom));
-}
-function choisirArme(nom) { const e = { distance: P.distance, angle: P.angle, tireur: P.tireur }; armeNom = nom; P = Object.assign(Armes.preset(nom), Armes.LIEUX[lieuNom], e); majSliders(); peindre(); }
-function choisirLieu(nom) { lieuNom = nom; Object.assign(P, Armes.LIEUX[nom]); majSliders(); }
-
-function tirer() { if (P.type >= 0.5 && P.tireur >= 0.5) { P.tireur = 0; majSliders(); } jouerTir(P); peindre(true); setTimeout(() => peindre(), 90); }
-for (const nom of Object.keys(Armes.PRESETS)) { const b = document.createElement("button"); b.type = "button"; b.textContent = nom; b.dataset.nom = nom;
-  if (Armes.CALES && Armes.CALES[nom]) { const c = document.createElement("span"); c.className = "cale"; c.textContent = "calé"; b.appendChild(c); b.title = "Calé sur : " + Armes.CALES[nom]; }
-  b.addEventListener("click", () => { choisirArme(nom); tirer(); }); $("presets").appendChild(b); }
+for (const nom of Object.keys(BANQUE_ARMES.json.armes)) { const b = document.createElement("button"); b.type = "button"; b.textContent = nom; b.dataset.nom = nom;
+  b.addEventListener("click", () => { E.arme = nom; if (BANQUE_ARMES.json.armes[nom].explosion) { E.moi = false; if (E.distance < 8) E.distance = 25; } maj(); tirer(); }); $("presets").appendChild(b); }
 for (const nom of Object.keys(Armes.LIEUX)) { const b = document.createElement("button"); b.type = "button"; b.textContent = nom; b.dataset.nom = nom;
-  b.addEventListener("click", () => { choisirLieu(nom); tirer(); }); $("lieux").appendChild(b); }
-
-// vrais enregistrements
-const VRAIS = JSON.parse(document.getElementById("vrais-data").textContent), vraisBuf = {};
-async function jouerVrai(k) {
-  audio(); const v = VRAIS[k]; v.i = ((v.i ?? -1) + 1) % v.sons.length; const id = k + v.i;
-  if (!vraisBuf[id]) { const s = atob(v.sons[v.i]), u = new Uint8Array(s.length); for (let j = 0; j < s.length; j++) u[j] = s.charCodeAt(j); vraisBuf[id] = await ac.decodeAudioData(u.buffer); }
-  const src = ac.createBufferSource(); src.buffer = vraisBuf[id]; const g = ac.createGain(); g.gain.value = 0.7; src.connect(g).connect(master); src.start();
-  dessiner(vraisBuf[id].getChannelData(0), vraisBuf[id].sampleRate);
-}
-for (const [k, v] of Object.entries(VRAIS)) {
-  const sp = document.createElement("span"); sp.textContent = v.titre; const b1 = document.createElement("button"), b2 = document.createElement("button");
-  b1.type = b2.type = "button"; b1.textContent = "Vrai tir"; b2.textContent = "Synthèse";
-  b1.addEventListener("click", () => jouerVrai(k));
-  b2.addEventListener("click", () => { audio(); const Q = Object.assign(Armes.preset(v.arme), v.reglages); const T = jouerTir(Q, null, { sansRetard: true }); });
-  $("vs").append(sp, b1, b2);
-}
-
-$("bTir").addEventListener("click", tirer);
-$("bRafale").addEventListener("click", () => { audio(); const t0 = ac.currentTime + 0.05, dt = 60 / (P.cadence || 650);
-  for (let i = 0; i < 5; i++) jouerTir(P, t0 + i * dt); peindre(true); setTimeout(() => peindre(), 400); });
-$("bAction").addEventListener("click", () => jouerAction($("bAction").dataset.q));
-$("bMoi").addEventListener("click", () => { P.tireur = P.tireur >= 0.5 ? 0 : 1; if (!P.tireur && P.distance < 1) P.distance = 5; majSliders(); peindre(); tirer(); });
-$("vol").addEventListener("input", () => { if (master) master.gain.value = +$("vol").value; });
-$("bDefaut").addEventListener("click", () => { choisirArme(armeNom); toast("Arme d'origine remise"); });
+  b.addEventListener("click", async () => { E.lieu = nom; maj(); audio(); await armes.lieu(nom); tirer(); }); $("lieux").appendChild(b); }
+$("bTir").addEventListener("click", tirer); $("bRafale").addEventListener("click", rafale);
+$("bMoi").addEventListener("click", () => { E.moi = !E.moi; maj(); tirer(); });
+$("vol").addEventListener("input", () => { if (armes) armes.volume(+$("vol").value); });
 let tt; function toast(m) { $("toast").textContent = m; clearTimeout(tt); tt = setTimeout(() => $("toast").textContent = "", 2600); }
-$("bCopier").addEventListener("click", () => { const t = $("json").value, ok = () => toast("Copié, tu peux le coller dans la conversation"), ko = () => { $("json").focus(); $("json").select(); toast("Sélectionné : fais Ctrl+C (ou Cmd+C)"); };
+$("bCopier").addEventListener("click", () => { const t = $("json").value, ok = () => toast("Copié, colle-le dans la conversation"), ko = () => { $("json").focus(); $("json").select(); toast("Sélectionné : fais Ctrl+C (ou Cmd+C)"); };
   try { navigator.clipboard.writeText(t).then(ok, ko); } catch (e) { ko(); } });
-
-construire(); majSliders();
-new ResizeObserver(taille).observe(cv); new ResizeObserver(taille).observe($("vue"));
-matchMedia("(prefers-color-scheme: dark)").addEventListener("change", taille);
-new MutationObserver(taille).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-taille();
-window.ATELIER = { P: () => P, jouerTir, Armes };
+if (!BANQUE_ARMES.json.armes[E.arme]) E.arme = Object.keys(BANQUE_ARMES.json.armes)[2]; if (!Armes.LIEUX[E.lieu]) E.lieu = "Stand de tir (plein air)";
+maj(); new ResizeObserver(peindre).observe(cv); new ResizeObserver(tailleVue).observe(vue);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", tailleVue);
+window.ATELIER = { E, tirer, get armes() { return armes; } };
 })();
 </script>
